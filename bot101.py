@@ -1,15 +1,14 @@
 import pybullet as p
-import pybullet_data as pd
-from .. import utils
+import utils
 
 p.connect(p.GUI)
+p.setPhysicsEngineParameter(enableFileCaching=0)
 
 plane_shape = p.createCollisionShape(p.GEOM_PLANE)
 floor = p.createMultiBody(plane_shape, plane_shape)
 
-import os
-robot = p.loadURDF(os.path.join(pd.getDataPath(), 'r2d2.urdf'))
-sam = p.loadURDF(os.path.join(pd.getDataPath(), 'samurai.urdf'))
+bot101 = p.loadURDF('bot101.urdf')
 
+print(p.isNumpyEnabled())
 p.setGravity(0, 0, -10)
 utils.wait_ctrl_c(p)

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot name="bot101">
+    <link name="base_link" >
+        <visual>
+            <geometry>
+                <cylinder length="0.6" radius="0.25" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="0.6" radius="0.25" />
+            </geometry>
+        </collision>
+    </link>
+</robot>  

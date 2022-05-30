@@ -1,5 +1,5 @@
 import pybullet as p
-from .. import utils
+import utils
 
 p.connect(p.GUI)
 
