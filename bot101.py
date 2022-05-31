@@ -1,11 +1,6 @@
 import pybullet as p
 import utils
-
-p.connect(p.GUI)
-p.setPhysicsEngineParameter(enableFileCaching=0)
-
-plane_shape = p.createCollisionShape(p.GEOM_PLANE)
-floor = p.createMultiBody(plane_shape, plane_shape)
+plane_shape, floor = utils.setup_env(p)
 
 bot101 = p.loadURDF('bot101.urdf')
 

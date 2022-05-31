@@ -1,10 +1,6 @@
 import pybullet as p
 import utils
-
-p.connect(p.GUI)
-
-floor_shape = p.createCollisionShape(p.GEOM_PLANE)
-floor = p.createMultiBody(floor_shape, floor_shape)
+plane_shape, floor = utils.setup_env(p)
 
 box_shape = p.createCollisionShape(p.GEOM_BOX, halfExtents = [1, 1, 1])
 box_object1 = p.createMultiBody(box_shape,box_shape)

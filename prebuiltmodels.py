@@ -1,11 +1,6 @@
 import pybullet as p
-import pybullet_data as pd
 import utils
-
-p.connect(p.GUI)
-
-plane_shape = p.createCollisionShape(p.GEOM_PLANE)
-floor = p.createMultiBody(plane_shape, plane_shape)
+plane_shape, floor = utils.setup_env(p)
 
 import os
 robot = p.loadURDF(os.path.join(pd.getDataPath(), 'r2d2.urdf'))
