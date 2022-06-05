@@ -4,7 +4,7 @@ from enum import Enum
 import numpy as np
 
 class MotorType(Enum):
-    PULSE = 1s
+    PULSE = 1
     SINE = 2
 
 class Motor:

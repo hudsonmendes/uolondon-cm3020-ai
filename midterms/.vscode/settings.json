@@ -1,9 +1,17 @@
 {
     "editor.snippetSuggestions": "none",
     "python.envFile": "${workspaceRoot}/.vscode/env",
-    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
     "python.linting.mypyEnabled": true,
     "python.linting.lintOnSave": true,
     "python.formatting.provider": "autopep8",
-    "python.formatting.autopep8Args": [ "--max-line-length=180" ]
+    "python.formatting.autopep8Args": [
+        "--max-line-length=180"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
 }
