@@ -1,0 +1,9 @@
+{
+    "editor.snippetSuggestions": "none",
+    "python.envFile": "${workspaceRoot}/.vscode/env",
+    "python.linting.pylintEnabled": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.lintOnSave": true,
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": [ "--max-line-length=180" ]
+}
