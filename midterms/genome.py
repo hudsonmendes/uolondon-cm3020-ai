@@ -3,6 +3,11 @@ import copy
 import random
 
 class Genome():
+    
+    @staticmethod
+    def get_gene_len() -> int:
+        return len(Genome.get_gene_spec())
+
     @staticmethod 
     def get_random_gene(length):
         gene = np.array([np.random.random() for i in range(length)])
