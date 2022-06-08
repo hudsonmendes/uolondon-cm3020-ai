@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
+import itertools
+
 
 @dataclass
 class Dna:
@@ -19,18 +21,18 @@ class Dna:
         Suppressed feature genes may still be carried forward by elite Creatures.
         """
         expressed: List[List[float]] = []
-        for feature, control in zip(self.genes_features, self.genes_control):
+        for feature, control in itertools.zip_longest(self.genes_features, self.genes_control):
             if control:
                 expressed.append(feature)
         return expressed
 
     @staticmethod
-    def read(data: str, gene_len: int = 1) -> "Dna":
+    def parse(data: str, gene_len: int = 1) -> "Dna":
         """
         Reads the DNA code and splits it into feature
         genes and control genes, producing an instance of DNA
         """
-        assert data and len(data.split(',')) > gene_len
+        assert data and len(data.split(',')) >= gene_len
         dna_code = Dna._read_dna_code_from(data)
         features, controls = Dna._read_genes_from(dna_code, gene_len)
         return Dna(code=dna_code, genes_features=features, genes_control=controls)
@@ -47,7 +49,8 @@ class Dna:
         while i < end:
             features.append(dna_code[i:i+gene_len])
             i += gene_len
-            end -= 1
+            if len(dna_code) > 1:
+                end -= 1
         for i in range(end, len(dna_code)):
             controls.append(dna_code[i] > 0.5)
         return features, controls
