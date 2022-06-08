@@ -1,7 +1,7 @@
 import unittest
-import simulation
-import creature
-import population
+import template.simulation as simulation
+import template.creature as creature
+import template.population as population
 
 class TestSim(unittest.TestCase):
     def testSimExists(self):

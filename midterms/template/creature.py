@@ -1,4 +1,4 @@
-import genome 
+import template.genome as genome 
 from xml.dom.minidom import getDOMImplementation
 from enum import Enum
 import numpy as np

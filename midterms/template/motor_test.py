@@ -1,5 +1,5 @@
-import genome
-import creature
+import template.genome as genome
+import template.creature as creature
 import pybullet as p
 import time 
 import random

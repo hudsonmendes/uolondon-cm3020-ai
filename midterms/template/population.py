@@ -1,4 +1,4 @@
-import creature 
+import template.creature as creature 
 import numpy as np
 
 class Population:

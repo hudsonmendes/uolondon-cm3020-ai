@@ -1,5 +1,5 @@
 import unittest
-import population 
+import template.population as population 
 import numpy as np
 
 class TestPop(unittest.TestCase):

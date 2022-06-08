@@ -1,6 +1,6 @@
 
 import unittest 
-import genome
+import template.genome as genome
 import numpy as np
 import os
 

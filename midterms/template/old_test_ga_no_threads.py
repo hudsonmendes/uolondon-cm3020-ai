@@ -1,25 +1,30 @@
 # If you on a Windows machine with any Python version 
 # or an M1 mac with any Python version
 # or an Intel Mac with Python > 3.7
-# this multi-threaded version does not work
-# please use test_ga_single_thread.py on those setups
+# the multi-threaded version does not work
+# so instead, you can use this version. 
 
 import unittest
-import population
-import simulation 
-import genome 
-import creature 
+import template.population as population
+import template.simulation as simulation 
+import template.genome as genome 
+import template.creature as creature 
 import numpy as np
 
 class TestGA(unittest.TestCase):
     def testBasicGA(self):
         pop = population.Population(pop_size=10, 
                                     gene_count=3)
-        sim = simulation.ThreadedSim(pool_size=1)
-        #sim = simulation.Simulation()
+        #sim = simulation.ThreadedSim(pool_size=1)
+        sim = simulation.Simulation()
 
         for iteration in range(1000):
-            sim.eval_population(pop, 2400)
+            # this is a non-threaded version 
+            # where we just call run_creature instead
+            # of eval_population
+            for cr in pop.creatures:
+                sim.run_creature(cr, 2400)            
+            #sim.eval_population(pop, 2400)
             fits = [cr.get_distance_travelled() 
                     for cr in pop.creatures]
             links = [len(cr.get_expanded_links()) 

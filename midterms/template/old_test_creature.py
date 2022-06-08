@@ -1,5 +1,5 @@
 import unittest
-import creature
+import template.creature as creature
 import pybullet as p
 
 class TestCreature(unittest.TestCase):

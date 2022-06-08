@@ -1,7 +1,7 @@
 import os 
-import genome
+import template.genome as genome
 import sys
-import creature
+import template.creature as creature
 import pybullet as p
 import time 
 import random
@@ -11,7 +11,7 @@ import numpy as np
 def main(csv_file):
     assert os.path.exists(csv_file), "Tried to load " + csv_file + " but it does not exists"
 
-    p.connect(p.DIRECT)
+    p.connect(p.GUI)
     p.setPhysicsEngineParameter(enableFileCaching=0)
     p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
     plane_shape = p.createCollisionShape(p.GEOM_PLANE)
@@ -31,7 +31,6 @@ def main(csv_file):
     rob1 = p.loadURDF('test.urdf')
     # air drop it
     p.resetBasePositionAndOrientation(rob1, [0, 0, 2.5], [0, 0, 0, 1])
-
     start_pos, orn = p.getBasePositionAndOrientation(rob1)
 
     # iterate 
@@ -56,7 +55,7 @@ def main(csv_file):
             #print(new_pos)
             dist_moved = np.linalg.norm(np.asarray(start_pos) - np.asarray(new_pos))
             print(dist_moved)
-        #time.sleep(wait_time)
+        time.sleep(wait_time)
         elapsed_time += wait_time
         if elapsed_time > total_time:
             break
