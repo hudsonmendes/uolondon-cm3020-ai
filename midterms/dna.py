@@ -1,7 +1,9 @@
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import itertools
+
+import phenotype
 
 
 @dataclass
@@ -15,7 +17,7 @@ class Dna:
     genes_features: List[List[float]]
     genes_control: List[bool]
 
-    def express(self) -> List[List[float]]:
+    def express(self) -> List[phenotype.Phenotype]:
         """
         Expresses feature genes allowed by control genes.
         Suppressed feature genes may still be carried forward by elite Creatures.
@@ -24,16 +26,19 @@ class Dna:
         for feature, control in itertools.zip_longest(self.genes_features, self.genes_control):
             if control:
                 expressed.append(feature)
-        return expressed
+        return [phenotype.Phenotype.parse_dna(dna) for dna in expressed]
 
     @staticmethod
-    def parse(data: str, gene_len: int = 1) -> "Dna":
+    def parse_dna(data: Union[str, List[float]], gene_len: int = 1) -> "Dna":
         """
         Reads the DNA code and splits it into feature
         genes and control genes, producing an instance of DNA
         """
-        assert data and len(data.split(',')) >= gene_len
-        dna_code = Dna._read_dna_code_from(data)
+        assert data
+        assert isinstance(data, str) or (isinstance(data, List) and isinstance(data[0], float))
+        assert not isinstance(data, str) or len(data.split(',')) >= gene_len
+        assert not isinstance(data, List) or len(data) >= gene_len
+        dna_code = Dna._read_dna_code_from(data) if isinstance(data, str) else data
         features, controls = Dna._read_genes_from(dna_code, gene_len)
         return Dna(code=dna_code, genes_features=features, genes_control=controls)
 

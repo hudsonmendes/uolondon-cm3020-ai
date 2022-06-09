@@ -4,8 +4,6 @@ from enum import Enum
 
 from numpy import pi
 
-PHENOTYPE_GEN_LEN: int = 15
-
 
 @dataclass
 class Phenotype:
@@ -33,13 +31,12 @@ class Phenotype:
     control_freq: float
 
     @staticmethod
-    @property
     def gen_len() -> int:
-        return PHENOTYPE_GEN_LEN
+        return 16
 
     @staticmethod
     def parse_dna(gene_dna: List[float]) -> "Phenotype":
-        assert len(gene_dna) >= PHENOTYPE_GEN_LEN
+        assert len(gene_dna) >= Phenotype.gen_len()
         return Phenotype(
             link_shape=PhenotypeLinkShape.parse_float(gene_dna[0]),
             link_length=gene_dna[1] * 2.,

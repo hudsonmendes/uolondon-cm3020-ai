@@ -15,4 +15,4 @@ class PrimordialSoup:
         dna_code = [random.random() for _ in range(self.organic_molecule_len)]
         dna_data = ",".join([str(base) for base in dna_code])
         gene_len = self.organic_molecule_len - 1 if self.organic_molecule_len > 1 else 1
-        return dna.Dna.parse(dna_data, gene_len=gene_len)
+        return dna.Dna.parse_dna(dna_data, gene_len=gene_len)
