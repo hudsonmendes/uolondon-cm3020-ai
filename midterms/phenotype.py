@@ -4,6 +4,8 @@ from enum import Enum
 
 from numpy import pi
 
+from gene import Gene
+
 
 @dataclass
 class Phenotype:
@@ -31,32 +33,25 @@ class Phenotype:
     control_freq: float
 
     @staticmethod
-    def gen_len() -> int:
-        return 17
-
-    @staticmethod
-    def parse_dna(
-            gene_dna: List[float],
-            gene_count: int) -> "Phenotype":
-        assert len(gene_dna) >= Phenotype.gen_len()
+    def parse_dna(gene: Gene, gene_count: int) -> "Phenotype":
         return Phenotype(
-            link_shape=PhenotypeLinkShape.parse_float(gene_dna[0]),
-            link_length=gene_dna[1] * 2.,
-            link_radius=gene_dna[2],
-            link_recurrence=int(gene_dna[3] * 3),
-            link_mass=gene_dna[4],
-            joint_parent=int(max(0, min(gene_dna[5], 0.99) * (gene_count-1))) if gene_count > 1 else None,
-            joint_type=PhenotypeJointType.parse_float(gene_dna[6]),
-            joint_axis_xyz=PhenotypeJointXYZ.parse_float(gene_dna[7]),
-            joint_origin_rpy_1=gene_dna[8] * 2*pi,
-            joint_origin_rpy_2=gene_dna[9] * 2*pi,
-            joint_origin_rpy_3=gene_dna[10] * 2*pi,
-            joint_origin_xyz_1=PhenotypeJointXYZ.parse_float(gene_dna[11]),
-            joint_origin_xyz_2=PhenotypeJointXYZ.parse_float(gene_dna[12]),
-            joint_origin_xyz_3=PhenotypeJointXYZ.parse_float(gene_dna[13]),
-            control_waveform=PhenotypeWaveForm.parse_float(gene_dna[14]),
-            control_amp=gene_dna[15] * 0.25,
-            control_freq=gene_dna[16],
+            link_shape=PhenotypeLinkShape.parse_float(gene.link_shape),
+            link_length=gene.link_length * 2.,
+            link_radius=gene.link_radius,
+            link_recurrence=int(gene.link_recurrence * 3),
+            link_mass=gene.link_mass,
+            joint_parent=int(max(0, min(gene.joint_parent, 0.99) * (gene_count-1))) if gene_count > 1 else None,
+            joint_type=PhenotypeJointType.parse_float(gene.joint_type),
+            joint_axis_xyz=PhenotypeJointXYZ.parse_float(gene.joint_axis_xyz),
+            joint_origin_rpy_1=gene.joint_origin_rpy_1 * 2*pi,
+            joint_origin_rpy_2=gene.joint_origin_rpy_2 * 2*pi,
+            joint_origin_rpy_3=gene.joint_origin_rpy_3 * 2*pi,
+            joint_origin_xyz_1=PhenotypeJointXYZ.parse_float(gene.joint_origin_xyz_1),
+            joint_origin_xyz_2=PhenotypeJointXYZ.parse_float(gene.joint_origin_xyz_2),
+            joint_origin_xyz_3=PhenotypeJointXYZ.parse_float(gene.joint_origin_xyz_3),
+            control_waveform=PhenotypeWaveForm.parse_float(gene.control_waveform),
+            control_amp=gene.control_amp * 0.25,
+            control_freq=gene.control_freq,
         )
 
 

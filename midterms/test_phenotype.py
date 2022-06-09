@@ -7,6 +7,7 @@ from hypothesis import given
 from hypothesis.strategies import lists, floats
 
 from phenotype import (Phenotype, PhenotypeLinkShape, PhenotypeJointType, PhenotypeWaveForm, PhenotypeJointXYZ)
+from gene import Gene
 
 
 class PhenotypeTest(unittest.TestCase):
@@ -79,85 +80,101 @@ class PhenotypeTest(unittest.TestCase):
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_length(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertAlmostEqual(numbers[1] * 2, actual.link_length)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertAlmostEqual(given.link_length * 2, actual.link_length)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_radius(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertAlmostEqual(numbers[2], actual.link_radius)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertAlmostEqual(given.link_radius, actual.link_radius)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_recurrence(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertEqual(int(numbers[3] * 3), actual.link_recurrence)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(int(given.link_recurrence * 3), actual.link_recurrence)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_mass(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertEqual(numbers[4], actual.link_mass)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.link_mass, actual.link_mass)
         
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_parent_none_for_single_gene(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
         self.assertIsNone(actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_parent_zero_for_2_genes(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=2)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=2)
         self.assertEqual(0, actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_parent_zero_for_3_genes_and_low_joint_parent(self, numbers: List[float]):
         numbers[5] = 0.01
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=3)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=3)
         self.assertEqual(0, actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_parent_one_for_3_genes_and_high_joint_parent(self, numbers: List[float]):
         numbers[5] = 0.51
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=3)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=3)
         self.assertEqual(1, actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_parent_zero_for_4_genes_and_low_joint_parent(self, numbers: List[float]):
         numbers[5] = 0.01
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=4)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=4)
         self.assertEqual(0, actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_parent_one_for_4_genes_and_mid_joint_parent(self, numbers: List[float]):
         numbers[5] = 0.34
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=4)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=4)
         self.assertEqual(1, actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_parent_two_for_4_genes_and_high_joint_parent(self, numbers: List[float]):
         numbers[5] = 0.67
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=4)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=4)
         self.assertEqual(2, actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_origin_rpy_1(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertEqual(numbers[8] * 2*pi, actual.joint_origin_rpy_1)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.joint_origin_rpy_1 * 2*pi, actual.joint_origin_rpy_1)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_origin_rpy_2(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertEqual(numbers[9] * 2*pi, actual.joint_origin_rpy_2)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.joint_origin_rpy_2 * 2*pi, actual.joint_origin_rpy_2)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_origin_rpy_3(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertEqual(numbers[10] * 2*pi, actual.joint_origin_rpy_3)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.joint_origin_rpy_3 * 2*pi, actual.joint_origin_rpy_3)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_control_amp(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertEqual(numbers[15] * 0.25, actual.control_amp)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.control_amp * 0.25, actual.control_amp)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_control_freq(self, numbers: List[float]):
-        actual = Phenotype.parse_dna(gene_dna=numbers, gene_count=1)
-        self.assertEqual(numbers[16], actual.control_freq)
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.control_freq, actual.control_freq)
