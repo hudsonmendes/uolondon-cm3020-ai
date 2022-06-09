@@ -1,5 +1,6 @@
+from audioop import reverse
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Dict, Tuple, Optional
 
 from dna import Dna
 from phenotype import Phenotype
@@ -18,14 +19,10 @@ class Creature:
     def develop_from(dna: Dna) -> Optional["Creature"]:
         phenotypes = dna.express()
         if phenotypes:
-            children: List["CreaturePart"] = []
-            return Creature(
-                dna=dna,
-                body=CreaturePart(
-                    phenotype=phenotypes[0],
-                    parent=None,
-                    children=children))
-        return None
+            body = None
+            return Creature(dna=dna, body=body)
+        else:
+            return None
 
 
 @dataclass

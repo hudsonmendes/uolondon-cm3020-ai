@@ -67,3 +67,15 @@ class DnaTest(unittest.TestCase):
         dna_code = [random.random() for _ in range(dna_len)] + all_controls_off
         actual = Dna.parse_dna(dna_code, gene_len=gene_len)
         self.assertEqual(0, len(actual.express()))
+
+    def test_express_phenotypes_joint_parent_all_pointing_to_previous_index(self):
+        gene_count = random.randint(1, 100)
+        all_controls_on = [1. for _ in range(gene_count)]
+        gene_len = Phenotype.gen_len()
+        dna_len = (gene_len * gene_count)
+        dna_code = [random.random() for _ in range(dna_len)] + all_controls_on
+        dna = Dna.parse_dna(dna_code, gene_len=gene_len)
+        actual = dna.express()
+        self.assertGreater(len(actual), 0)
+        for i, phenotype in enumerate(actual):
+            self.assertTrue(phenotype.joint_parent is None or phenotype.joint_parent < i)

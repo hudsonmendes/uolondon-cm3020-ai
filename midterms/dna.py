@@ -26,7 +26,10 @@ class Dna:
         for feature, control in itertools.zip_longest(self.genes_features, self.genes_control):
             if control:
                 expressed.append(feature)
-        return [phenotype.Phenotype.parse_dna(gene_dna=dna) for dna in expressed]
+        return [
+            phenotype.Phenotype.parse_dna(gene_dna=gene_dna, gene_count=i+1)
+            for i, gene_dna
+            in enumerate(expressed)]
 
     @staticmethod
     def parse_dna(data: Union[str, List[float]], gene_len: int = 1) -> "Dna":

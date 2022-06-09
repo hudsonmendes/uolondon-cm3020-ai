@@ -17,7 +17,7 @@ class Phenotype:
     link_radius: float
     link_recurrence: int
     link_mass: float
-    joint_parent: float
+    joint_parent: Optional[int]
     joint_type: "PhenotypeJointType"
     joint_axis_xyz: "PhenotypeJointXYZ"
     joint_origin_rpy_1: float
@@ -35,7 +35,9 @@ class Phenotype:
         return 17
 
     @staticmethod
-    def parse_dna(gene_dna: List[float]) -> "Phenotype":
+    def parse_dna(
+            gene_dna: List[float],
+            gene_count: int) -> "Phenotype":
         assert len(gene_dna) >= Phenotype.gen_len()
         return Phenotype(
             link_shape=PhenotypeLinkShape.parse_float(gene_dna[0]),
@@ -43,7 +45,7 @@ class Phenotype:
             link_radius=gene_dna[2],
             link_recurrence=int(gene_dna[3] * 3),
             link_mass=gene_dna[4],
-            joint_parent=gene_dna[5],
+            joint_parent=int(max(0, min(gene_dna[5], 0.99) * (gene_count-1))) if gene_count > 1 else None,
             joint_type=PhenotypeJointType.parse_float(gene_dna[6]),
             joint_axis_xyz=PhenotypeJointXYZ.parse_float(gene_dna[7]),
             joint_origin_rpy_1=gene_dna[8] * 2*pi,
