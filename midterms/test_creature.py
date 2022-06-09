@@ -4,7 +4,7 @@ import unittest
 import random
 
 from dna import Dna
-from phenotype import Phenotype
+from gene import Gene
 from creature import Creature
 
 
@@ -12,12 +12,12 @@ class CreatureTest(unittest.TestCase):
 
     def setUp(self) -> None:
         dna_code = (
-            [1.] * Phenotype.gen_len() + # trunk
-            [0.] * Phenotype.gen_len() + # limb-1
-            [0.] * Phenotype.gen_len() + # limb-2
+            [1.] * Gene.length() + # trunk
+            [0.] * Gene.length() + # limb-1
+            [0.] * Gene.length() + # limb-2
             [1, 1]
         )
-        self.dna = Dna.parse_dna(data=dna_code, gene_len=Phenotype.gen_len())
+        self.dna = Dna.parse_dna(data=dna_code)
         self.creature = Creature.develop_from(dna=self.dna)
 
     def test_class_exists(self):
