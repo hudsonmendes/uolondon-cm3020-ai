@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from enum import Enum
 
 from numpy import pi
@@ -12,7 +12,6 @@ class Phenotype:
     of a Single Gene in the DNA, which will be rendered as
     a part of the robot with its joints.
     """
-
     link_shape: "PhenotypeLinkShape"
     link_length: float
     link_radius: float
