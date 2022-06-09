@@ -19,7 +19,7 @@ class Creature:
     def develop_from(dna: Dna) -> Optional["Creature"]:
         phenotypes = dna.express()
         if phenotypes:
-            body = None
+            body = CreaturePart.part_hierarchy_from(phenotypes)
             return Creature(dna=dna, body=body)
         else:
             return None
@@ -28,5 +28,16 @@ class Creature:
 @dataclass
 class CreaturePart:
     phenotype: Phenotype
-    parent: Optional["CreaturePart"]
     children: List["CreaturePart"]
+
+    @staticmethod
+    def part_hierarchy_from(
+            phenotypes: List[Phenotype],
+            phenotype_index: int = 0) -> "CreaturePart":
+        child_phenotype_indexes = [i for i, p in enumerate(phenotypes) if p.joint_parent == phenotype_index]
+        return CreaturePart(
+            phenotype=phenotypes[phenotype_index],
+            children=[
+                CreaturePart.part_hierarchy_from(phenotypes=phenotypes, phenotype_index=child_i)
+                for child_i
+                in child_phenotype_indexes])

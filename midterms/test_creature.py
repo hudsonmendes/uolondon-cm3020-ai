@@ -27,9 +27,6 @@ class CreatureTest(unittest.TestCase):
     def test_creature_body_is_not_none(self):
         self.assertIsNotNone(self.creature.body)
 
-    def test_creature_body_parent_is_none(self):
-        self.assertIsNone(self.creature.body.parent)
-
     def test_creature_body_children_is_not_none(self):
         self.assertIsNotNone(self.creature.body.children)
 
