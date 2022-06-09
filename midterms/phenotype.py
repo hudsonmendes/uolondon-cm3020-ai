@@ -17,6 +17,7 @@ class Phenotype:
     link_radius: float
     link_recurrence: int
     link_mass: float
+    joint_parent: float
     joint_type: "PhenotypeJointType"
     joint_axis_xyz: "PhenotypeJointXYZ"
     joint_origin_rpy_1: float
@@ -31,7 +32,7 @@ class Phenotype:
 
     @staticmethod
     def gen_len() -> int:
-        return 16
+        return 17
 
     @staticmethod
     def parse_dna(gene_dna: List[float]) -> "Phenotype":
@@ -42,17 +43,18 @@ class Phenotype:
             link_radius=gene_dna[2],
             link_recurrence=int(gene_dna[3] * 3),
             link_mass=gene_dna[4],
-            joint_type=PhenotypeJointType.parse_float(gene_dna[5]),
-            joint_axis_xyz=PhenotypeJointXYZ.parse_float(gene_dna[6]),
-            joint_origin_rpy_1=gene_dna[7] * 2*pi,
-            joint_origin_rpy_2=gene_dna[8] * 2*pi,
-            joint_origin_rpy_3=gene_dna[9] * 2*pi,
-            joint_origin_xyz_1=PhenotypeJointXYZ.parse_float(gene_dna[10]),
-            joint_origin_xyz_2=PhenotypeJointXYZ.parse_float(gene_dna[11]),
-            joint_origin_xyz_3=PhenotypeJointXYZ.parse_float(gene_dna[12]),
-            control_waveform=PhenotypeWaveForm.parse_float(gene_dna[13]),
-            control_amp=gene_dna[14] * 0.25,
-            control_freq=gene_dna[15],
+            joint_parent=gene_dna[5],
+            joint_type=PhenotypeJointType.parse_float(gene_dna[6]),
+            joint_axis_xyz=PhenotypeJointXYZ.parse_float(gene_dna[7]),
+            joint_origin_rpy_1=gene_dna[8] * 2*pi,
+            joint_origin_rpy_2=gene_dna[9] * 2*pi,
+            joint_origin_rpy_3=gene_dna[10] * 2*pi,
+            joint_origin_xyz_1=PhenotypeJointXYZ.parse_float(gene_dna[11]),
+            joint_origin_xyz_2=PhenotypeJointXYZ.parse_float(gene_dna[12]),
+            joint_origin_xyz_3=PhenotypeJointXYZ.parse_float(gene_dna[13]),
+            control_waveform=PhenotypeWaveForm.parse_float(gene_dna[14]),
+            control_amp=gene_dna[15] * 0.25,
+            control_freq=gene_dna[16],
         )
 
 

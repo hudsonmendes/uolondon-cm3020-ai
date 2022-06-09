@@ -76,47 +76,52 @@ class PhenotypeTest(unittest.TestCase):
             PhenotypeJointXYZ(0, 0, 1),
             PhenotypeJointXYZ.parse_float(number))
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_length(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
         self.assertAlmostEqual(numbers[1] * 2, actual.link_length)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_radius(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
         self.assertAlmostEqual(numbers[2], actual.link_radius)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_recurrence(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
         self.assertEqual(int(numbers[3] * 3), actual.link_recurrence)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_link_mass(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
         self.assertEqual(numbers[4], actual.link_mass)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
+    def test_joint_parent(self, numbers: List[float]):
+        actual = Phenotype.parse_dna(gene_dna=numbers)
+        self.assertEqual(numbers[5], actual.joint_parent)
+
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_origin_rpy_1(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
-        self.assertEqual(numbers[7] * 2*pi, actual.joint_origin_rpy_1)
+        self.assertEqual(numbers[8] * 2*pi, actual.joint_origin_rpy_1)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_origin_rpy_2(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
-        self.assertEqual(numbers[8] * 2*pi, actual.joint_origin_rpy_2)
+        self.assertEqual(numbers[9] * 2*pi, actual.joint_origin_rpy_2)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_joint_origin_rpy_3(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
-        self.assertEqual(numbers[9] * 2*pi, actual.joint_origin_rpy_3)
+        self.assertEqual(numbers[10] * 2*pi, actual.joint_origin_rpy_3)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_control_amp(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
-        self.assertEqual(numbers[14] * 0.25, actual.control_amp)
+        self.assertEqual(numbers[15] * 0.25, actual.control_amp)
 
-    @given(lists(floats(0, 1), min_size=16, max_size=20))
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_control_freq(self, numbers: List[float]):
         actual = Phenotype.parse_dna(gene_dna=numbers)
-        self.assertEqual(numbers[15], actual.control_freq)
+        self.assertEqual(numbers[16], actual.control_freq)

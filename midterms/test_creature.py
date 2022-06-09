@@ -4,7 +4,7 @@ import random
 
 from dna import Dna
 from phenotype import Phenotype
-from creature import Creature, CreatureBody
+from creature import Creature
 
 
 class CreatureTest(unittest.TestCase):
@@ -21,5 +21,5 @@ class CreatureTest(unittest.TestCase):
 
     def test_creature_parts_root(self):
         actual = Creature.develop_from(dna=self.dna)
-        self.assertIsNotNone(actual.root)
-        self.assertIsNone(actual.root.parent)
+        self.assertIsNotNone(actual.body)
+        self.assertIsNone(actual.body.parent)
