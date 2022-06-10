@@ -27,7 +27,7 @@ class CreatureRenderer:
         if not link_hierarchy:
             link_hierarchy = [0]
         tags: List[xml.Element] = []
-        tags.append(self._tag_link(part=part,link_hierarchy=link_hierarchy))
+        tags.append(self._tag_link(part=part, link_hierarchy=link_hierarchy))
         for child_i, child_part in enumerate(part.children):
             child_hierarchy = copy.copy(link_hierarchy) + [child_i]
             tags.extend(self._tags_link_recursive(part=child_part, link_hierarchy=child_hierarchy))
@@ -39,7 +39,21 @@ class CreatureRenderer:
         return tag
 
     def _tag_link(self, part: CreaturePart, link_hierarchy: List[int]) -> xml.Element:
-        link_tag = self.adom.createElement("link")
-        link_name = f"part-{'-'.join([str(i) for i in link_hierarchy])}"
-        link_tag.setAttribute("name", link_name)
-        return link_tag
+        tag = self.adom.createElement("link")
+        tag.setAttribute("name", f"part-{'-'.join([str(i) for i in link_hierarchy])}")
+        tag.appendChild(self._tag_visual(part=part))
+        return tag
+
+    def _tag_visual(self, part: CreaturePart) -> xml.Element:
+        tag = self.adom.createElement("visual")
+        tag.appendChild(self._tag_geometry(part=part))
+        return tag
+
+    def _tag_geometry(self, part: CreaturePart) -> xml.Element:
+        tag = self.adom.createElement("geometry")
+        tag.appendChild(self._tag_cylinder(part=part))
+        return tag
+
+    def _tag_cylinder(self, part: CreaturePart) -> xml.Element:
+        tag = self.adom.createElement(part.phenotype.link_shape.value)
+        return tag
