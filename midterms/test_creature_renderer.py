@@ -155,6 +155,16 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'joint/origin')
 
+    def test_render_creature_joint_contains_origin_rpy(self):
+        creature = CreatureRendererTest._create_creature(connections={1: 0}, joint_axis_xyz=[0.67])
+        actual = CreatureRenderer(creature).render()
+        p = creature.body.children[0].phenotype
+        expected = {
+            'rpy': f'{p.joint_origin_rpy_r} {p.joint_origin_rpy_p} {p.joint_origin_rpy_y}',
+            'xyz': f'{p.joint_origin_xyz_x} {p.joint_origin_xyz_y} {p.joint_origin_xyz_z}'
+        }
+        self.assertXPathNodeAttributes(actual, expected, 'joint/origin')
+
     @staticmethod
     def _create_creature(
             connections: Dict[int, int],
