@@ -1,4 +1,5 @@
 from argparse import ArgumentParser, Namespace
+from typing import Callable
 
 from primordial_soup import PrimordialSoup
 from dna import Dna
@@ -9,22 +10,36 @@ from creature_renderer import CreatureRenderer
 def main():
     args = collect_args()
     if args.cmdroot == "robot":
-        if args.cmdrobot == "create":
-            action_creation(args)
+        if args.cmdrobot == "new":
+            action_new(args)
+            if args.auto_load:
+                action_view(args)
+        if args.cmdrobot == "render":
+            action_render(args)
+            action_view(args)
         if args.cmdrobot == "view":
             action_view(args)
 
 
-def action_creation(args: Namespace):
+def action_new(args: Namespace):
     code = PrimordialSoup.spark_life(args.gene_count)
     dna = Dna.parse_dna(code)
     robot = Creature.develop_from(name=args.species_name, dna=dna)
     if robot:
         print(f"Robot '{robot.name}' is born.")
-        write_dna(dna, filename=args.out_folder / f'{args.species_name}.dna', override=args.override_dna)
-        write_robot(robot, filename=args.out_folder / f'{args.species_name}.urdf')
+        write_dna(dna, filename=args.target_folder / f'{args.species_name}.dna', override=args.override_dna)
+        write_robot(robot, filename=args.target_folder / f'{args.species_name}.urdf')
     else:
         print("Robot could not be generated")
+
+def action_render(args: Namespace):
+    dna = Dna.parse_dna(args.dna)
+    robot = Creature.develop_from(name=args.species_name, dna=dna)
+    if robot:
+        print(f"Robot '{robot.name}' is re-born.")
+        write_robot(robot, filename=args.target_folder / f'{args.species_name}.urdf')
+    else:
+        print("Robot could not be rendered")
 
 
 def action_view(args: Namespace):
@@ -36,7 +51,7 @@ def action_view(args: Namespace):
     p.setGravity(0, 0, -10)
     plane_shape = p.createCollisionShape(p.GEOM_PLANE)
     p.createMultiBody(plane_shape, plane_shape)
-    filename = args.src_folder / f'{args.species_name}.urdf'
+    filename = args.target_folder / f'{args.species_name}.urdf'
     p.loadURDF(str(filename))
     p.setRealTimeSimulation(1)
     print("Press CTRL+C to interrupt...")
@@ -62,14 +77,19 @@ def collect_args() -> Namespace:
 
     parser_robot = parser_subparsers.add_parser("robot")
     parser_robot_subparsers = parser_robot.add_subparsers(dest="cmdrobot")
-    parser_robot_create = parser_robot_subparsers.add_parser("create")
-    parser_robot_create.add_argument("--species_name", type=str, help="You must name the species you are creating")
-    parser_robot_create.add_argument("--gene_count", type=int, default=1, help="Tell the number of genes you want to generate")
-    parser_robot_create.add_argument("--override_dna", action="store_true", help="Should we override the DNA file?")
-    parser_robot_create.add_argument("--out_folder", type=dir_path, default="./target", help="To what folder should we output the [species_name].urdf and [species_name].dna")
+    parser_robot_new = parser_robot_subparsers.add_parser("new")
+    parser_robot_new.add_argument("--species_name", type=str, help="You must name the species you are creating")
+    parser_robot_new.add_argument("--gene_count", type=int, default=1, help="Tell the number of genes you want to generate")
+    parser_robot_new.add_argument("--override_dna", action="store_true", help="Should we override the DNA file?")
+    parser_robot_new.add_argument("--target_folder", type=dir_path, default="./target", help="To what folder should we output the [species_name].urdf and [species_name].dna")
+    parser_robot_new.add_argument("--auto_load", action="store_true", help="Should we automatically load the URDF after saved?")
+    parser_robot_render = parser_robot_subparsers.add_parser("render")
+    parser_robot_render.add_argument("--dna", type=str, help="Which DNA should we use?")
+    parser_robot_render.add_argument("--target_folder", type=dir_path, default="./target", help="Which folder will be sourcing the URDF file?")
+    parser_robot_render.add_argument("--species_name", type=str, help="What's the name of your bot? It must match the name of the URDF file in the `target_folder`")
     parser_robot_view = parser_robot_subparsers.add_parser("view")
-    parser_robot_view.add_argument("--src_folder", type=dir_path, default="./target", help="Which folder will be sourcing the URDF file?")
-    parser_robot_view.add_argument("--species_name", type=str, help="What's the name of your bot? It must match the name of the URDF file in the `src_folder`")
+    parser_robot_view.add_argument("--target_folder", type=dir_path, default="./target", help="Which folder will be sourcing the URDF file?")
+    parser_robot_view.add_argument("--species_name", type=str, help="What's the name of your bot? It must match the name of the URDF file in the `target_folder`")
 
     parser_evo = parser_subparsers.add_parser("evo")
     parser_evo_subparsers = parser_evo.add_subparsers(dest="cmdevo")
