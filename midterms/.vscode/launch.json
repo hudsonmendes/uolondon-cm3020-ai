@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Python: robot/create",
             "type": "python",
             "request": "launch",
             "program": "cli.py",
@@ -13,8 +13,21 @@
                 "robot",
                 "create",
                 "--species_name", "cyanobacteria",
-                "--gene_count", "1",
+                "--gene_count", "3",
                 "--override_dna"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: robot/view",
+            "type": "python",
+            "request": "launch",
+            "program": "cli.py",
+            "args": [
+                "robot",
+                "view",
+                "--species_name", "cyanobacteria"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

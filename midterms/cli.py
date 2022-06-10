@@ -1,8 +1,5 @@
 from argparse import ArgumentParser, Namespace
 
-import os
-from pathlib import Path
-
 from primordial_soup import PrimordialSoup
 from dna import Dna
 from creature import Creature
@@ -14,6 +11,8 @@ def main():
     if args.cmdroot == "robot":
         if args.cmdrobot == "create":
             action_creation(args)
+        if args.cmdrobot == "view":
+            action_view(args)
 
 
 def action_creation(args: Namespace):
@@ -27,13 +26,34 @@ def action_creation(args: Namespace):
     else:
         print("Robot could not be generated")
 
-def dir_path(folder: str) -> Path:
-    if not os.path.isdir(folder):
-        os.makedirs(folder)
-    return Path(folder)
+
+def action_view(args: Namespace):
+    import time
+    import pybullet as p
+    p.connect(p.GUI)
+    p.setPhysicsEngineParameter(enableFileCaching=0)
+    p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+    p.setGravity(0, 0, -10)
+    plane_shape = p.createCollisionShape(p.GEOM_PLANE)
+    p.createMultiBody(plane_shape, plane_shape)
+    filename = args.src_folder / f'{args.species_name}.urdf'
+    p.loadURDF(str(filename))
+    p.setRealTimeSimulation(1)
+    print("Press CTRL+C to interrupt...")
+    while True:
+        p.stepSimulation()
+        time.sleep(1.0/240)
 
 
 def collect_args() -> Namespace:
+    import os
+    from pathlib import Path
+
+    def dir_path(folder: str) -> Path:
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        return Path(folder)
+
     parser = ArgumentParser()
     parser_subparsers = parser.add_subparsers(dest="cmdroot")
 
