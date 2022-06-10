@@ -57,5 +57,5 @@ class CreatureRenderer:
     def _tag_shape(self, part: CreaturePart) -> xml.Element:
         tag = self.adom.createElement(part.phenotype.link_shape.value)
         tag.setAttribute("length", str(part.phenotype.link_length))
-        #tag.setAttribute("radius", str(self.link_radius))
+        tag.setAttribute("radius", str(part.phenotype.link_radius))
         return tag
