@@ -57,6 +57,8 @@ class Dna:
         i, end = 0, len(dna_code)
         while i < end:
             dna_segment = dna_code[i:i+Gene.length()]
+            if len(dna_segment) < Gene.length():
+                break
             features.append(Gene(code=dna_segment))
             i += Gene.length()
             if len(dna_code) % Gene.length() > 0:

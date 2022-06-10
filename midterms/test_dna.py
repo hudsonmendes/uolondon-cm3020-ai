@@ -19,6 +19,17 @@ class DnaTest(unittest.TestCase):
         actual = Dna.parse_dna(",".join([str(base) for base in given]))
         self.assertListEqual(given, actual.code)
 
+    def test_parse_code_float(self):
+        given = [random.random() for _ in range(Gene.length())]
+        actual = Dna.parse_dna(given)
+        self.assertListEqual(given, actual.code)
+
+    @given(integers(Gene.length(), Gene.length() * 2))
+    def test_parse_code_different_sizes(self, n):
+        given = [random.random() for _ in range(n)]
+        actual = Dna.parse_dna(given)
+        self.assertListEqual(given[:Gene.length()], actual.code[:Gene.length()])
+
     @given(integers(1, 10))
     def test_parse_for_n_gene_without_control(self, n: int):
         given = [random.random() for _ in range(Gene.length() * n)]
