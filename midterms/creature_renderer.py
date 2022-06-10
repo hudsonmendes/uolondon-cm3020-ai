@@ -42,10 +42,16 @@ class CreatureRenderer:
         tag = self.adom.createElement("link")
         tag.setAttribute("name", f"part-{'-'.join([str(i) for i in link_hierarchy])}")
         tag.appendChild(self._tag_visual(part=part))
+        tag.appendChild(self._tag_collision(part=part))
         return tag
 
     def _tag_visual(self, part: CreaturePart) -> xml.Element:
         tag = self.adom.createElement("visual")
+        tag.appendChild(self._tag_geometry(part=part))
+        return tag
+
+    def _tag_collision(self, part: CreaturePart) -> xml.Element:
+        tag = self.adom.createElement("collision")
         tag.appendChild(self._tag_geometry(part=part))
         return tag
 
