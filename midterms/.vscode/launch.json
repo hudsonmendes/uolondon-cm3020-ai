@@ -12,8 +12,8 @@
             "args": [
                 "robot",
                 "new",
-                "--species_name", "cyanobacteria",
-                "--gene_count", "3",
+                "--species_name", "perettii",
+                "--gene_count", "12",
                 "--auto_load"
             ],
             "console": "integratedTerminal",
@@ -28,7 +28,7 @@
                 "robot",
                 "render",
                 "--species_name", "cyanobacteria",
-                "--dna_index", "1"
+                "--dna_index", "0"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
