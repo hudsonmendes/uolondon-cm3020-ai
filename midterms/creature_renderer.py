@@ -51,9 +51,11 @@ class CreatureRenderer:
 
     def _tag_geometry(self, part: CreaturePart) -> xml.Element:
         tag = self.adom.createElement("geometry")
-        tag.appendChild(self._tag_cylinder(part=part))
+        tag.appendChild(self._tag_shape(part=part))
         return tag
 
-    def _tag_cylinder(self, part: CreaturePart) -> xml.Element:
+    def _tag_shape(self, part: CreaturePart) -> xml.Element:
         tag = self.adom.createElement(part.phenotype.link_shape.value)
+        tag.setAttribute("length", str(part.phenotype.link_length))
+        #tag.setAttribute("radius", str(self.link_radius))
         return tag

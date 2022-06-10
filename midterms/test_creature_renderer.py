@@ -30,17 +30,22 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 3, 'link')
 
-    def test_render_creature_link_contains_visual_gemetry_box(self):
+    def test_render_creature_link_contains_visual_geometry_box(self):
         creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.01])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/box')
 
-    def test_render_creature_link_contains_visual_gemetry_cylinder(self):
+    def test_render_creature_link_contains_visual_geometry_cylinder(self):
         creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.34])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/cylinder')
 
-    def test_render_creature_link_contains_visual_gemetry_sphere(self):
+    def test_render_creature_link_contains_visual_geometry_cylinder_length(self):
+        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.34])
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeAttributes(actual, {'length': str(creature.body.phenotype.link_length)}, 'link/visual/geometry/cylinder')
+
+    def test_render_creature_link_contains_visual_geometry_sphere(self):
         creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.67])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/sphere')
