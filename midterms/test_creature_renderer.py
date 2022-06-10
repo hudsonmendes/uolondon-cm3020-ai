@@ -82,12 +82,32 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
     def test_render_creature_link_contains_inertial_mass(self):
         creature = CreatureRendererTest._create_creature(connections={})
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeCount(actual, 1, 'link/interial/mass')
+        self.assertXPathNodeCount(actual, 1, 'link/inertial/mass')
 
     def test_render_creature_link_contains_inertial_inertia(self):
         creature = CreatureRendererTest._create_creature(connections={})
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeCount(actual, 1, 'link/interial/inertia')
+        self.assertXPathNodeCount(actual, 1, 'link/inertial/inertia')
+
+    def test_render_creature_no_joint(self):
+        creature = CreatureRendererTest._create_creature(connections={})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 0, 'joint')
+
+    def test_render_creature_one_joint(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 1, 'joint')
+
+    def test_render_creature_two_joint(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0, 2:0})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 2, 'joint')
+
+    def test_render_creature_three_joint(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0, 2:1, 3:1})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 3, 'joint')
 
     @staticmethod
     def _create_creature(

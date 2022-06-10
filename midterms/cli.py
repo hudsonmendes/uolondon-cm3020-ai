@@ -69,7 +69,7 @@ def collect_args() -> Namespace:
     parser_robot_create.add_argument("--out_folder", type=dir_path, default="./target", help="To what folder should we output the [species_name].urdf and [species_name].dna")
     parser_robot_view = parser_robot_subparsers.add_parser("view")
     parser_robot_view.add_argument("--src_folder", type=dir_path, default="./target", help="Which folder will be sourcing the URDF file?")
-    parser_robot_view.add_argument("--species_name", type=dir_path, help="What's the name of your bot? It must match the name of the URDF file in the `src_folder`")
+    parser_robot_view.add_argument("--species_name", type=str, help="What's the name of your bot? It must match the name of the URDF file in the `src_folder`")
 
     parser_evo = parser_subparsers.add_parser("evo")
     parser_evo_subparsers = parser_evo.add_subparsers(dest="cmdevo")

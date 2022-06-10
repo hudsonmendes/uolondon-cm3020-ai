@@ -13,31 +13,42 @@ class CreatureRenderer:
     """
 
     def __init__(self, creature: Creature) -> None:
+        dom = xml.getDOMImplementation()
+        assert dom and creature
         self.creature = creature
-        self.dom = xml.getDOMImplementation()
-        assert self.dom
-        self.adom = self.dom.createDocument(None, "start", None)
+        self.adom = dom.createDocument(None, "start", None)
+        self.renderer_links = ClassLinksRenderer(self.adom)
+        self.renderer_joints = ClassJointsRenderer(self.adom)
 
     def render(self) -> str:
         robot_tag = self._tag_robot(name=self.creature.name)
-        for link_tag in self._tags_link_recursive(part=self.creature.body):
+        for link_tag in self.renderer_links.render_all(part=self.creature.body):
             robot_tag.appendChild(link_tag)
+        for joint_tag in self.renderer_joints.render_all(part=self.creature.body):
+            robot_tag.appendChild(joint_tag)
         return ('<?xml version="1.0"?>' + robot_tag.toprettyxml()).strip()
 
-    def _tags_link_recursive(self, part: CreaturePart, link_hierarchy: List[int] = None) -> List[xml.Element]:
+    def _tag_robot(self, name: str) -> xml.Element:
+        tag = self.adom.createElement("robot")
+        tag.setAttribute("name", name)
+        return tag
+
+
+class ClassLinksRenderer:
+    """Responsible for rendering the creature links (body parts)"""
+
+    def __init__(self, adom: xml.Document) -> None:
+        self.adom = adom
+
+    def render_all(self, part: CreaturePart, link_hierarchy: List[int] = None) -> List[xml.Element]:
         if not link_hierarchy:
             link_hierarchy = [0]
         tags: List[xml.Element] = []
         tags.append(self._tag_link(part=part, link_hierarchy=link_hierarchy))
         for child_i, child_part in enumerate(part.children):
             child_hierarchy = copy.copy(link_hierarchy) + [child_i]
-            tags.extend(self._tags_link_recursive(part=child_part, link_hierarchy=child_hierarchy))
+            tags.extend(self.render_all(part=child_part, link_hierarchy=child_hierarchy))
         return tags
-
-    def _tag_robot(self, name: str) -> xml.Element:
-        tag = self.adom.createElement("robot")
-        tag.setAttribute("name", name)
-        return tag
 
     def _tag_link(self, part: CreaturePart, link_hierarchy: List[int]) -> xml.Element:
         tag = self.adom.createElement("link")
@@ -90,4 +101,28 @@ class CreatureRenderer:
         tag.setAttribute("ixy", "0")
         tag.setAttribute("ixz", "0")
         tag.setAttribute("iyx", "0")
+        return tag
+
+
+class ClassJointsRenderer:
+    """Responsible for rendering the creature joints (connectors)"""
+
+    def __init__(self, adom: xml.Document) -> None:
+        self.adom = adom
+
+    def render_all(self, part: CreaturePart, joint_hierarchy: List[int] = None) -> List[xml.Element]:
+        if not joint_hierarchy:
+            joint_hierarchy = [0]
+        tags: List[xml.Element] = []
+        if part.phenotype.joint_parent is not None:
+            tags.append(self._tag_joint(part=part, joint_hierarchy=joint_hierarchy))
+        for child_i, child_part in enumerate(part.children):
+            child_hierarchy = copy.copy(joint_hierarchy) + [child_i]
+            tags.extend(self.render_all(part=child_part, joint_hierarchy=child_hierarchy))
+        return tags
+
+    def _tag_joint(self, part: CreaturePart, joint_hierarchy: List[int]) -> xml.Element:
+        tag = self.adom.createElement("joint")
+        tag.setAttribute("name", f"joint-{'-'.join([str(i) for i in joint_hierarchy])}-to-{part.phenotype.joint_parent}")
+        tag.setAttribute("type", part.phenotype.joint_type.value)
         return tag
