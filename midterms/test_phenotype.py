@@ -12,19 +12,14 @@ from gene import Gene
 
 class PhenotypeTest(unittest.TestCase):
 
-    @given(floats(0, 0.33))
-    def test_parse_link_shape_box(self, number: float):
-        self.assertEqual(
-            PhenotypeLinkShape.BOX,
-            PhenotypeLinkShape.parse_float(number))
 
-    @given(floats(0.34, 0.66))
+    @given(floats(0., 0.5))
     def test_parse_link_shape_cylinder(self, number: float):
         self.assertEqual(
             PhenotypeLinkShape.CYLINDER,
             PhenotypeLinkShape.parse_float(number))
 
-    @given(floats(0.67, 1))
+    @given(floats(0.51, 1))
     def test_parse_link_shape_sphere(self, number: float):
         self.assertEqual(
             PhenotypeLinkShape.SPHERE,

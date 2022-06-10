@@ -45,40 +45,49 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/sphere')
 
-    def test_render_creature_link_contains_collision_geometry_box(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.01])
-        actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeCount(actual, 1, 'link/collision/geometry/box')
-
     def test_render_creature_link_contains_collision_geometry_cylinder(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.34])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.00])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/collision/geometry/cylinder')
 
     def test_render_creature_link_contains_collision_geometry_sphere(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.67])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.51])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/collision/geometry/sphere')
 
-    def test_render_creature_link_contains_visual_geometry_shape_length(self):
-        creature = CreatureRendererTest._create_creature(connections={})
+    def test_render_creature_link_contains_visual_geometry_cylinder_length(self):
+        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.00])
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, {'length': str(creature.body.phenotype.link_length)}, 'link/visual/geometry/*')
+        self.assertXPathNodeAttributes(actual, {'length': str(creature.body.phenotype.link_length)}, 'link/visual/geometry/cylinder')
 
-    def test_render_creature_link_contains_visual_geometry_shape_radius(self):
-        creature = CreatureRendererTest._create_creature(connections={})
+    def test_render_creature_link_contains_visual_geometry_cylinder_radius(self):
+        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.00])
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, {'radius': str(creature.body.phenotype.link_radius)}, 'link/visual/geometry/*')
+        self.assertXPathNodeAttributes(actual, {'radius': str(creature.body.phenotype.link_radius)}, 'link/visual/geometry/cylinder')
 
-    def test_render_creature_link_contains_collision_geometry_shape_length(self):
-        creature = CreatureRendererTest._create_creature(connections={})
+    def test_render_creature_link_contains_visual_geometry_sphere_no_length(self):
+        from xml.etree import ElementTree
+        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.51])
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, {'length': str(creature.body.phenotype.link_length)}, 'link/collision/geometry/*')
+        doc = ElementTree.fromstring(actual)
+        ele = doc.find('link/visual/geometry/sphere')
+        self.assertFalse('length' in ele.attrib)
+        self.assertTrue('radius' in ele.attrib)
 
-    def test_render_creature_link_contains_collision_geometry_shape_radius(self):
+    def test_render_creature_link_contains_visual_geometry_sphere_radius(self):
+        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.51])
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeAttributes(actual, {'radius': str(creature.body.phenotype.link_radius)}, 'link/visual/geometry/sphere')
+
+    def test_render_creature_link_contains_inertial_mass(self):
         creature = CreatureRendererTest._create_creature(connections={})
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, {'radius': str(creature.body.phenotype.link_radius)}, 'link/collision/geometry/*')
+        self.assertXPathNodeCount(actual, 1, 'link/interial/mass')
+
+    def test_render_creature_link_contains_inertial_inertia(self):
+        creature = CreatureRendererTest._create_creature(connections={})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 1, 'link/interial/inertia')
 
     @staticmethod
     def _create_creature(

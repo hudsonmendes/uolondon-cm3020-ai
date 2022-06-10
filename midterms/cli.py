@@ -40,9 +40,12 @@ def action_view(args: Namespace):
     p.loadURDF(str(filename))
     p.setRealTimeSimulation(1)
     print("Press CTRL+C to interrupt...")
-    while True:
-        p.stepSimulation()
-        time.sleep(1.0/240)
+    try:
+        while True:
+            p.stepSimulation()
+            time.sleep(1.0/240)
+    except:
+        print("Simulation interrupted.")
 
 
 def collect_args() -> Namespace:
