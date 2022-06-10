@@ -10,9 +10,11 @@
             "request": "launch",
             "program": "cli.py",
             "args": [
+                "robot",
+                "create",
                 "--species_name", "cyanobacteria",
                 "--gene_count", "1",
-                "--append_dna"
+                "--override_dna"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

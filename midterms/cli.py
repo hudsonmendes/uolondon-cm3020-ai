@@ -11,31 +11,57 @@ from creature_renderer import CreatureRenderer
 
 def main():
     args = collect_args()
+    if args.cmdroot == "robot":
+        if args.cmdrobot == "create":
+            action_creation(args)
+
+
+def action_creation(args: Namespace):
     code = PrimordialSoup.spark_life(args.gene_count)
     dna = Dna.parse_dna(code)
     robot = Creature.develop_from(name=args.species_name, dna=dna)
     if robot:
-        print("Robot '{robot.name}' is born.")
-        write_dna(dna, filename=args.out_folder / f'{args.species_name}.dna', append=args.append_dna)
+        print(f"Robot '{robot.name}' is born.")
+        write_dna(dna, filename=args.out_folder / f'{args.species_name}.dna', override=args.override_dna)
         write_robot(robot, filename=args.out_folder / f'{args.species_name}.urdf')
     else:
         print("Robot could not be generated")
 
+def dir_path(folder: str) -> Path:
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+    return Path(folder)
+
 
 def collect_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument("--species_name", type=str, help="You must name the species you are creating")
-    parser.add_argument("--gene_count", type=int, default=1, help="Tell the number of genes you want to generate")
-    parser.add_argument("--append_dna", action="store_true", help="Should we append the DNA to the file?")
-    parser.add_argument("--out_folder", type=Path, default="./target", help="To what folder should we output the [species_name].urdf and [species_name].dna")
+    parser_subparsers = parser.add_subparsers(dest="cmdroot")
+
+    parser_robot = parser_subparsers.add_parser("robot")
+    parser_robot_subparsers = parser_robot.add_subparsers(dest="cmdrobot")
+    parser_robot_create = parser_robot_subparsers.add_parser("create")
+    parser_robot_create.add_argument("--species_name", type=str, help="You must name the species you are creating")
+    parser_robot_create.add_argument("--gene_count", type=int, default=1, help="Tell the number of genes you want to generate")
+    parser_robot_create.add_argument("--override_dna", action="store_true", help="Should we override the DNA file?")
+    parser_robot_create.add_argument("--out_folder", type=dir_path, default="./target", help="To what folder should we output the [species_name].urdf and [species_name].dna")
+    parser_robot_view = parser_robot_subparsers.add_parser("view")
+    parser_robot_view.add_argument("--src_folder", type=dir_path, default="./target", help="Which folder will be sourcing the URDF file?")
+    parser_robot_view.add_argument("--species_name", type=dir_path, help="What's the name of your bot? It must match the name of the URDF file in the `src_folder`")
+
+    parser_evo = parser_subparsers.add_parser("evo")
+    parser_evo_subparsers = parser_evo.add_subparsers(dest="cmdevo")
+    parser_evo_genesis = parser_evo_subparsers.add_parser("genesis")
+    parser_evo_genesis.add_argument("--evolution_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
+    parser_evo_iterate = parser_evo_subparsers.add_parser("iterate")
+    parser_evo_iterate.add_argument("--evolution_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
+    parser_evo_iterate.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
+
     args = parser.parse_args()
-    if not os.path.isdir(args.out_folder):
-        os.makedirs(args.out_folder)
     return args
 
 
-def write_dna(dna: Dna, filename: str, append: bool):
-    with open(filename, 'a+' if append else 'w+', encoding='utf-8') as fh:
+def write_dna(dna: Dna, filename: str, override: bool):
+    with open(filename, 'w+' if override else 'a+', encoding='utf-8') as fh:
         fh.write(",".join([str(base) for base in dna.code]))
         fh.write("\n")
     print(f"> Output DNA : {str(filename)}")
