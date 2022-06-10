@@ -25,7 +25,7 @@ class Dna:
         """
         expressed: List[Gene] = []
         for feature, control in itertools.zip_longest(self.genes_features, self.genes_control):
-            if control:
+            if control is None or control == True:
                 expressed.append(feature)
         return [
             Phenotype.parse_dna(gene=gene, gene_count=i+1)
