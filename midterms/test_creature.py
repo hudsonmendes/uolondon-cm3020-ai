@@ -20,7 +20,7 @@ class CreatureTest(unittest.TestCase):
             [1, 1, 1, 1, 0]
         )
         self.dna = Dna.parse_dna(data=dna_code)
-        self.creature = Creature.develop_from(dna=self.dna)
+        self.creature = Creature.develop_from(name="lab-rat", dna=self.dna)
 
     def test_class_exists(self):
         self.assertIsNotNone(Creature)
@@ -50,7 +50,7 @@ class CreatureTest(unittest.TestCase):
             [1, 1, 1, 1, 1]
         )
         dna = Dna.parse_dna(data=dna_code)
-        creature = Creature.develop_from(dna=dna)
+        creature = Creature.develop_from(name="other-lab-rat", dna=dna)
         self.assertEqual(3, len(creature.body.children[0].children))
 
     @staticmethod

@@ -12,15 +12,16 @@ class Creature:
     Represents a living organism or robot who has a DNA (genetic code)
     and also a body from which its parts are spanned.
     """
+    name: str
     dna: Dna
     body: "CreaturePart"
 
     @staticmethod
-    def develop_from(dna: Dna) -> Optional["Creature"]:
+    def develop_from(name: str, dna: Dna) -> Optional["Creature"]:
         phenotypes = dna.express()
         if phenotypes:
             body = CreaturePart.part_hierarchy_from(phenotypes)
-            return Creature(dna=dna, body=body)
+            return Creature(name=name, dna=dna, body=body)
         else:
             return None
 
