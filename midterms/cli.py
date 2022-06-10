@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, Namespace
-from typing import Callable
+from typing import Optional
 
 from primordial_soup import PrimordialSoup
 from dna import Dna
@@ -33,13 +33,15 @@ def action_new(args: Namespace):
         print("Robot could not be generated")
 
 def action_render(args: Namespace):
-    dna = Dna.parse_dna(args.dna)
-    robot = Creature.develop_from(name=args.species_name, dna=dna)
-    if robot:
-        print(f"Robot '{robot.name}' is re-born.")
-        write_robot(robot, filename=args.target_folder / f'{args.species_name}.urdf')
-    else:
-        print("Robot could not be rendered")
+    code = read_dna(filename=args.target_folder / f'{args.species_name}.dna', index=args.dna_index)
+    if code:
+        dna = Dna.parse_dna(code)
+        robot = Creature.develop_from(name=args.species_name, dna=dna)
+        if robot:
+            print(f"Robot '{robot.name}' is re-born.")
+            write_robot(robot, filename=args.target_folder / f'{args.species_name}.urdf')
+        else:
+            print("Robot could not be rendered")
 
 
 def action_view(args: Namespace):
@@ -84,7 +86,7 @@ def collect_args() -> Namespace:
     parser_robot_new.add_argument("--target_folder", type=dir_path, default="./target", help="To what folder should we output the [species_name].urdf and [species_name].dna")
     parser_robot_new.add_argument("--auto_load", action="store_true", help="Should we automatically load the URDF after saved?")
     parser_robot_render = parser_robot_subparsers.add_parser("render")
-    parser_robot_render.add_argument("--dna", type=str, help="Which DNA should we use?")
+    parser_robot_render.add_argument("--dna_index", type=int, help="Which DNA from the list should we use?")
     parser_robot_render.add_argument("--target_folder", type=dir_path, default="./target", help="Which folder will be sourcing the URDF file?")
     parser_robot_render.add_argument("--species_name", type=str, help="What's the name of your bot? It must match the name of the URDF file in the `target_folder`")
     parser_robot_view = parser_robot_subparsers.add_parser("view")
@@ -102,6 +104,15 @@ def collect_args() -> Namespace:
     args = parser.parse_args()
     return args
 
+def read_dna(filename: str, index: int) -> Optional[str]:
+    with open(filename, 'r+', encoding='utf-8') as fh:
+        i = 0
+        for line in fh:
+            if i == index:
+                print(f"> Read DNA[{i}] : {line}")
+                return line
+            i += 1
+    return None
 
 def write_dna(dna: Dna, filename: str, override: bool):
     with open(filename, 'w+' if override else 'a+', encoding='utf-8') as fh:
