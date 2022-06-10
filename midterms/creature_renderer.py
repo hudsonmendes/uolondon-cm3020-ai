@@ -127,6 +127,7 @@ class ClassJointsRenderer:
         tag.setAttribute("type", part.phenotype.joint_type.value)
         tag.appendChild(self._tag_parent(link_hierarchy=joint_hierarchy))
         tag.appendChild(self._tag_child(link_hierarchy=joint_hierarchy))
+        tag.appendChild(self._tag_axis(part=part))
         return tag
 
     def _tag_parent(self, link_hierarchy: List[int]) -> xml.Element:
@@ -137,4 +138,9 @@ class ClassJointsRenderer:
     def _tag_child(self, link_hierarchy: List[int]) -> xml.Element:
         tag = self.adom.createElement("child")
         tag.setAttribute("link", f"link-{'-'.join([str(i) for i in link_hierarchy])}")
+        return tag
+
+    def _tag_axis(self, part: CreaturePart) -> xml.Element:
+        tag = self.adom.createElement("axis")
+        tag.setAttribute("xyz", str(part.phenotype.joint_axis_xyz))
         return tag

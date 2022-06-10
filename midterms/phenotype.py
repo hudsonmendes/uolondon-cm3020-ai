@@ -100,6 +100,9 @@ class PhenotypeJointXYZ:
     y: int
     z: int
 
+    def __str__(self):
+        return f"{self.x} {self.y} {self.z}"
+
     @staticmethod
     def parse_float(number: float) -> "PhenotypeJointXYZ":
         if number <= 0.33:

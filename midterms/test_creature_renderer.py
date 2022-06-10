@@ -30,44 +30,39 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 3, 'link')
 
-    def test_render_creature_link_contains_visual_geometry_box(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.01])
-        actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/box')
-
     def test_render_creature_link_contains_visual_geometry_cylinder(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.34])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.01])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/cylinder')
 
     def test_render_creature_link_contains_visual_geometry_sphere(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.67])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/sphere')
 
     def test_render_creature_link_contains_collision_geometry_cylinder(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.00])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.00])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/collision/geometry/cylinder')
 
     def test_render_creature_link_contains_collision_geometry_sphere(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.51])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/collision/geometry/sphere')
 
     def test_render_creature_link_contains_visual_geometry_cylinder_length(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.00])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.00])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeAttributes(actual, {'length': str(creature.body.phenotype.link_length)}, 'link/visual/geometry/cylinder')
 
     def test_render_creature_link_contains_visual_geometry_cylinder_radius(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.00])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.00])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeAttributes(actual, {'radius': str(creature.body.phenotype.link_radius)}, 'link/visual/geometry/cylinder')
 
     def test_render_creature_link_contains_visual_geometry_sphere_no_length(self):
         from xml.etree import ElementTree
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.51])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
         actual = CreatureRenderer(creature).render()
         doc = ElementTree.fromstring(actual)
         ele = doc.find('link/visual/geometry/sphere')
@@ -75,7 +70,7 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         self.assertTrue('radius' in ele.attrib)
 
     def test_render_creature_link_contains_visual_geometry_sphere_radius(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shapes=[0.51])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeAttributes(actual, {'radius': str(creature.body.phenotype.link_radius)}, 'link/visual/geometry/sphere')
 
@@ -124,23 +119,50 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'joint/child')
 
-    def test_render_creature_joint_contains_parent_link(self):
+    def test_render_creature_joint_contains_child_link(self):
         creature = CreatureRendererTest._create_creature(connections={1:0})
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeAttributes(actual, { 'link': 'link-0-0' }, 'joint/child')
 
+    def test_render_creature_joint_contains_axis(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 1, 'joint/axis')
+
+    def test_render_creature_joint_contains_axis_xyz_0(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0}, joint_axis_xyz=[0.00])
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeAttributes(actual, { 'xyz': '1 0 0' }, 'joint/axis')
+
+    def test_render_creature_joint_contains_axis_xyz_1(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0}, joint_axis_xyz=[0.34])
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeAttributes(actual, { 'xyz': '0 1 0' }, 'joint/axis')
+
+    def test_render_creature_joint_contains_axis_xyz_2(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0}, joint_axis_xyz=[0.67])
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeAttributes(actual, { 'xyz': '0 0 1' }, 'joint/axis')
+
     @staticmethod
     def _create_creature(
             connections: Dict[int, int],
-            link_shapes: List[float] = None) -> Optional[Creature]:
-        dna_code: List[float] = CreatureRendererTest._create_gene(connected_with_index=None, all_parts_count=0)
-        if link_shapes and link_shapes[0] is not None:
-            dna_code[0] = link_shapes[0]
+            link_shape: List[float] = None,
+            joint_axis_xyz: List[float] = None) -> Optional[Creature]:
+
+        dna_code: List[float] = CreatureRendererTest._create_gene(connected_with_index=None, all_parts_count=0)        
         for part_ix, connecting_with_ix in connections.items():
             part_dna = CreatureRendererTest._create_gene(connected_with_index=connecting_with_ix, all_parts_count=part_ix)
-            if link_shapes and len(link_shapes) > part_ix + 1:
-                dna_code[part_ix] = link_shapes[part_ix + 1]
             dna_code.extend(part_dna)
+
+        if link_shape:
+            for i in range(len(link_shape)):
+                dna_code[i * Gene.length()] = link_shape[i]
+
+        if joint_axis_xyz:
+            for i in range(len(joint_axis_xyz)):
+                dna_code[(i+1) * Gene.length() + 7] = joint_axis_xyz[i]
+
         dna_code += [1.] * (len(connections.items()) + 1)
         return Creature.develop_from(name="lab-rat", dna=Dna.parse_dna(dna_code))
 
