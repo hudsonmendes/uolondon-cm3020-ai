@@ -125,9 +125,11 @@ class ClassJointsRenderer:
         tag = self.adom.createElement("joint")
         tag.setAttribute("name", f"joint-{'-'.join([str(i) for i in joint_hierarchy])}-to-{part.phenotype.joint_parent}")
         tag.setAttribute("type", part.phenotype.joint_type.value)
-        tag.appendChild(self._tag_parent(link_hierarchy=joint_hierarchy))
-        tag.appendChild(self._tag_child(link_hierarchy=joint_hierarchy))
-        tag.appendChild(self._tag_axis(part=part))
+        tag.appendChild(self._tag_parent(joint_hierarchy))
+        tag.appendChild(self._tag_child(joint_hierarchy))
+        tag.appendChild(self._tag_axis(part))
+        tag.appendChild(self._tag_limit(part))
+        tag.appendChild(self._tag_origin(part))
         return tag
 
     def _tag_parent(self, link_hierarchy: List[int]) -> xml.Element:
@@ -143,4 +145,21 @@ class ClassJointsRenderer:
     def _tag_axis(self, part: CreaturePart) -> xml.Element:
         tag = self.adom.createElement("axis")
         tag.setAttribute("xyz", str(part.phenotype.joint_axis_xyz))
+        return tag
+
+    def _tag_limit(self, _: CreaturePart) -> xml.Element:
+        tag = self.adom.createElement("limit")
+        tag.setAttribute("effort", "1")
+        tag.setAttribute("upper", "-3.1415")
+        tag.setAttribute("lower", "3.1415")
+        tag.setAttribute("velocity", "1")
+        return tag
+
+    def _tag_origin(self, part: CreaturePart) -> xml.Element:
+        tag = self.adom.createElement("origin")
+        rpy1 = part.phenotype.joint_origin_rpy_r * 1 #TODO: part.phenotype.sibling_ind
+        rpy = str(rpy1) + " " + str(part.phenotype.joint_origin_rpy_p) + " " + str(part.phenotype.joint_origin_rpy_y)
+        xyz = str(part.phenotype.joint_origin_xyz_x) + " " + str(part.phenotype.joint_origin_xyz_y) + " " + str(part.phenotype.joint_origin_xyz_z)
+        tag.setAttribute("rpy", rpy)
+        tag.setAttribute("xyz", xyz)
         return tag

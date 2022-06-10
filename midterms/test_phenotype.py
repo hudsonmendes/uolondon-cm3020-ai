@@ -145,22 +145,40 @@ class PhenotypeTest(unittest.TestCase):
         self.assertEqual(2, actual.joint_parent)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
-    def test_joint_origin_rpy_1(self, numbers: List[float]):
+    def test_joint_origin_rpy_r(self, numbers: List[float]):
         given = Gene(numbers)
         actual = Phenotype.parse_dna(gene=given, gene_count=1)
-        self.assertEqual(given.joint_origin_rpy_1 * 2*pi, actual.joint_origin_rpy_1)
+        self.assertEqual(given.joint_origin_rpy_r * 2*pi, actual.joint_origin_rpy_r)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
-    def test_joint_origin_rpy_2(self, numbers: List[float]):
+    def test_joint_origin_rpy_p(self, numbers: List[float]):
         given = Gene(numbers)
         actual = Phenotype.parse_dna(gene=given, gene_count=1)
-        self.assertEqual(given.joint_origin_rpy_2 * 2*pi, actual.joint_origin_rpy_2)
+        self.assertEqual(given.joint_origin_rpy_p * 2*pi, actual.joint_origin_rpy_p)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
-    def test_joint_origin_rpy_3(self, numbers: List[float]):
+    def test_joint_origin_rpy_y(self, numbers: List[float]):
         given = Gene(numbers)
         actual = Phenotype.parse_dna(gene=given, gene_count=1)
-        self.assertEqual(given.joint_origin_rpy_3 * 2*pi, actual.joint_origin_rpy_3)
+        self.assertEqual(given.joint_origin_rpy_y * 2*pi, actual.joint_origin_rpy_y)
+
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
+    def test_joint_origin_xyz_x(self, numbers: List[float]):
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.joint_origin_xyz_x, actual.joint_origin_xyz_x)
+
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
+    def test_joint_origin_xyz_y(self, numbers: List[float]):
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.joint_origin_xyz_y, actual.joint_origin_xyz_y)
+
+    @given(lists(floats(0, 1), min_size=17, max_size=17))
+    def test_joint_origin_xyz_z(self, numbers: List[float]):
+        given = Gene(numbers)
+        actual = Phenotype.parse_dna(gene=given, gene_count=1)
+        self.assertEqual(given.joint_origin_xyz_z, actual.joint_origin_xyz_z)
 
     @given(lists(floats(0, 1), min_size=17, max_size=17))
     def test_control_amp(self, numbers: List[float]):

@@ -22,12 +22,12 @@ class Phenotype:
     joint_parent: Optional[int]
     joint_type: "PhenotypeJointType"
     joint_axis_xyz: "PhenotypeJointXYZ"
-    joint_origin_rpy_1: float
-    joint_origin_rpy_2: float
-    joint_origin_rpy_3: float
-    joint_origin_xyz_1: "PhenotypeJointXYZ"
-    joint_origin_xyz_2: "PhenotypeJointXYZ"
-    joint_origin_xyz_3: "PhenotypeJointXYZ"
+    joint_origin_rpy_r: float
+    joint_origin_rpy_p: float
+    joint_origin_rpy_y: float
+    joint_origin_xyz_x: float
+    joint_origin_xyz_y: float
+    joint_origin_xyz_z: float
     control_waveform: "PhenotypeWaveForm"
     control_amp: float
     control_freq: float
@@ -43,12 +43,12 @@ class Phenotype:
             joint_parent=int(max(0, min(gene.joint_parent, 0.99) * (gene_count-1))) if gene_count > 1 else None,
             joint_type=PhenotypeJointType.parse_float(gene.joint_type),
             joint_axis_xyz=PhenotypeJointXYZ.parse_float(gene.joint_axis_xyz),
-            joint_origin_rpy_1=gene.joint_origin_rpy_1 * 2*pi,
-            joint_origin_rpy_2=gene.joint_origin_rpy_2 * 2*pi,
-            joint_origin_rpy_3=gene.joint_origin_rpy_3 * 2*pi,
-            joint_origin_xyz_1=PhenotypeJointXYZ.parse_float(gene.joint_origin_xyz_1),
-            joint_origin_xyz_2=PhenotypeJointXYZ.parse_float(gene.joint_origin_xyz_2),
-            joint_origin_xyz_3=PhenotypeJointXYZ.parse_float(gene.joint_origin_xyz_3),
+            joint_origin_rpy_r=gene.joint_origin_rpy_r * 2*pi,
+            joint_origin_rpy_p=gene.joint_origin_rpy_p * 2*pi,
+            joint_origin_rpy_y=gene.joint_origin_rpy_y * 2*pi,
+            joint_origin_xyz_x=gene.joint_origin_xyz_x,
+            joint_origin_xyz_y=gene.joint_origin_xyz_y,
+            joint_origin_xyz_z=gene.joint_origin_xyz_z,
             control_waveform=PhenotypeWaveForm.parse_float(gene.control_waveform),
             control_amp=gene.control_amp * 0.25,
             control_freq=gene.control_freq,

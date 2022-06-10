@@ -90,59 +90,70 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         self.assertXPathNodeCount(actual, 0, 'joint')
 
     def test_render_creature_one_joint(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0})
+        creature = CreatureRendererTest._create_creature(connections={1: 0})
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'joint')
 
     def test_render_creature_two_joint(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0, 2:0})
+        creature = CreatureRendererTest._create_creature(connections={1: 0, 2: 0})
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 2, 'joint')
 
     def test_render_creature_three_joint(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0, 2:1, 3:1})
+        creature = CreatureRendererTest._create_creature(connections={1: 0, 2: 1, 3: 1})
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 3, 'joint')
 
     def test_render_creature_joint_contains_parent(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0})
+        creature = CreatureRendererTest._create_creature(connections={1: 0})
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'joint/parent')
 
     def test_render_creature_joint_contains_parent_link(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0})
+        creature = CreatureRendererTest._create_creature(connections={1: 0})
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, { 'link': 'link-0' }, 'joint/parent')
+        self.assertXPathNodeAttributes(actual, {'link': 'link-0'}, 'joint/parent')
 
     def test_render_creature_joint_contains_child(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0})
+        creature = CreatureRendererTest._create_creature(connections={1: 0})
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'joint/child')
 
     def test_render_creature_joint_contains_child_link(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0})
+        creature = CreatureRendererTest._create_creature(connections={1: 0})
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, { 'link': 'link-0-0' }, 'joint/child')
+        self.assertXPathNodeAttributes(actual, {'link': 'link-0-0'}, 'joint/child')
 
     def test_render_creature_joint_contains_axis(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0})
+        creature = CreatureRendererTest._create_creature(connections={1: 0})
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'joint/axis')
 
-    def test_render_creature_joint_contains_axis_xyz_0(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0}, joint_axis_xyz=[0.00])
+    def test_render_creature_joint_contains_axis_xyz_x(self):
+        creature = CreatureRendererTest._create_creature(connections={1: 0}, joint_axis_xyz=[0.00])
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, { 'xyz': '1 0 0' }, 'joint/axis')
+        self.assertXPathNodeAttributes(actual, {'xyz': '1 0 0'}, 'joint/axis')
 
-    def test_render_creature_joint_contains_axis_xyz_1(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0}, joint_axis_xyz=[0.34])
+    def test_render_creature_joint_contains_axis_xyz_y(self):
+        creature = CreatureRendererTest._create_creature(connections={1: 0}, joint_axis_xyz=[0.34])
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, { 'xyz': '0 1 0' }, 'joint/axis')
+        self.assertXPathNodeAttributes(actual, {'xyz': '0 1 0'}, 'joint/axis')
 
-    def test_render_creature_joint_contains_axis_xyz_2(self):
-        creature = CreatureRendererTest._create_creature(connections={1:0}, joint_axis_xyz=[0.67])
+    def test_render_creature_joint_contains_axis_xyz_z(self):
+        creature = CreatureRendererTest._create_creature(connections={1: 0}, joint_axis_xyz=[0.67])
         actual = CreatureRenderer(creature).render()
-        self.assertXPathNodeAttributes(actual, { 'xyz': '0 0 1' }, 'joint/axis')
+        self.assertXPathNodeAttributes(actual, {'xyz': '0 0 1'}, 'joint/axis')
+
+    def test_render_creature_joint_contains_limit(self):
+        creature = CreatureRendererTest._create_creature(connections={1: 0}, joint_axis_xyz=[0.67])
+        actual = CreatureRenderer(creature).render()
+        expected = {'effort': '1', 'upper': '-3.1415', 'lower': '3.1415', 'velocity': '1'}
+        self.assertXPathNodeAttributes(actual, expected, 'joint/limit')
+
+    def test_render_creature_joint_contains_origin(self):
+        creature = CreatureRendererTest._create_creature(connections={1: 0})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 1, 'joint/origin')
 
     @staticmethod
     def _create_creature(
@@ -150,7 +161,7 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
             link_shape: List[float] = None,
             joint_axis_xyz: List[float] = None) -> Optional[Creature]:
 
-        dna_code: List[float] = CreatureRendererTest._create_gene(connected_with_index=None, all_parts_count=0)        
+        dna_code: List[float] = CreatureRendererTest._create_gene(connected_with_index=None, all_parts_count=0)
         for part_ix, connecting_with_ix in connections.items():
             part_dna = CreatureRendererTest._create_gene(connected_with_index=connecting_with_ix, all_parts_count=part_ix)
             dna_code.extend(part_dna)

@@ -46,27 +46,27 @@ class Gene:
         return self.code[7]
 
     @property
-    def joint_origin_rpy_1(self) -> float:
+    def joint_origin_rpy_r(self) -> float:
         return self.code[8]
 
     @property
-    def joint_origin_rpy_2(self) -> float:
+    def joint_origin_rpy_p(self) -> float:
         return self.code[9]
 
     @property
-    def joint_origin_rpy_3(self) -> float:
+    def joint_origin_rpy_y(self) -> float:
         return self.code[10]
 
     @property
-    def joint_origin_xyz_1(self) -> float:
+    def joint_origin_xyz_x(self) -> float:
         return self.code[11]
 
     @property
-    def joint_origin_xyz_2(self) -> float:
+    def joint_origin_xyz_y(self) -> float:
         return self.code[12]
 
     @property
-    def joint_origin_xyz_3(self) -> float:
+    def joint_origin_xyz_z(self) -> float:
         return self.code[13]
 
     @property
