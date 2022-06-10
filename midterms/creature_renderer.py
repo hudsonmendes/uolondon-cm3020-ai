@@ -1,32 +1,45 @@
-from typing import List, Optional
-import xml.dom.minidom as xml
+from typing import List
 
-from creature import Creature
+import xml.dom.minidom as xml
+import copy
+
+from creature import Creature, CreaturePart
 
 
 class CreatureRenderer:
+    """
+    Responsible for rendering the creature into URDF XML Format.
+    """
+
     def __init__(self, creature: Creature) -> None:
         self.creature = creature
+        self.dom = xml.getDOMImplementation()
+        assert self.dom
+        self.adom = self.dom.createDocument(None, "start", None)
 
-    def render(self) -> Optional[str]:
-        domimpl = xml.getDOMImplementation()
-        if domimpl:
-            adom = domimpl.createDocument(None, "start", None)
-            tag_robot = CreatureRenderer._tag_robot(adom, name=self.creature.name)
-            tag_robot.appendChild(CreatureRenderer._tag_robot_link(adom, tree_indexes=[0]))
-            return ('<?xml version="1.0"?>' + tag_robot.toprettyxml()).strip()
-        else:
-            return None
+    def render(self) -> str:
+        robot_tag = self._tag_robot(name=self.creature.name)
+        for link_tag in self._tags_link_recursive(part=self.creature.body):
+            robot_tag.appendChild(link_tag)
+        return ('<?xml version="1.0"?>' + robot_tag.toprettyxml()).strip()
 
-    @staticmethod
-    def _tag_robot(adom: xml.Document, name: str) -> xml.Element:
-        tag = adom.createElement("robot")
+    def _tags_link_recursive(self, part: CreaturePart, link_hierarchy: List[int] = None) -> List[xml.Element]:
+        if not link_hierarchy:
+            link_hierarchy = [0]
+        tags: List[xml.Element] = []
+        tags.append(self._tag_link(part=part,link_hierarchy=link_hierarchy))
+        for child_i, child_part in enumerate(part.children):
+            child_hierarchy = copy.copy(link_hierarchy) + [child_i]
+            tags.extend(self._tags_link_recursive(part=child_part, link_hierarchy=child_hierarchy))
+        return tags
+
+    def _tag_robot(self, name: str) -> xml.Element:
+        tag = self.adom.createElement("robot")
         tag.setAttribute("name", name)
         return tag
 
-    @staticmethod
-    def _tag_robot_link(adom: xml.Document, tree_indexes: List[int]) -> xml.Element:
-        link_tag = adom.createElement("link")
-        link_name = f"part-{'-'.join([str(i) for i in tree_indexes])}"
+    def _tag_link(self, part: CreaturePart, link_hierarchy: List[int]) -> xml.Element:
+        link_tag = self.adom.createElement("link")
+        link_name = f"part-{'-'.join([str(i) for i in link_hierarchy])}"
         link_tag.setAttribute("name", link_name)
         return link_tag

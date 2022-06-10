@@ -25,6 +25,11 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 2, 'link')
 
+    def test_render_creature_with_three_parts_interconected(self):
+        creature = CreatureRendererTest._create_creature(connections={1:0, 2:0})
+        actual = CreatureRenderer(creature).render()
+        self.assertXPathNodeCount(actual, 3, 'link')
+
     @staticmethod
     def _create_creature(connections: Dict[int, int]) -> Optional[Creature]:
         dna_code: List[float] = CreatureRendererTest._create_gene(connected_with_index=None, all_parts_count=0)
