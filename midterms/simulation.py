@@ -4,8 +4,8 @@ import time
 from pathlib import Path
 
 import pybullet as p
-from generation import Generation
 
+from generation import Generation
 from motor import Motor
 from dna import Dna
 from creature import Creature

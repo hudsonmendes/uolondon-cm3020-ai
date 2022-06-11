@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Set, Dict, Optional
 
 import numpy as np
 
@@ -7,13 +7,16 @@ from creature import Creature
 
 class Generation:
     id: int
+    creatures: Set[Creature]
     trackers: Dict[Creature, "GenerationTracker"]
 
     def __init__(self, generation_id: int) -> None:
         self.generation_id = generation_id
-        self.trackers = {}
+        self.creatures = set()
+        self.trackers = dict()
 
     def report_movement(self, creature: Creature, position: float):
+        self.creatures.add(creature)
         self.trackers.setdefault(creature, GenerationTracker()).track(position=position)
 
     def distances_for(self, creature: Creature):
