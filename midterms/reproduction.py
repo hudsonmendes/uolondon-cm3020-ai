@@ -31,7 +31,9 @@ class Reproduction:
         if self.settings.point_mutation_enabled:
             dna_code = self._point_mutate(dna_code)
         if self.settings.shrink_mutation_enabled:
-            dna_code = self._shrink_mutate(dna_code)
+            dna_code = self._mutate_shrink(dna_code)
+        if self.settings.grow_mutation_enabled:
+            dna_code = self._mutate_shrink(dna_code)
         return dna_code.tolist()
 
     def _crossover(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
@@ -53,15 +55,23 @@ class Reproduction:
                 after[i] = max(0.00001, after[i])
         return after
 
-    def _shrink_mutate(self, before: np.ndarray) -> np.ndarray:
+    def _mutate_shrink(self, before: np.ndarray) -> np.ndarray:
         after = before.copy()
         if len(after) > Gene.length():
-            to_remove = []
+            to_remove: List[int] = []
             for i in range(len(after)):
-                if len(after) <= Gene.length():
+                if len(after) - len(to_remove) <= Gene.length():
                     break
                 if random.random() < self.settings.shrink_mutation_rate:
                     to_remove.append(i)
             for i in reversed(to_remove):
                 after = np.delete(after, i, 0)
+        return after
+
+    def _mutate_grow(self, before: np.ndarray) -> np.ndarray:
+        after = before.copy()
+        growth = int(len(after) * self.settings.grow_mutation_rate)
+        if growth:
+            new_bases = np.random.rand(growth)
+            after = np.concatenate([after, new_bases])
         return after
