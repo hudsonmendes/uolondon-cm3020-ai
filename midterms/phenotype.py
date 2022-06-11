@@ -51,7 +51,7 @@ class Phenotype:
             joint_origin_xyz_z=gene.joint_origin_xyz_z,
             control_waveform=PhenotypeWaveForm.parse_float(gene.control_waveform),
             control_amp=gene.control_amp * 0.25,
-            control_freq=gene.control_freq,
+            control_freq=gene.control_freq
         )
 
 

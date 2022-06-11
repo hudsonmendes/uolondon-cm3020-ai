@@ -34,45 +34,38 @@ class DnaTest(unittest.TestCase):
     def test_parse_for_n_gene_without_control(self, n: int):
         given = [random.random() for _ in range(Gene.length() * n)]
         actual = Dna.parse_dna(given)
-        self.assertEqual(0, len(actual.genes_control))
-        self.assertEqual(n, len(actual.genes_features))
+        self.assertEqual(n, len(actual.genes))
         for i in range(n):
             start = Gene.length()*i
             stop = Gene.length()*(i+1)
-            self.assertEqual(given[start:stop], actual.genes_features[i].code)
+            self.assertEqual(given[start:stop], actual.genes[i].code)
 
     @given(integers(1, Gene.length()), floats(0.51, 1))
     def test_parse_for_n_gene_with_control_on(self, n: int, control: float):
-        given = [random.random() for _ in range(Gene.length() * n)] + [control] * n
+        given = [random.random() for _ in range(Gene.length() * n-1)] + [control]
         actual = Dna.parse_dna(given)
         if len(given) % Gene.length() == 0:
-            self.assertEqual(0, len(actual.genes_control))
-            self.assertEqual(n+1, len(actual.genes_features))
+            self.assertEqual(n+1, len(actual.genes))
         else:
-            self.assertEqual(n, len(actual.genes_control))
-            self.assertEqual(n, len(actual.genes_features))
-            self.assertTrue(all(actual.genes_control))
+            self.assertEqual(n, len(actual.genes))
         for i in range(n):
             start = Gene.length()*i
             stop = Gene.length()*(i+1)
-            self.assertEqual(given[start:stop], actual.genes_features[i].code)
+            self.assertEqual(given[start:stop], actual.genes[i].code)
 
     @given(integers(1, Gene.length()), floats(0, 0.5))
     def test_parse_for_n_gene_with_control_off(self, n: int, control: float):
-        given = [random.random() for _ in range(Gene.length() * n)] + [control] * n
+        given = [random.random() for _ in range(Gene.length() * n-1)] + [control] * n
         actual = Dna.parse_dna(given)
         actual = Dna.parse_dna(given)
         if len(given) % Gene.length() == 0:
-            self.assertEqual(0, len(actual.genes_control))
-            self.assertEqual(n+1, len(actual.genes_features))
+            self.assertEqual(n+1, len(actual.genes))
         else:
-            self.assertEqual(n, len(actual.genes_control))
-            self.assertEqual(n, len(actual.genes_features))
-            self.assertTrue(not any(actual.genes_control))
+            self.assertEqual(n, len(actual.genes))
         for i in range(n):
             start = Gene.length()*i
             stop = Gene.length()*(i+1)
-            self.assertEqual(given[start:stop], actual.genes_features[i].code)
+            self.assertEqual(given[start:stop], actual.genes[i].code)
 
     def test_express_no_phenotypes_all_control_genes_off(self):
         gene_count = random.randint(1, 100)

@@ -8,7 +8,11 @@ class Gene:
 
     @staticmethod
     def length() -> int:
-        return 17
+        return 18
+
+    @staticmethod
+    def threshold_for_exrpession() -> float:
+        return 0.5
 
     def __len__(self) -> int:
         return len(self.code)
@@ -80,3 +84,7 @@ class Gene:
     @property
     def control_freq(self) -> float:
         return self.code[16]
+
+    @property
+    def control_expression(self) -> float:
+        return self.code[17]
