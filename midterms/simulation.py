@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pybullet as p
 
-from generation import Generation
+from population import Population
 from motor import Motor
 from dna import Dna
 from creature import Creature
@@ -17,22 +17,23 @@ LOGGER = logging.getLogger(__name__)
 
 class Simulation:
     """
-    Carries out the simulation either for interactive
-    visualisation OR for fitness test
+    Carries out the simulation either for interactive visualisation OR for fitness test
+    for creatures. It can also report back into a population while tracking the movements
+    of creatures, so that the fitness can be calculated.
     """
     connection_mode: int
     pid: int
-    generation: Generation
+    population: Optional[Population]
 
-    def __init__(self, connection_mode: int, generation: Generation):
-        self.generation = generation
+    def __init__(self, connection_mode: int, population: Optional[Population] = None):
+        self.population = population
         self.is_interactive = connection_mode == p.GUI
         self.pid = p.connect(connection_mode)
 
     def simulate(self, species_name: str, dna_code: Union[str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
         creature, creature_id = self._dna_into_creature(name=species_name, dna_code=dna_code)
-        self._wait_end_of_simulation(creature, creature_id, steps, self.generation)
+        self._wait_end_of_simulation(creature, creature_id, steps, self.population)
 
     def _dna_into_creature(self, name: str, dna_code: Union[List[float], str]) -> Tuple[Creature, int]:
         dna = Dna.parse_dna(dna_code)
@@ -49,14 +50,14 @@ class Simulation:
         else:
             raise Exception(F"DNA could not generate a creature: {dna_code}")
 
-    def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int], generation: Generation):
+    def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int], population: Optional[Population]):
         SimulationRunner(
             self.is_interactive,
             creature=creature,
             creature_id=creature_id,
             steps=steps,
             pid=self.pid,
-            generation=generation).run()
+            population=population).run()
 
 
 class SimulatorSetup:
@@ -95,7 +96,7 @@ class SimulationRunner:
     creature_id: int
     steps: Optional[int]
     pid: int
-    generation: Generation
+    population: Optional[Population]
 
     def __init__(
             self,
@@ -104,13 +105,13 @@ class SimulationRunner:
             creature_id: int,
             steps: Optional[int],
             pid: int,
-            generation: Generation) -> None:
+            population: Optional[Population]) -> None:
         self.is_interactive = is_interactive
         self.creature = creature
         self.creature_id = creature_id
         self.pid = pid
         self.steps = steps
-        self.generation = generation
+        self.population = population
 
     def run(self):
         p.setRealTimeSimulation(1)
@@ -120,7 +121,7 @@ class SimulationRunner:
             while self.steps is None or i < self.steps:
                 self._run_simulation_step(step=i)
                 self._update_creature_motors()
-                self._follow_creature_if_interactive()
+                self._track_crature_movement()
                 self._wait_if_interactive()
                 i += 1
             LOGGER.info(f"Simulation, Iterative Loop, Completed Steps: {self.steps}")
@@ -144,9 +145,13 @@ class SimulationRunner:
                 force=5,
                 physicsClientId=self.pid)
 
-    def _follow_creature_if_interactive(self):
+    def _track_crature_movement(self):
         pos, _ = p.getBasePositionAndOrientation(self.creature_id, physicsClientId=self.pid)
-        p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)
+        LOGGER.debug(f"Creature {self.creature.name} now in position {pos}")
+        if self.population:
+            self.population.report_movement(self.creature, pos)
+        if self.is_interactive:
+            p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)
 
     def _wait_if_interactive(self):
         if self.is_interactive:

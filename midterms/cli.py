@@ -9,7 +9,7 @@ import pybullet as p
 
 import sys
 import logging
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 def main():
