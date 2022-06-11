@@ -9,7 +9,7 @@ class MotorType(Enum):
 
 class Motor:
     def __init__(self, control_waveform, control_amp, control_freq):
-        if control_waveform <= 0.5:
+        if control_qaveform <= 0.5:
             self.motor_type = MotorType.PULSE
         else:
             self.motor_type = MotorType.SINE

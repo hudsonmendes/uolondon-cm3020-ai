@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 
 import pybullet as p
+from generation import Generation
 
 from motor import Motor
 from dna import Dna
@@ -21,17 +22,19 @@ class Simulation:
     """
     connection_mode: int
     pid: int
+    generation: Generation
 
-    def __init__(self, connection_mode: int):
+    def __init__(self, connection_mode: int, generation: Generation):
+        self.generation = generation
         self.is_interactive = connection_mode == p.GUI
         self.pid = p.connect(connection_mode)
 
     def simulate(self, species_name: str, dna_code: Union[str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
         creature, creature_id = self._dna_into_creature(name=species_name, dna_code=dna_code)
-        self._wait_end_of_simulation(creature, creature_id, steps)
+        self._wait_end_of_simulation(creature, creature_id, steps, self.generation)
 
-    def _dna_into_creature(self, name: str, dna_code: str) -> Tuple[Creature, int]:
+    def _dna_into_creature(self, name: str, dna_code: Union[List[float], str]) -> Tuple[Creature, int]:
         dna = Dna.parse_dna(dna_code)
         creature = Creature.develop_from(name=name, dna=dna)
         if creature:
@@ -46,13 +49,14 @@ class Simulation:
         else:
             raise Exception(F"DNA could not generate a creature: {dna_code}")
 
-    def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int]):
+    def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int], generation: Generation):
         SimulationRunner(
             self.is_interactive,
             creature=creature,
             creature_id=creature_id,
             steps=steps,
-            pid=self.pid).run()
+            pid=self.pid,
+            generation=generation).run()
 
 
 class SimulatorSetup:
@@ -91,6 +95,7 @@ class SimulationRunner:
     creature_id: int
     steps: Optional[int]
     pid: int
+    generation: Generation
 
     def __init__(
             self,
@@ -98,12 +103,14 @@ class SimulationRunner:
             creature: Creature,
             creature_id: int,
             steps: Optional[int],
-            pid: int) -> None:
+            pid: int,
+            generation: Generation) -> None:
         self.is_interactive = is_interactive
         self.creature = creature
         self.creature_id = creature_id
         self.pid = pid
         self.steps = steps
+        self.generation = generation
 
     def run(self):
         p.setRealTimeSimulation(1)
