@@ -32,6 +32,13 @@ class MotorTest(unittest.TestCase):
             self.assertEqual(-1., next(motor))
             self.assertEqual(+1., next(motor))
 
+    @given(integers(1, 100), floats(2., 5.))
+    def test_next_pulse_amp_x_freq_pi(self, n: int, amp: float):
+        motor = Motor(waveform=PhenotypeWaveForm.PULSE, amp=amp, freq=pi)
+        for _ in range(n):
+            self.assertEqual(-amp, next(motor))
+            self.assertEqual(+amp, next(motor))
+
     @given(integers(1, 100))
     def test_next_pulse_amp_1_freq_half_pi(self, n):
         motor = Motor(waveform=PhenotypeWaveForm.PULSE, amp=1., freq=pi/2)
@@ -40,3 +47,12 @@ class MotorTest(unittest.TestCase):
             self.assertEqual(-1., next(motor))
             self.assertEqual(-1., next(motor))
             self.assertEqual(+1., next(motor))
+
+    @given(integers(1, 100), floats(2., 5.))
+    def test_next_pulse_amp_x_freq_half_pi(self, n: int, amp: float):
+        motor = Motor(waveform=PhenotypeWaveForm.PULSE, amp=amp, freq=pi/2)
+        for _ in range(n):
+            self.assertEqual(+amp, next(motor))
+            self.assertEqual(-amp, next(motor))
+            self.assertEqual(-amp, next(motor))
+            self.assertEqual(+amp, next(motor))

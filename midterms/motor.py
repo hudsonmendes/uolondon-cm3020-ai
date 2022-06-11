@@ -34,4 +34,4 @@ class Motor(Iterator):
             output = 1. if self.phase < pi else -1.
         elif self.waveform == PhenotypeWaveForm.SINE:
             output = sine(self.phase)
-        return output
+        return output * self.amp
