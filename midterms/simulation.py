@@ -1,7 +1,7 @@
 from creature_renderer import CreatureRenderer
 from creature import Creature
 from dna import Dna
-from typing import Tuple, Optional
+from typing import List, Tuple, Optional, Union
 
 import time
 from pathlib import Path
@@ -24,7 +24,7 @@ class Simulation:
         self.is_interactive = connection_mode == p.GUI
         self.pid = p.connect(connection_mode)
 
-    def simulate(self, species_name: str, dna_code: str, steps: Optional[int] = None):
+    def simulate(self, species_name: str, dna_code: Union[str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
         creature, creature_id = self._dna_into_creature(name=species_name, dna_code=dna_code)
         self._wait_end_of_simulation(creature, creature_id, steps)
@@ -37,7 +37,7 @@ class Simulation:
             urdf = CreatureRenderer(creature).render()
             filename = Path(f'/tmp/evo-{name}.urdf')
             filename.write_text(urdf)
-            creature_id = p.loadURDF(str(urdf))
+            creature_id = p.loadURDF(str(filename))
             p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1])
             LOGGER.info(f"Simulation, Bot #{creature_id} Loaded")
             return creature, creature_id

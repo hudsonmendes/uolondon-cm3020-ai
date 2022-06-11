@@ -5,14 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: robot/new",
+            "name": "Python: creature/new",
             "type": "python",
             "request": "launch",
             "program": "cli.py",
             "args": [
-                "robot",
+                "creature",
                 "new",
-                "--species_name", "tiny",
+                "--species_name", "small",
                 "--gene_count", "5",
                 "--auto_load"
             ],
@@ -20,14 +20,14 @@
             "justMyCode": true
         },
         {
-            "name": "Python: robot/render",
+            "name": "Python: creature/render",
             "type": "python",
             "request": "launch",
             "program": "cli.py",
             "args": [
-                "robot",
+                "creature",
                 "render",
-                "--species_name", "cyanobacteria",
+                "--species_name", "tiny",
                 "--dna_index", "0"
             ],
             "console": "integratedTerminal",

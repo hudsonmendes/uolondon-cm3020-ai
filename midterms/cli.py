@@ -1,10 +1,9 @@
-from simulation import Simulation
-from creature import Creature
-from dna import Dna
-from primordial_soup import PrimordialSoup
-from typing import Optional
+from typing import List, Optional
 
 from argparse import ArgumentParser, Namespace
+
+from simulation import Simulation
+from primordial_soup import PrimordialSoup
 
 import pybullet as p
 
@@ -33,7 +32,8 @@ def action_new(args: Namespace):
 def action_render(args: Namespace):
     filename = args.target_folder / f'{args.species_name}.dna'
     dna_code = read_dna(filename=filename, index=args.dna_index)
-    Simulation(connection_mode=p.GUI).simulate(species_name=args.species_name, dna_code=dna_code)
+    if dna_code:
+        Simulation(connection_mode=p.GUI).simulate(species_name=args.species_name, dna_code=dna_code)
 
 
 def collect_args() -> Namespace:
