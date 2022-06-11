@@ -1,10 +1,15 @@
+from dataclasses import dataclass
 from typing import List
 
 
+@dataclass
 class Gene:
-    def __init__(self, code: List[float]) -> None:
+    code: List[float]
+
+    @staticmethod
+    def create_from(code: List[float]) -> "Gene":
         assert len(code) == Gene.length()
-        self.code = code
+        return Gene(code)
 
     @staticmethod
     def length() -> int:

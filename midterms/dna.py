@@ -53,5 +53,5 @@ class Dna:
         for i in range(0, len(dna_code), Gene.length()):
             dna_segment = dna_code[i:i+Gene.length()]
             if len(dna_segment) >= Gene.length():
-                genes.append(Gene(code=dna_segment))
+                genes.append(Gene.create_from(code=dna_segment))
         return genes
