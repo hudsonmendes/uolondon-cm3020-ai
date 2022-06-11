@@ -1,10 +1,15 @@
-from argparse import ArgumentParser, Namespace
 from typing import Optional
+
+from argparse import ArgumentParser, Namespace
 
 from primordial_soup import PrimordialSoup
 from dna import Dna
 from creature import Creature
 from creature_renderer import CreatureRenderer
+from simulation import Simulation
+
+import sys, logging
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def main():
@@ -32,6 +37,7 @@ def action_new(args: Namespace):
     else:
         print("Robot could not be generated")
 
+
 def action_render(args: Namespace):
     code = read_dna(filename=args.target_folder / f'{args.species_name}.dna', index=args.dna_index)
     if code:
@@ -45,24 +51,9 @@ def action_render(args: Namespace):
 
 
 def action_view(args: Namespace):
-    import time
     import pybullet as p
-    p.connect(p.GUI)
-    p.setPhysicsEngineParameter(enableFileCaching=0)
-    p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
-    p.setGravity(0, 0, -10)
-    plane_shape = p.createCollisionShape(p.GEOM_PLANE)
-    p.createMultiBody(plane_shape, plane_shape)
-    filename = args.target_folder / f'{args.species_name}.urdf'
-    p.loadURDF(str(filename))
-    p.setRealTimeSimulation(1)
-    print("Press CTRL+C to interrupt...")
-    try:
-        while True:
-            p.stepSimulation()
-            time.sleep(1.0/240)
-    except:
-        print("Simulation interrupted.")
+    simulation = Simulation(connection_mode=p.GUI)
+    simulation.run(args.target_folder / f'{args.species_name}.urdf')
 
 
 def collect_args() -> Namespace:
@@ -104,6 +95,7 @@ def collect_args() -> Namespace:
     args = parser.parse_args()
     return args
 
+
 def read_dna(filename: str, index: int) -> Optional[str]:
     with open(filename, 'r+', encoding='utf-8') as fh:
         i = 0
@@ -113,6 +105,7 @@ def read_dna(filename: str, index: int) -> Optional[str]:
                 return line
             i += 1
     return None
+
 
 def write_dna(dna: Dna, filename: str, override: bool):
     with open(filename, 'w+' if override else 'a+', encoding='utf-8') as fh:
