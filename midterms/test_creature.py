@@ -27,6 +27,9 @@ class CreatureTest(unittest.TestCase):
     def test_creature_dna(self):
         self.assertEqual(self.dna, self.creature.dna)
 
+    def test_creature_phenotypes_is_not_none(self):
+        self.assertIsNotNone(self.creature.phenotypes)
+
     def test_creature_body_is_not_none(self):
         self.assertIsNotNone(self.creature.body)
 

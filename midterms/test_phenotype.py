@@ -25,22 +25,16 @@ class PhenotypeTest(unittest.TestCase):
             PhenotypeLinkShape.SPHERE,
             PhenotypeLinkShape.parse_float(number))
 
-    @given(floats(0, 0.33))
+    @given(floats(0, 0.5))
     def test_parse_joint_type_fixed(self, number: float):
         self.assertEqual(
             PhenotypeJointType.FIXED,
             PhenotypeJointType.parse_float(number))
 
-    @given(floats(0.34, 0.66))
+    @given(floats(0.51, 1.))
     def test_parse_joint_type_revolute(self, number: float):
         self.assertEqual(
             PhenotypeJointType.REVOLUTE,
-            PhenotypeJointType.parse_float(number))
-
-    @given(floats(0.67, 1))
-    def test_parse_joint_type_prismatic(self, number: float):
-        self.assertEqual(
-            PhenotypeJointType.PRISMATIC,
             PhenotypeJointType.parse_float(number))
 
     @given(floats(0, 0.5))
@@ -184,7 +178,7 @@ class PhenotypeTest(unittest.TestCase):
     def test_control_amp(self, numbers: List[float]):
         given = Gene.create_from(numbers)
         actual = Phenotype.parse_dna(gene=given, gene_count=1)
-        self.assertEqual(given.control_amp * 0.25, actual.control_amp)
+        self.assertEqual(given.control_amp * 5.0, actual.control_amp)
 
     @given(lists(floats(0, 1), min_size=Gene.length(), max_size=Gene.length()))
     def test_control_freq(self, numbers: List[float]):

@@ -14,6 +14,7 @@ class Creature:
     """
     name: str
     dna: Dna
+    phenotypes: List[Phenotype]
     body: "CreaturePart"
 
     @staticmethod
@@ -21,7 +22,7 @@ class Creature:
         phenotypes = dna.express()
         if phenotypes:
             body = CreaturePart.part_hierarchy_from(phenotypes)
-            return Creature(name=name, dna=dna, body=body)
+            return Creature(name=name, dna=dna, phenotypes=phenotypes, body=body)
         else:
             return None
 

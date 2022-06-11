@@ -123,7 +123,7 @@ class ClassJointsRenderer:
 
     def _tag_joint(self, part: CreaturePart, joint_hierarchy: List[int]) -> xml.Element:
         tag = self.adom.createElement("joint")
-        tag.setAttribute("name", f"joint-{'-'.join([str(i) for i in joint_hierarchy])}-to-{part.phenotype.joint_parent}")
+        tag.setAttribute("name", f"joint-{'-'.join([str(i) for i in joint_hierarchy])}-to-{'-'.join([str(i) for i in joint_hierarchy[:-1]])}")
         tag.setAttribute("type", part.phenotype.joint_type.value)
         tag.appendChild(self._tag_parent(joint_hierarchy))
         tag.appendChild(self._tag_child(joint_hierarchy))

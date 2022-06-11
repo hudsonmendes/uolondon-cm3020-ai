@@ -1,12 +1,14 @@
-from creature_renderer import CreatureRenderer
-from creature import Creature
-from dna import Dna
 from typing import List, Tuple, Optional, Union
 
 import time
 from pathlib import Path
 
 import pybullet as p
+
+from motor import Motor
+from dna import Dna
+from creature import Creature
+from creature_renderer import CreatureRenderer
 
 import logging
 LOGGER = logging.getLogger(__name__)
@@ -111,7 +113,8 @@ class SimulationRunner:
             while self.steps is None or i < self.steps:
                 self._run_simulation_step(step=i)
                 self._update_creature_motors()
-                self._wait_interactive_time()
+                self._follow_creature_if_interactive()
+                self._wait_if_interactive()
                 i += 1
             LOGGER.info(f"Simulation, Iterative Loop, Completed Steps: {self.steps}")
         except p.error as e:
@@ -124,7 +127,8 @@ class SimulationRunner:
 
     def _update_creature_motors(self):
         for jid in range(p.getNumJoints(self.creature_id, physicsClientId=self.pid)):
-            motor = self.creature.motors[jid]
+            phenotype = self.creature.phenotypes[jid+1]
+            motor = Motor.generate_from(phenotype)
             p.setJointMotorControl2(
                 self.creature_id,
                 jid,
@@ -133,6 +137,10 @@ class SimulationRunner:
                 force=5,
                 physicsClientId=self.pid)
 
-    def _wait_interactive_time(self):
+    def _follow_creature_if_interactive(self):
+        pos, _ = p.getBasePositionAndOrientation(self.creature_id, physicsClientId=self.pid)
+        p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)
+
+    def _wait_if_interactive(self):
         if self.is_interactive:
             time.sleep(1.0/240)

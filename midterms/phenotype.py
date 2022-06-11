@@ -50,7 +50,7 @@ class Phenotype:
             joint_origin_xyz_y=gene.joint_origin_xyz_y,
             joint_origin_xyz_z=gene.joint_origin_xyz_z,
             control_waveform=PhenotypeWaveForm.parse_float(gene.control_waveform),
-            control_amp=gene.control_amp * 0.25,
+            control_amp=gene.control_amp * 5.,
             control_freq=gene.control_freq
         )
 
@@ -70,16 +70,13 @@ class PhenotypeLinkShape(Enum):
 class PhenotypeJointType(Enum):
     FIXED: str = "fixed"
     REVOLUTE: str = "revolute"
-    PRISMATIC: str = "prismatic"
 
     @staticmethod
     def parse_float(number: float) -> "PhenotypeJointType":
-        if number <= 0.33:
+        if number <= 0.5:
             return PhenotypeJointType.FIXED
-        elif number <= 0.66:
-            return PhenotypeJointType.REVOLUTE
         else:
-            return PhenotypeJointType.PRISMATIC
+            return PhenotypeJointType.REVOLUTE
 
 
 class PhenotypeWaveForm(Enum):
