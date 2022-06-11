@@ -20,42 +20,54 @@ class Simulation:
     connection_mode: int
     pid: int
 
-    def __init__(
-            self,
-            connection_mode: int,
-    ):
-        self.connection_mode = connection_mode
+    def __init__(self, connection_mode: int):
+        self.is_interactive = connection_mode == p.GUI
         self.pid = p.connect(connection_mode)
+
+    def simulate(self, species_name: str, dna_code: str, steps: Optional[int] = None):
+        SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
+        creature, creature_id = self._dna_into_creature(name=species_name, dna_code=dna_code)
+        self._wait_end_of_simulation(creature, creature_id, steps)
+
+    def _dna_into_creature(self, name: str, dna_code: str) -> Tuple[Creature, int]:
+        dna = Dna.parse_dna(dna_code)
+        creature = Creature.develop_from(name=name, dna=dna)
+        if creature:
+            logging.info(f"Creature, Born with name '{creature.name}'")
+            urdf = CreatureRenderer(creature).render()
+            filename = Path(f'/tmp/evo-{name}.urdf')
+            filename.write_text(urdf)
+            creature_id = p.loadURDF(str(urdf))
+            p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1])
+            LOGGER.info(f"Simulation, Bot #{creature_id} Loaded")
+            return creature, creature_id
+        else:
+            raise Exception(F"DNA could not generate a creature: {dna_code}")
+
+    def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int]):
+        SimulationRunner(
+            self.is_interactive,
+            creature=creature,
+            creature_id=creature_id,
+            steps=steps,
+            pid=self.pid).run()
+
+
+class SimulatorSetup:
+    is_interactive: bool
+    pid: int
+
+    def __init__(self, is_interactive: bool, pid: int):
+        self.is_interactive = is_interactive
+        self.pid = pid
+
+    def setup(self):
         self._disable_gui_debug_if_applicable()
         self._setup_engine()
         self._setup_ground()
 
-    def born_in_the_world(
-            self,
-            dna_code: str,
-            gen: Optional[int] = None,
-            race: Optional[int] = None) -> Tuple[Creature, int]:
-        if not gen:
-            gen = 0
-        if not race:
-            race = 0
-        name = f'evo-gen-{gen}-{race}'
-        dna = Dna.parse_dna(dna_code)
-        creature = Creature.develop_from(name=name, dna=dna)
-        if creature:
-            urdf = CreatureRenderer(creature).render()
-            filename = Path(f'/tmp/urdf-{name}.urdf')
-            filename.write_text(urdf)
-            return creature, self._setup_bot(filename)
-        else:
-            raise Exception(F"DNA could not generate a creature: {dna_code}")
-
-    def run(self, dna_code: str, steps: Optional[int] = None):
-        creature, creature_id = self.born_in_the_world(dna_code)
-        self._wait_completion(creature, creature_id, steps)
-
     def _disable_gui_debug_if_applicable(self):
-        if self.connection_mode == p.GUI:
+        if self.is_interactive:
             p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0, physicsClientId=self.pid)
             LOGGER.info("Simulation, Debuggin Disabled")
 
@@ -70,42 +82,57 @@ class Simulation:
         p.createMultiBody(shape, shape)
         LOGGER.info("Simulation, Ground Instantiated")
 
-    def _setup_bot(self, urdf: Path) -> int:
-        bot = p.loadURDF(str(urdf))
-        p.resetBasePositionAndOrientation(bot, [0, 0, 5], [0, 0, 0, 1])
-        LOGGER.info(f"Simulation, Bot #{bot} Loaded")
-        return bot
 
-    def _wait_completion(self, creature: Creature, creature_id: int, steps: Optional[int]):
+class SimulationRunner:
+    is_interactive: bool
+    creature: Creature
+    creature_id: int
+    steps: Optional[int]
+    pid: int
+
+    def __init__(
+            self,
+            is_interactive: bool,
+            creature: Creature,
+            creature_id: int,
+            steps: Optional[int],
+            pid: int) -> None:
+        self.is_interactive = is_interactive
+        self.creature = creature
+        self.creature_id = creature_id
+        self.pid = pid
+        self.steps = steps
+
+    def run(self):
         p.setRealTimeSimulation(1)
         try:
             LOGGER.info("Simulation, Iterative Loop Starting Now")
             i = 0
-            while steps is None or i < steps:
-                self._run_simulation_step(step=i, steps=steps)
-                self._update_creature_motors(creature, creature_id)
+            while self.steps is None or i < self.steps:
+                self._run_simulation_step(step=i)
+                self._update_creature_motors()
                 self._wait_interactive_time()
                 i += 1
-            LOGGER.info(f"Simulation, Iterative Loop, Completed Steps: {steps}")
+            LOGGER.info(f"Simulation, Iterative Loop, Completed Steps: {self.steps}")
         except p.error as e:
             LOGGER.info("The simulation has been interrupted")
             pass
 
-    def _run_simulation_step(self, step: int, steps: Optional[int]):
-        LOGGER.debug(f"Simulation, Step {step} out of {steps if steps else '∞'}")
+    def _run_simulation_step(self, step: int):
+        LOGGER.debug(f"Simulation, Step {step} out of {self.steps if self.steps else '∞'}")
         p.stepSimulation(physicsClientId=self.pid)
 
-    def _update_creature_motors(self, creature: Creature, creature_id: int):
-        for jid in range(p.getNumJoints(creature_id, physicsClientId=self.pid)):
-            motor = creature.motors[jid]
+    def _update_creature_motors(self):
+        for jid in range(p.getNumJoints(self.creature_id, physicsClientId=self.pid)):
+            motor = self.creature.motors[jid]
             p.setJointMotorControl2(
-                creature_id,
+                self.creature_id,
                 jid,
                 controlMode=p.VELOCITY_CONTROL,
-                targetVelocity=motor.get_output(),
+                targetVelocity=next(motor),
                 force=5,
                 physicsClientId=self.pid)
 
     def _wait_interactive_time(self):
-        if self.connection_mode == p.GUI:
+        if self.is_interactive:
             time.sleep(1.0/240)

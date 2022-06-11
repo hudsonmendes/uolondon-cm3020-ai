@@ -12,8 +12,8 @@
             "args": [
                 "robot",
                 "new",
-                "--species_name", "perettii",
-                "--gene_count", "12",
+                "--species_name", "tiny",
+                "--gene_count", "5",
                 "--auto_load"
             ],
             "console": "integratedTerminal",
@@ -29,19 +29,6 @@
                 "render",
                 "--species_name", "cyanobacteria",
                 "--dna_index", "0"
-            ],
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Python: robot/view",
-            "type": "python",
-            "request": "launch",
-            "program": "cli.py",
-            "args": [
-                "robot",
-                "view",
-                "--species_name", "cyanobacteria"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
