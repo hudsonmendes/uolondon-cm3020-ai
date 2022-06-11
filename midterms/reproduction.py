@@ -6,6 +6,8 @@ import random
 
 import numpy as np
 
+from gene import Gene
+
 
 @dataclass
 class ReproductiveSettings:
@@ -22,31 +24,44 @@ class ReproductiveSettings:
 
 @dataclass
 class Reproduction:
-    dna_code_a: List[float]
-    dna_code_b: List[float]
     settings: ReproductiveSettings = ReproductiveSettings()
 
-    def reproduce(self) -> List[float]:
-        dna = self._crossover()
+    def reproduce(self, a: List[float], b: List[float]) -> List[float]:
+        dna_code = self._crossover(np.array(a), np.array(b))
         if self.settings.point_mutation_enabled:
-            dna = self._point_mutate(dna)
-        return dna
+            dna_code = self._point_mutate(dna_code)
+        if self.settings.shrink_mutation_enabled:
+            dna_code = self._shrink_mutate(dna_code)
+        return dna_code.tolist()
 
-    def _crossover(self) -> List[float]:
-        x1_min = int(max(1, len(self.dna_code_a) * self.settings.crossover_min_len))
-        x1_max = int(min(len(self.dna_code_a), len(self.dna_code_a) * self.settings.crossover_max_len))
-        x2_min = int(max(1, len(self.dna_code_b) * self.settings.crossover_min_len))
-        x2_max = int(min(len(self.dna_code_b), len(self.dna_code_b) * self.settings.crossover_max_len))
-        x1 = random.randint(x1_min, x1_max)
-        x2 = random.randint(x2_min, x2_max)
-        g3 = np.concatenate([self.dna_code_a[:x1], self.dna_code_b[x2:]])
-        return g3.tolist()
+    def _crossover(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+        a_min = int(max(1, len(a) * self.settings.crossover_min_len))
+        a_max = int(min(len(a), len(a) * self.settings.crossover_max_len))
+        a_cut = random.randint(a_min, a_max)
+        b_min = int(max(1, len(b) * self.settings.crossover_min_len))
+        b_max = int(min(len(b), len(b) * self.settings.crossover_max_len))
+        b_cut = random.randint(b_min, b_max)
+        child_code = np.concatenate([a[:a_cut], b[b_cut:]])
+        return child_code
 
-    def _point_mutate(self, before: List[float]) -> List[float]:
-        after = copy.copy(before)
+    def _point_mutate(self, before: np.ndarray) -> np.ndarray:
+        after = before.copy()
         for i in range(len(after)):
             if random.random() < self.settings.point_mutation_rate:
                 after[i] += self.settings.point_mutation_amount
                 after[i] = min(0.99999, after[i])
                 after[i] = max(0.00001, after[i])
+        return after
+
+    def _shrink_mutate(self, before: np.ndarray) -> np.ndarray:
+        after = before.copy()
+        if len(after) > Gene.length():
+            to_remove = []
+            for i in range(len(after)):
+                if len(after) <= Gene.length():
+                    break
+                if random.random() < self.settings.shrink_mutation_rate:
+                    to_remove.append(i)
+            for i in reversed(to_remove):
+                after = np.delete(after, i, 0)
         return after

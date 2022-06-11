@@ -14,7 +14,7 @@ class ReproductionTest(unittest.TestCase):
     def setUp(self) -> None:
         self.adam = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
         self.eve = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
-        self.reproduction = Reproduction(dna_code_a=self.adam, dna_code_b=self.eve)
+        self.reproduction = Reproduction()
 
     def test_class_exists(self):
         self.assertIsNotNone(Reproduction)
@@ -37,10 +37,10 @@ class ReproductionTest(unittest.TestCase):
         self.assertListEqual(self.adam[:limit], child[:limit])
 
     def test_reproduce_applies_point_mutation_when_enabled(self):
-        reproduction_pme = Reproduction(dna_code_a=self.adam, dna_code_b=self.eve, settings=ReproductiveSettings(point_mutation_rate=1., point_mutation_amount=1.))
-        reproduction_pmd = Reproduction(dna_code_a=self.adam, dna_code_b=self.eve, settings=ReproductiveSettings(point_mutation_enabled=False, point_mutation_rate=1., point_mutation_amount=1.))
-        actual_pme = reproduction_pme.reproduce()
-        actual_pmd = reproduction_pmd.reproduce()
+        reproduction_pme = Reproduction(settings=ReproductiveSettings(point_mutation_rate=1., point_mutation_amount=1.))
+        reproduction_pmd = Reproduction(settings=ReproductiveSettings(point_mutation_enabled=False, point_mutation_rate=1., point_mutation_amount=1.))
+        actual_pme = reproduction_pme.reproduce(a=self.adam, b=self.eve)
+        actual_pmd = reproduction_pmd.reproduce(a=self.adam, b=self.eve)
         self.assertNotEqual(actual_pme, actual_pmd)
         self.assertTrue(all([base == 0.99999 for base in actual_pme]))
         self.assertTrue(not any([base == 0.99999 for base in actual_pmd]))
@@ -55,13 +55,32 @@ class ReproductionTest(unittest.TestCase):
         self.assertListEqual(self.eve[limit-diff_len:],child[limit:])
 
     def test_point_mutation_adds_1_to_all_bases_with_rate_1(self):
-        settings = ReproductiveSettings(point_mutation_rate=1., point_mutation_amount=1.)
-        reproduction = Reproduction(dna_code_a=self.adam, dna_code_b=self.eve, settings=settings)
-        actual = reproduction.reproduce()
-        self.assertTrue(all([base == 0.99999 for base in actual]))
+        reproduction = Reproduction(settings=ReproductiveSettings(point_mutation_rate=1., point_mutation_amount=1.))
+        before = [0.1 for _ in range(Gene.length() * random.randint(1, 15))]
+        after = reproduction._point_mutate(before)
+        self.assertTrue(all([base == 0.99999 for base in after]))
 
     def test_point_mutation_affects_no_gene_to_all_bases_with_rate_0(self):
-        settings = ReproductiveSettings(point_mutation_rate=0., point_mutation_amount=1.)
-        reproduction = Reproduction(dna_code_a=self.adam, dna_code_b=self.eve, settings=settings)
-        actual = reproduction.reproduce()
-        self.assertTrue(not any([base == 0.99999 for base in actual]))
+        reproduction = Reproduction(settings=ReproductiveSettings(point_mutation_rate=0., point_mutation_amount=1.))
+        before = [0.1 for _ in range(Gene.length() * random.randint(1, 15))]
+        after = reproduction._point_mutate(before)
+        self.assertTrue(not any([base == 0.99999 for base in after]))
+
+    def test_shrink_mutation_never_removes_more_than_gen_len(self):
+        reproduction = Reproduction(settings=ReproductiveSettings(shrink_mutation_rate=1.))
+        before = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
+        after = reproduction._shrink_mutate(before)
+        self.assertLess(len(after), Gene.length())
+    
+    def test_shrink_mutation_removes_some_genetic_code_when_half(self):
+        reproduction = Reproduction(settings=ReproductiveSettings(shrink_mutation_rate=0.5))
+        before = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
+        after = reproduction._shrink_mutate(before)
+        self.assertLess(len(after), int(len(before)))
+
+    def test_shrink_mutation_does_not_remove_genetic_code_when_zero(self):
+        reproduction = Reproduction(settings=ReproductiveSettings(shrink_mutation_rate=0.))
+        before = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
+        after = reproduction._shrink_mutate(before)
+        self.assertEqual(len(after), len(before))
+        
