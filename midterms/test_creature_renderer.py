@@ -170,26 +170,21 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
             connections: Dict[int, int],
             link_shape: List[float] = None,
             joint_axis_xyz: List[float] = None) -> Optional[Creature]:
-
         dna_code: List[float] = CreatureRendererTest._create_gene(connected_with_index=None, all_parts_count=0)
         for part_ix, connecting_with_ix in connections.items():
             part_dna = CreatureRendererTest._create_gene(connected_with_index=connecting_with_ix, all_parts_count=part_ix)
             dna_code.extend(part_dna)
-
         if link_shape:
             for i in range(len(link_shape)):
                 dna_code[i * Gene.length()] = link_shape[i]
-
         if joint_axis_xyz:
             for i in range(len(joint_axis_xyz)):
                 dna_code[(i+1) * Gene.length() + 7] = joint_axis_xyz[i]
-
-        dna_code += [1.] * (len(connections.items()) + 1)
         return Creature.develop_from(name="lab-rat", dna=Dna.parse_dna(dna_code))
 
     @ staticmethod
     def _create_gene(connected_with_index: Optional[int], all_parts_count: int) -> List[float]:
-        gene_code = [random.random() for _ in range(Gene.length())]
+        gene_code = [random.random() for _ in range(Gene.length()-1)] + [1.]
         if connected_with_index and all_parts_count > 0:
             gene_code[5] = (connected_with_index * (1. / float(all_parts_count))) + pow(10, -6)
         return gene_code

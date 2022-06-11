@@ -49,12 +49,9 @@ class Dna:
 
     @staticmethod
     def _read_genes_from(dna_code: List[float]) -> List[Gene]:
-        features: List[Gene] = []
-        i, end = 0, len(dna_code)
-        while i < end:
+        genes: List[Gene] = []
+        for i in range(0, len(dna_code), Gene.length()):
             dna_segment = dna_code[i:i+Gene.length()]
-            if len(dna_segment) < Gene.length():
-                break
-            features.append(Gene(code=dna_segment))
-            i += Gene.length()
-        return features
+            if len(dna_segment) >= Gene.length():
+                genes.append(Gene(code=dna_segment))
+        return genes
