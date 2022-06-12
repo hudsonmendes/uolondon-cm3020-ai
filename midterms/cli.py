@@ -66,7 +66,7 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
     evolution = evolver.evolve(generation_id=evolving_id, previous=genesis)
     LOGGER.info(f"Evolve, storing results #{evolving_id}")
     evolution_repository.write(evolution)
-    if evolution.elite_offspring:
+    if args.show_winner and evolution.elite_offspring:
         message = f"Evolve, best bot walked {evolution.elite_offspring.fitness_score}"
         if evolution.elite_previous and evolution.elite_offspring.dna_code != evolution.elite_previous.dna_code:
             message += f", before it was {evolution.elite_previous.fitness_score}"
