@@ -1,6 +1,10 @@
 from argparse import ArgumentParser, Namespace
-from hyperparams import Hyperparams
 
+import os
+import shutil
+from pathlib import Path
+
+from hyperparams import Hyperparams
 from persistence import DnaRepository, EvolutionRepository, PersistenceSettings
 from simulation import Simulation
 from primordial_soup import PrimordialSoup
@@ -52,7 +56,10 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
     if previous:
         LOGGER.info(f"Evolve, loaded generation #{args.gen_id}")
         genesis = previous.to_population()
-    hyperparams = Hyperparams(population_size=args.hp_pop_size, gene_count=args.hp_gene_count)
+    hyperparams = Hyperparams(
+        population_size=args.hp_pop_size,
+        gene_count=args.hp_gene_count,
+        point_mutation_rate=args.hp_pmr)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
     LOGGER.info(f"Evolve, will evolve generation #{evolving_id}")
@@ -71,12 +78,15 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
         except Exception as _:
             pass
         except KeyboardInterrupt as _:
-            pass    
+            pass
         return evolution.elite_offspring.fitness_score
     return 0.
 
 
 def action_optimise(args: Namespace):
+    if args.genesis_filepath and args.genesis_filepath.is_file:
+        shutil.copy(args.genesis_filepath, args.target_folder / "generation-0.evo")
+        args.gen_id = 0
     genesis_gen_id = args.gen_id
     last_score = 0.
     for i in range(args.n_generations):
@@ -117,12 +127,14 @@ def collect_args() -> Namespace:
     parser_evo_evolve = parser_evo_subparsers.add_parser("evolve")
     parser_evo_optimise = parser_evo_subparsers.add_parser("optimise")
     parser_evo_parsers = parser_evo_evolve, parser_evo_optimise
+    parser_evo_optimise.add_argument("--genesis_filepath", type=Path, help="If you want to reutilise an evolution from another experiment, enter the path")
     parser_evo_optimise.add_argument("--n_generations", type=int, help="The number of generations for which we will optimise")
     for parser_evo_parser in parser_evo_parsers:
         parser_evo_parser.add_argument("--gen_id", type=int, help="The id of the generation that will be EVOLVED")
         parser_evo_parser.add_argument("--show_winner", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
         parser_evo_parser.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
         parser_evo_parser.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
+        parser_evo_parser.add_argument("--hp_pmr", type=float, default=0.1, help="Hyperparams, point mutation rate")
         parser_evo_parser.add_argument("--hp_pop_size", type=int, default=10, help="Hyperparams, population size for the experiments")
         parser_evo_parser.add_argument("--hp_gene_count", type=int, default=1, help="Hyperparams, number of genes in the seed process")
 
