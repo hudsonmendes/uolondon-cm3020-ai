@@ -32,6 +32,19 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Python: evolver/evolve",
+            "type": "python",
+            "request": "launch",
+            "program": "cli.py",
+            "args": [
+                "evolution",
+                "evolve",
+                "--show_winner"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

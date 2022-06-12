@@ -43,10 +43,12 @@ class Evolver:
         return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
-            elite_previous=fitness.calculate_fittest_from(genesis).dna.code,
-            elite_offspring=fitness.calculate_fittest_from(offspring).dna.code,
+            elite_previous=str(fitness.calculate_fittest_from(genesis).dna),
+            elite_offspring=str(fitness.calculate_fittest_from(offspring).dna),
             offspring_fitness=[
-                EvolutionDnaFitness(dna_code=child.dna.code, fitness_score=fitness.tracker_for(child).distance_travelled)
+                EvolutionDnaFitness(
+                    dna_code=str(child.dna),
+                    fitness_score=fitness.tracker_for(child).distance_travelled)
                 for child
                 in offspring.creatures])
 
@@ -71,12 +73,12 @@ class Evolver:
 class Evolution:
     generation_id: int
     hyperparams: Hyperparams
-    elite_previous: List[float]
-    elite_offspring: List[float]
+    elite_previous: str
+    elite_offspring: str
     offspring_fitness: List["EvolutionDnaFitness"]
 
 
 @dataclass(eq=True, frozen=True, order=True)
 class EvolutionDnaFitness:
-    dna_code: List[float]
+    dna_code: str
     fitness_score: float

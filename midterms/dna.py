@@ -15,20 +15,6 @@ class Dna:
     code: List[float]
     genes: List[Gene]
 
-    def express(self) -> List[Phenotype]:
-        """
-        Expresses feature genes allowed by control genes.
-        Suppressed feature genes may still be carried forward by elite Creatures.
-        """
-        expressed: List[Gene] = []
-        for gene in self.genes:
-            if gene.control_expression > Gene.threshold_for_exrpession():
-                expressed.append(gene)
-        return [
-            Phenotype.parse_dna(gene=gene, gene_count=i+1)
-            for i, gene
-            in enumerate(expressed)]
-
     @staticmethod
     def parse_dna(data: Union[str, List[float]]) -> "Dna":
         """
@@ -55,3 +41,23 @@ class Dna:
             if len(dna_segment) >= Gene.length():
                 genes.append(Gene.create_from(code=dna_segment))
         return genes
+
+    def express(self) -> List[Phenotype]:
+        """
+        Expresses feature genes allowed by control genes.
+        Suppressed feature genes may still be carried forward by elite Creatures.
+        """
+        expressed: List[Gene] = []
+        for gene in self.genes:
+            if gene.control_expression > Gene.threshold_for_exrpession():
+                expressed.append(gene)
+        return [
+            Phenotype.parse_dna(gene=gene, gene_count=i+1)
+            for i, gene
+            in enumerate(expressed)]
+
+    def __str__(self) -> str:
+        return ','.join(str(b) for b in self.code)
+
+    def __repr__(self) -> str:
+        return str(self)

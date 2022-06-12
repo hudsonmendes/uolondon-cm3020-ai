@@ -42,12 +42,12 @@ class Simulation:
             urdf = CreatureRenderer(creature).render()
             filename = Path(f'/tmp/evo-{creature.name}.urdf')
             filename.write_text(urdf)
-            creature_id = p.loadURDF(str(filename))
-            p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1])
+            creature_id = p.loadURDF(str(filename), physicsClientId=self.pid)
+            p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1], physicsClientId=self.pid)
             LOGGER.info(f"Simulation, Bot #{creature_id} Loaded")
             return creature, creature_id
         else:
-            raise Exception(F"DNA could not generate a creature: {dna_code}")
+            raise Exception(F"DNA could not generate a creature: {creature_data}")
 
     def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int], fitness: Optional[Fitness]):
         SimulationRunner(
@@ -85,7 +85,7 @@ class SimulatorSetup:
 
     def _setup_ground(self):
         shape = p.createCollisionShape(p.GEOM_PLANE, physicsClientId=self.pid)
-        p.createMultiBody(shape, shape)
+        p.createMultiBody(shape, shape, physicsClientId=self.pid)
         LOGGER.info("Simulation, Ground Instantiated")
 
 
@@ -113,7 +113,7 @@ class SimulationRunner:
         self.fitness = fitness
 
     def run(self):
-        p.setRealTimeSimulation(1)
+        p.setRealTimeSimulation(1, physicsClientId=self.pid)
         try:
             LOGGER.info("Simulation, Iterative Loop Starting Now")
             i = 0
@@ -146,12 +146,16 @@ class SimulationRunner:
                 physicsClientId=self.pid)
 
     def _track_crature_movement(self):
-        pos, _ = p.getBasePositionAndOrientation(self.creature_id, physicsClientId=self.pid)
-        if self.fitness:
-            self.fitness.report_movement(self.creature, pos)
-        if self.is_interactive:
-            LOGGER.debug(f"Creature {self.creature.name} now in position {pos}")
-            p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)
+        try:
+            pos, _ = p.getBasePositionAndOrientation(self.creature_id, physicsClientId=self.pid)
+            if self.fitness:
+                self.fitness.report_movement(self.creature, pos)
+            if self.is_interactive:
+                LOGGER.debug(f"Creature {self.creature.name} now in position {pos}")
+                p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)
+        except Exception as e:
+            if not self.is_interactive:
+                raise e
 
     def _wait_if_interactive(self):
         if self.is_interactive:

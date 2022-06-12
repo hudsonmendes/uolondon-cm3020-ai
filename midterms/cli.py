@@ -1,10 +1,12 @@
 from typing import List, Optional
 
 from argparse import ArgumentParser, Namespace
+from hyperparams import Hyperparams
 
-from persistence import DnaRepository, PersistenceSettings
+from persistence import DnaRepository, EvolutionRepository, PersistenceSettings
 from simulation import Simulation
 from primordial_soup import PrimordialSoup
+from evolution import Evolution, Evolver
 
 import pybullet as p
 
@@ -18,8 +20,11 @@ def main():
     if args.cmdroot == "creature":
         if args.cmdrobot == "new":
             action_new(args)
-        if args.cmdrobot == "render":
+        elif args.cmdrobot == "render":
             action_render(args)
+    elif args.cmdroot == "evolution":
+        if args.cmdevo == "evolve":
+            action_evolve(args)
 
 
 def action_new(args: Namespace):
@@ -27,14 +32,23 @@ def action_new(args: Namespace):
     repository = DnaRepository(settings=PersistenceSettings(folder=args.target_folder))
     repository.write(species=args.species, dna_code=dna_code, override=args.override_dna)
     if args.auto_load:
-        Simulation(connection_mode=p.GUI).simulate(species=args.species, dna_code=dna_code)
+        Simulation(connection_mode=p.GUI).simulate(dna_code)
 
 
 def action_render(args: Namespace):
     repository = DnaRepository(settings=PersistenceSettings(folder=args.target_folder))
     dna = repository.read(species=args.species, individual=args.dna_index)
     if dna:
-        Simulation(connection_mode=p.GUI).simulate(species=args.species, dna_code=dna.code)
+        Simulation(connection_mode=p.GUI).simulate(dna.code)
+
+
+def action_evolve(args: Namespace):
+    hyperparams = Hyperparams(population_size=10)
+    evolver = Evolver(hyperparams)
+    evolution = evolver.evolve(generation_id=0 if args.gen_id is None else args.gen_id + 1)
+    repository = EvolutionRepository(settings=PersistenceSettings(folder=args.target_folder))
+    repository.write(evolution)
+    Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring)
 
 
 def collect_args() -> Namespace:
@@ -62,12 +76,12 @@ def collect_args() -> Namespace:
     parser_creature_render.add_argument("--target_folder", type=dir_path, default="./target", help="Which folder will be sourcing the URDF file?")
     parser_creature_render.add_argument("--species", type=str, help="What's the name of your bot? It must match the name of the URDF file in the `target_folder`")
 
-    parser_evo = parser_subparsers.add_parser("evo")
+    parser_evo = parser_subparsers.add_parser("evolution")
     parser_evo_subparsers = parser_evo.add_subparsers(dest="cmdevo")
-    parser_evo_genesis = parser_evo_subparsers.add_parser("genesis")
-    parser_evo_genesis.add_argument("--evolution_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
-    parser_evo_iterate = parser_evo_subparsers.add_parser("iterate")
-    parser_evo_iterate.add_argument("--evolution_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
+    parser_evo_iterate = parser_evo_subparsers.add_parser("evolve")
+    parser_evo_iterate.add_argument("--gen_id", type=int, help="The id of the generation that will be EVOLVED")
+    parser_evo_iterate.add_argument("--show_winner", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
+    parser_evo_iterate.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
     parser_evo_iterate.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
 
     args = parser.parse_args()

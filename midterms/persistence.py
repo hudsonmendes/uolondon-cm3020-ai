@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, is_dataclass, asdict
 from abc import ABC
 from typing import List, Union, Optional
 
@@ -86,7 +86,10 @@ class EvolutionRepository(BaseRepository):
         pass
 
     class EvolutionEncoder(json.JSONEncoder):
-        pass
+        def default(self, o):
+            if is_dataclass(o):
+                return asdict(o)
+            return super().default(o)
 
     def filepath(self, generation_id) -> Path:
         return self.settings.folder / f'generation-{generation_id}.evo'
@@ -103,4 +106,4 @@ class EvolutionRepository(BaseRepository):
         filepath = self.filepath(record.generation_id)
         self.ensure_file_dir(filepath)
         with open(filepath, 'w+', encoding='utf-8') as fh:
-            json.dump(record, fh, cls=EvolutionRepository.EvolutionEncoder)
+            json.dump(record, fh, indent=4, cls=EvolutionRepository.EvolutionEncoder)

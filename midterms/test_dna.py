@@ -50,3 +50,8 @@ class DnaTest(unittest.TestCase):
         self.assertGreater(len(actual), 0)
         for i, phenotype in enumerate(actual):
             self.assertTrue(phenotype.joint_parent is None or phenotype.joint_parent < i)
+
+    def test_as_str_csv(self):
+        given = [random.random() for _ in range(Gene.length())]
+        dna = Dna.parse_dna(given)
+        self.assertEqual(",".join([str(base) for base in given]), str(dna))
