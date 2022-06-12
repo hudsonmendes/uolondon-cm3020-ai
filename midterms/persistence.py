@@ -7,11 +7,10 @@ import os
 from pathlib import Path
 
 from dna import Dna
-from evolution import Evolution
+from evolution import Evolution, EvolutionDnaFitness
 
 import logging
 
-from hyperparams import Hyperparams
 LOGGER = logging.getLogger(__name__)
 
 
@@ -83,7 +82,12 @@ class EvolutionRepository(BaseRepository):
         super(EvolutionRepository, self).__init__(settings)
 
     class EvolutionDecoder(json.JSONDecoder):
-        pass
+        def decode(self, o):
+            if isinstance(o, str):
+                j = json.loads(o)
+                j['offspring_fitness'] = [EvolutionDnaFitness(**ji) for ji in j['offspring_fitness']]
+                return Evolution(**j)
+            return super().default(o)
 
     class EvolutionEncoder(json.JSONEncoder):
         def default(self, o):

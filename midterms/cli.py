@@ -4,10 +4,9 @@ from argparse import ArgumentParser, Namespace
 from hyperparams import Hyperparams
 
 from persistence import DnaRepository, EvolutionRepository, PersistenceSettings
-from population import Population
 from simulation import Simulation
 from primordial_soup import PrimordialSoup
-from evolution import Evolution, Evolver
+from evolution import Evolver
 
 import pybullet as p
 

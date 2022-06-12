@@ -41,6 +41,7 @@
             "args": [
                 "evolution",
                 "evolve",
+                "--gen_id", "0",
                 "--show_winner",
                 "--hp_pop_size", "10",
                 "--hp_gene_count", "5",
