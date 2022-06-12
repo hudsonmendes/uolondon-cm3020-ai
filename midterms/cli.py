@@ -54,7 +54,8 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
     previous = evolution_repository.read(args.gen_id)
     genesis = None
     if previous:
-        LOGGER.info(f"Evolve, loaded generation #{args.gen_id}")
+        if args.show_winner:
+            LOGGER.info(f"Generation #{args.gen_id}, loaded previous #{args.gen_id}")
         genesis = previous.to_population()
     hyperparams = Hyperparams(
         population_size=args.hp_pop_size,
@@ -62,17 +63,19 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
         point_mutation_rate=args.hp_pmr)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
-    LOGGER.info(f"Evolve, will evolve generation #{evolving_id}")
+    if args.show_winner:
+        LOGGER.info(f"Generation #{args.gen_id}, will evolve generation #{evolving_id}")
     evolution = evolver.evolve(generation_id=evolving_id, previous=genesis)
-    LOGGER.info(f"Evolve, storing results #{evolving_id}")
+    if args.show_winner:
+        LOGGER.info(f"Generation #{args.gen_id}, storing results #{evolving_id}")
     evolution_repository.write(evolution)
-    if args.show_winner and evolution.elite_offspring:
-        message = f"Evolve, best bot walked {evolution.elite_offspring.fitness_score}"
+    if evolution.elite_offspring:
+        message = f"Generation #{args.gen_id}, best bot walked {evolution.elite_offspring.fitness_score}"
         if evolution.elite_previous and evolution.elite_offspring.dna_code != evolution.elite_previous.dna_code:
-            message += f", before it was {evolution.elite_previous.fitness_score}"
+            message += f" > {evolution.elite_previous.fitness_score}"
         LOGGER.info(message)
         try:
-            if last_score < evolution.elite_offspring.fitness_score:
+            if args.show_winner and last_score < evolution.elite_offspring.fitness_score:
                 with Simulation(connection_mode=p.GUI) as simulation:
                     simulation.simulate(evolution.elite_offspring.dna_code)
         except Exception as _:
