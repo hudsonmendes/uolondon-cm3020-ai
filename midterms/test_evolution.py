@@ -10,7 +10,6 @@ from reproduction import Reproduction
 from population import Population
 from creature import Creature
 from dna import Dna
-from fitness import Fitness
 
 
 class EvolutionTest(unittest.TestCase):
@@ -27,7 +26,7 @@ class EvolutionTest(unittest.TestCase):
         self.mock_reproduce.return_value = self.dna_pool[-1]
         self.mock_populate = patch.object(Population, "populate_for").start()
         self.mock_populate.return_value = Population(creatures=self.viable_creatures)
-        self.mock_elite = patch.object(Fitness, "calculate_fittest_from").start()
+        self.mock_elite = patch.object(Population, "fittest").start()
         self.mock_elite.return_value = self.viable_creatures[3]
 
         self.hyperparams = Hyperparams()

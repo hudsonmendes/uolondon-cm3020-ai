@@ -141,7 +141,7 @@ class SimulationRunner:
     def _track_crature_movement(self):
         try:
             pos, _ = p.getBasePositionAndOrientation(self.creature_id, physicsClientId=self.pid)
-            self.creature.tracker.track(pos)
+            self.creature.movement.track(pos)
             if self.is_interactive:
                 LOGGER.debug(f"Creature {self.creature.name} now in position {pos}")
                 p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)

@@ -4,10 +4,9 @@ from typing import List, Tuple, Optional
 
 import pybullet as p
 
-from fitness import Fitness, FitnessTracker
 from hyperparams import Hyperparams
 from dna import Dna
-from creature import Creature
+from creature import Creature, CreatureMovement
 from population import Population
 from reproduction import Reproduction
 from simulation import Simulation
@@ -22,9 +21,8 @@ class Evolver:
     """
     hyperparams: Hyperparams
 
-    def __init__(self, hyperparams: Hyperparams, fitness: Fitness):
+    def __init__(self, hyperparams: Hyperparams):
         self.hyperparams = hyperparams
-        self.fitness = fitness
 
     def evolve(
             self,
@@ -43,8 +41,8 @@ class Evolver:
         return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
-            elite_previous=str(self.fitness.calculate_fittest_from(genesis).dna),
-            elite_offspring=str(self.fitness.calculate_fittest_from(offspring).dna),
+            elite_previous=str(genesis.fittest.dna),
+            elite_offspring=str(offspring.fittest.dna),
             offspring_fitness=[EvolutionDnaFitness.from_tracker(tracker) for tracker in self.fitness.trackers_for(offspring)])
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
@@ -85,7 +83,7 @@ class Evolution:
         for fitness in self.offspring_fitness:
             creature = Creature.develop_from(dna=Dna.parse_dna(fitness.dna_code))
             if creature:
-                creature.tracker.track(fitness.extract_last_position_as_tuple())
+                creature.movement.track(fitness.extract_last_position_as_tuple())
                 creatures.append(creature)
         return Population(creatures)
 
@@ -98,12 +96,12 @@ class EvolutionDnaFitness:
     fitness_score: float
 
     @staticmethod
-    def from_tracker(tracker: FitnessTracker) -> "EvolutionDnaFitness":
+    def from_creature(creature: Creature) -> "EvolutionDnaFitness":
         return EvolutionDnaFitness(
-            dna_code=str(tracker.creature.dna),
-            first_position=' '.join(str(x) for x in list(tracker.initial)),
-            last_position=' '.join(str(x) for x in list(tracker.last)) if tracker.last else '0 0 0',
-            fitness_score=tracker.distance_travelled)
+            dna_code=str(creature.dna),
+            first_position=' '.join(str(x) for x in list(creature.movement.initial)),
+            last_position=' '.join(str(x) for x in list(creature.movement.last)) if creature.movement.last else '0 0 0',
+            fitness_score=creature.movement.distance)
 
     def extract_last_position_as_tuple(self) -> Tuple[float, float, float]:
         x, y, z = [float(d) for d in self.last_position.split(' ')]

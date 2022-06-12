@@ -29,7 +29,7 @@ class Population:
         """
         Calculates the fitest of a population with the information available in the tracking system.
         """
-        dists = np.array([c.tracker.distance_travelled for c in self.creatures])
+        dists = np.array([c.movement.distance for c in self.creatures])
         winner = np.argmax(dists)
         return self.creatures[winner]
 
@@ -46,7 +46,7 @@ class Population:
         out: List[float] = []
         total = 0.
         for creature in creatures:
-            total += creature.tracker.distance_travelled
+            total += creature.movement.distance
             out.append(total)
         return out
 

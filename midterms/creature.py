@@ -19,7 +19,7 @@ class Creature:
     phenotypes: List[Phenotype] = field(repr=False)
     body: "CreaturePart" = field(repr=False)
     name: Optional[str] = field(repr=True, default_factory=lambda: f"creature-{uuid.uuid4().hex[-6:]}")
-    tracker: "CreatureTracker" = field(init=False, repr=True, compare=False, default_factory=lambda: CreatureTracker())
+    movement: "CreatureMovement" = field(init=False, repr=True, compare=False, default_factory=lambda: CreatureMovement())
     _unique_id: int = field(init=False, repr=False, compare=True, default_factory=lambda: uuid.uuid4().int)
 
     @staticmethod
@@ -62,7 +62,7 @@ class CreaturePart:
 
 
 @dataclass(eq=True, frozen=False, order=True)
-class CreatureTracker:
+class CreatureMovement:
     """
     Keeps track of the initial and last position,
     and calculates the distance travelled.
@@ -79,7 +79,7 @@ class CreatureTracker:
             self.last = position
 
     @property
-    def distance_travelled(self) -> float:
+    def distance(self) -> float:
         if self.last:
             p1 = np.asarray(self.initial)
             p2 = np.asarray(self.last)
