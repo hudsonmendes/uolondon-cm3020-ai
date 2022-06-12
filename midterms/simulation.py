@@ -32,16 +32,16 @@ class Simulation:
 
     def simulate(self, species_name: str, dna_code: Union[str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
-        creature, creature_id = self._dna_into_creature(name=species_name, dna_code=dna_code)
+        creature, creature_id = self._dna_into_creature(dna_code=dna_code)
         self._wait_end_of_simulation(creature, creature_id, steps, self.population)
 
-    def _dna_into_creature(self, name: str, dna_code: Union[List[float], str]) -> Tuple[Creature, int]:
+    def _dna_into_creature(self, dna_code: Union[List[float], str]) -> Tuple[Creature, int]:
         dna = Dna.parse_dna(dna_code)
-        creature = Creature.develop_from(name=name, dna=dna)
+        creature = Creature.develop_from(dna=dna)
         if creature:
-            logging.info(f"Creature, Born with name '{creature.name}'")
+            logging.info(f"Creature, Born with name '{creature.unique_id}'")
             urdf = CreatureRenderer(creature).render()
-            filename = Path(f'/tmp/evo-{name}.urdf')
+            filename = Path(f'/tmp/evo-{creature.unique_id}.urdf')
             filename.write_text(urdf)
             creature_id = p.loadURDF(str(filename))
             p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1])

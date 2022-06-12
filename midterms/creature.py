@@ -1,6 +1,7 @@
-from audioop import reverse
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional
+from typing import List, Optional
+
+import random
 
 from dna import Dna
 from phenotype import Phenotype
@@ -12,23 +13,31 @@ class Creature:
     Represents a living organism or robot who has a DNA (genetic code)
     and also a body from which its parts are spanned.
     """
-    name: str
     dna: Dna
     phenotypes: List[Phenotype]
     body: "CreaturePart"
+    unique_id: str = "creature-%032x" % random.getrandbits(64)
 
     @staticmethod
-    def develop_from(name: str, dna: Dna) -> Optional["Creature"]:
+    def develop_from(dna: Dna) -> Optional["Creature"]:
+        """
+        If the DNA expresses any phenotye, return the resulting creature.
+        Otherwise, returns None, signaling that no viable creature couldb e expressed.
+        """
         phenotypes = dna.express()
         if phenotypes:
             body = CreaturePart.part_hierarchy_from(phenotypes)
-            return Creature(name=name, dna=dna, phenotypes=phenotypes, body=body)
+            return Creature(dna=dna, phenotypes=phenotypes, body=body)
         else:
             return None
 
 
 @dataclass
 class CreaturePart:
+    """
+    Represents a part of the body of the creature, linking
+    it to the children parts, as well as the phenotype that produced it.
+    """
     phenotype: Phenotype
     children: List["CreaturePart"]
 

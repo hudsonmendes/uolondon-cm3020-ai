@@ -1,4 +1,4 @@
-from typing import Set, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional
 
 import numpy as np
 
@@ -7,16 +7,16 @@ from creature import Creature
 
 class Population:
     id: int
-    creatures: Set[Creature]
+    creatures: List[Creature]
     trackers: Dict[Creature, "PopulationTracker"]
 
-    def __init__(self, generation_id: int) -> None:
+    def __init__(self, generation_id: int, creatures: List[Creature]) -> None:
         self.generation_id = generation_id
-        self.creatures = set()
-        self.trackers = dict()
+        self.creatures = creatures
+        self.trackers = {}
 
     def report_movement(self, creature: Creature, position: Tuple[float, float, float]):
-        self.creatures.add(creature)
+        self.creatures.append(creature)
         self.trackers.setdefault(creature, PopulationTracker()).track(position=position)
 
     def distances_for(self, creature: Creature):

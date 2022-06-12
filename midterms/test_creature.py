@@ -19,7 +19,7 @@ class CreatureTest(unittest.TestCase):
             CreatureTest.create_gene_code(connected_with_index=1, all_parts_count=4, expressable=False)
         )
         self.dna = Dna.parse_dna(data=dna_code)
-        self.creature = Creature.develop_from(name="lab-rat", dna=self.dna)
+        self.creature = Creature.develop_from(dna=self.dna)
 
     def test_class_exists(self):
         self.assertIsNotNone(Creature)
@@ -51,7 +51,7 @@ class CreatureTest(unittest.TestCase):
             CreatureTest.create_gene_code(connected_with_index=1, all_parts_count=4, expressable=True)
         )
         dna = Dna.parse_dna(data=dna_code)
-        creature = Creature.develop_from(name="other-lab-rat", dna=dna)
+        creature = Creature.develop_from(dna=dna)
         self.assertEqual(3, len(creature.body.children[0].children))
 
     @staticmethod
