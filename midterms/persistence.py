@@ -90,7 +90,8 @@ class EvolutionRepository(BaseRepository):
         def decode(self, o):
             if isinstance(o, str):
                 j = json.loads(o)
-                j['elite_previous'] = EvolutionRecord(**j['elite_previous'])
+                if 'elite_previous' in j and j['elite_previous']:
+                    j['elite_previous'] = EvolutionRecord(**j['elite_previous'])
                 j['elite_offspring'] = EvolutionRecord(**j['elite_offspring'])
                 j['offspring_fitness'] = [EvolutionRecord(**ji) for ji in j['offspring_fitness']]
                 return Evolution(**j)

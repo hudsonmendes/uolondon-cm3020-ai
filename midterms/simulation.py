@@ -24,8 +24,15 @@ class Simulation:
     pid: int
 
     def __init__(self, connection_mode: int):
+        self.connection_mode = connection_mode
         self.is_interactive = connection_mode == p.GUI
-        self.pid = p.connect(connection_mode)
+
+    def __enter__(self):
+        self.pid = p.connect(self.connection_mode)
+        return self
+
+    def __exit__(self, type, value, traceback):
+        p.disconnect(physicsClientId=self.pid)
 
     def simulate(self, creature_data: Union[Creature, str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()

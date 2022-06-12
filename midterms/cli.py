@@ -24,6 +24,8 @@ def main():
     elif args.cmdroot == "evolution":
         if args.cmdevo == "evolve":
             action_evolve(args)
+        if args.cmdevo == "optimise":
+            action_optimise(args)
 
 
 def action_new(args: Namespace):
@@ -31,38 +33,49 @@ def action_new(args: Namespace):
     repository = DnaRepository(settings=PersistenceSettings(folder=args.target_folder))
     repository.write(species=args.species, dna_code=dna_code, override=args.override_dna)
     if args.auto_load:
-        Simulation(connection_mode=p.GUI).simulate(dna_code)
+        with Simulation(connection_mode=p.GUI) as simulation:
+            simulation.simulate(dna_code)
 
 
 def action_render(args: Namespace):
     repository = DnaRepository(settings=PersistenceSettings(folder=args.target_folder))
     dna = repository.read(species=args.species, individual=args.dna_index)
     if dna:
-        Simulation(connection_mode=p.GUI).simulate(dna.code)
+        with Simulation(connection_mode=p.GUI) as simulation:
+            simulation.simulate(dna.code)
 
 
 def action_evolve(args: Namespace):
     evolution_repository = EvolutionRepository(settings=PersistenceSettings(folder=args.target_folder))
-
     previous = evolution_repository.read(args.gen_id)
     genesis = None
     if previous:
         LOGGER.info(f"Evolve, loaded generation #{args.gen_id}")
         genesis = previous.to_population()
-
     hyperparams = Hyperparams(population_size=args.hp_pop_size, gene_count=args.hp_gene_count)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
-    LOGGER.info(f"Evolve, will evolve #{evolving_id}")
-
+    LOGGER.info(f"Evolve, will evolve generation #{evolving_id}")
     evolution = evolver.evolve(generation_id=evolving_id, previous=genesis)
-
     LOGGER.info(f"Evolve, storing results #{evolving_id}")
     evolution_repository.write(evolution)
-
     if evolution.elite_offspring:
-        LOGGER.info(f"Evolve, best bot")
-        Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring.dna_code)
+        message = f"Evolve, best bot walked {evolution.elite_offspring.fitness_score}"
+        if evolution.elite_previous and evolution.elite_offspring.dna_code != evolution.elite_previous.dna_code:
+            message += f", before it was {evolution.elite_previous.fitness_score}"
+        LOGGER.info(message)
+        try:
+            with Simulation(connection_mode=p.GUI) as simulation:
+                simulation.simulate(evolution.elite_offspring.dna_code)
+        except KeyboardInterrupt as e:
+            pass
+
+
+def action_optimise(args: Namespace):
+    genesis_gen_id = args.gen_id
+    for i in range(args.n_generations):
+        args.gen_id = genesis_gen_id + i
+        action_evolve(args)
 
 
 def collect_args() -> Namespace:
@@ -92,13 +105,17 @@ def collect_args() -> Namespace:
 
     parser_evo = parser_subparsers.add_parser("evolution")
     parser_evo_subparsers = parser_evo.add_subparsers(dest="cmdevo")
-    parser_evo_iterate = parser_evo_subparsers.add_parser("evolve")
-    parser_evo_iterate.add_argument("--gen_id", type=int, help="The id of the generation that will be EVOLVED")
-    parser_evo_iterate.add_argument("--show_winner", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
-    parser_evo_iterate.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
-    parser_evo_iterate.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
-    parser_evo_iterate.add_argument("--hp_pop_size", type=int, default=10, help="Hyperparams, population size for the experiments")
-    parser_evo_iterate.add_argument("--hp_gene_count", type=int, default=1, help="Hyperparams, number of genes in the seed process")
+    parser_evo_evolve = parser_evo_subparsers.add_parser("evolve")
+    parser_evo_optimise = parser_evo_subparsers.add_parser("optimise")
+    parser_evo_parsers = parser_evo_evolve, parser_evo_optimise
+    parser_evo_optimise.add_argument("--n_generations", type=int, help="The number of generations for which we will optimise")
+    for parser_evo_parser in parser_evo_parsers:
+        parser_evo_parser.add_argument("--gen_id", type=int, help="The id of the generation that will be EVOLVED")
+        parser_evo_parser.add_argument("--show_winner", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
+        parser_evo_parser.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
+        parser_evo_parser.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
+        parser_evo_parser.add_argument("--hp_pop_size", type=int, default=10, help="Hyperparams, population size for the experiments")
+        parser_evo_parser.add_argument("--hp_gene_count", type=int, default=1, help="Hyperparams, number of genes in the seed process")
 
     args = parser.parse_args()
     return args

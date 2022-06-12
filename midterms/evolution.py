@@ -34,17 +34,17 @@ class Evolver:
         :param generation_id {int}: the unique identifier of the generation, used for record keeping
         :param previous_population {Population}: if we are seeding the original population from persistence, uses that instead of generating a random one.
         """
-        simulation = Simulation(connection_mode=p.DIRECT)
-        genesis = self._ensure_previous_population(previous)
-        offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
-        for creature in tqdm(offspring.creatures):
-            simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
-        return Evolution(
-            generation_id=generation_id,
-            hyperparams=self.hyperparams,
-            elite_previous=EvolutionRecord.from_creature(genesis.fittest) if previous else None,
-            elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
-            offspring_fitness=[EvolutionRecord.from_creature(creature) for creature in offspring.creatures])
+        with Simulation(connection_mode=p.DIRECT) as simulation:
+            genesis = self._ensure_previous_population(previous)
+            offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
+            for creature in tqdm(offspring.creatures):
+                simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
+            return Evolution(
+                generation_id=generation_id,
+                hyperparams=self.hyperparams,
+                elite_previous=EvolutionRecord.from_creature(genesis.fittest) if previous else None,
+                elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
+                offspring_fitness=[EvolutionRecord.from_creature(creature) for creature in offspring.creatures])
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:
