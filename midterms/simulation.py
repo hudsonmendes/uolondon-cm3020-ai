@@ -30,7 +30,7 @@ class Simulation:
         self.is_interactive = connection_mode == p.GUI
         self.pid = p.connect(connection_mode)
 
-    def simulate(self, species_name: str, dna_code: Union[str, List[float]], steps: Optional[int] = None):
+    def simulate(self, species: str, dna_code: Union[str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
         creature, creature_id = self._dna_into_creature(dna_code=dna_code)
         self._wait_end_of_simulation(creature, creature_id, steps, self.population)

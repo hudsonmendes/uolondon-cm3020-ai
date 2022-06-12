@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from abc import ABCMeta
+from abc import ABC
 from typing import List, Union, Optional
 
 import json
@@ -20,7 +20,7 @@ class PersistenceSettings:
     folder: Path
 
 
-class BaseRepository(ABCMeta):
+class BaseRepository(ABC):
     settings: PersistenceSettings
 
     def __init__(self, settings: PersistenceSettings):
@@ -34,6 +34,9 @@ class BaseRepository(ABCMeta):
 
 
 class DnaRepository(BaseRepository):
+
+    def __init__(self, settings: PersistenceSettings):
+        super(DnaRepository, self).__init__(settings)
 
     def filepath(self, species: str) -> Path:
         return self.settings.folder / f"{species}.dna"
@@ -75,6 +78,9 @@ class EvolutionRepository(BaseRepository):
     Keeps Record of the Fitness Map and Hyperparams across generations,
     so the results can be observed later.
     """
+
+    def __init__(self, settings: PersistenceSettings):
+        super(EvolutionRepository, self).__init__(settings)
 
     class EvolutionDecoder(json.JSONDecoder):
         pass

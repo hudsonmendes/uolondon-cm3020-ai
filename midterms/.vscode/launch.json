@@ -12,7 +12,7 @@
             "args": [
                 "creature",
                 "new",
-                "--species_name", "small",
+                "--species", "small",
                 "--gene_count", "5",
                 "--auto_load"
             ],
@@ -27,7 +27,7 @@
             "args": [
                 "creature",
                 "render",
-                "--species_name", "tiny",
+                "--species", "tiny",
                 "--dna_index", "0"
             ],
             "console": "integratedTerminal",
