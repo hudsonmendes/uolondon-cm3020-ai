@@ -15,7 +15,7 @@ from hyperparams import Hyperparams
 LOGGER = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class PersistenceSettings:
     folder: Path
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class Gene:
     code: List[float]
 

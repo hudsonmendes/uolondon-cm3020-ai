@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Tuple, Optional
 
 from hyperparams import Hyperparams
 from creature import Creature
 from population import Population
 from simulation import Simulation
-from primordial_soup import PrimordialSoup
 
 
 class Evolver:
@@ -15,27 +14,30 @@ class Evolver:
         self.hyperparams = hyperparams
 
     def evolve(self, generation_id: int, based_on_generation_id: Optional[int] = None) -> "Evolution":
-        previous_elite = self._read_elite_from(generation_id=based_on_generation_id)
-        offspring: List[List[float]] = []
+        adam, eve = self._read_elite_from(generation_id=based_on_generation_id)
+        offspring = self._generate_offspring(adam, eve)
         fitness_map: List["EvolutionDnaFitness"] = []
         return Evolution(
             generation_id=generation_id,
             based_on_generation_id=based_on_generation_id,
             hyperparams=self.hyperparams,
-            previous_elite=previous_elite,
+            previous_elite=list([adam, eve]),
             offspring=offspring,
             fitness_map=fitness_map)
 
-    def _read_elite_from(self, generation_id: Optional[int]) -> List[List[float]]:
-        elite: List[List[float]] = []
+    def _read_elite_from(self, generation_id: Optional[int]) -> Tuple[List[float], List[float]]:
         if generation_id is None:
-            genesis_gene_count = self.hyperparams.gene_count_on_genesis
-            elite.append(PrimordialSoup.spark_life(gene_count=genesis_gene_count))
-            elite.append(PrimordialSoup.spark_life(gene_count=genesis_gene_count))
-        return elite
+            gene_count = self.hyperparams.gene_count_on_genesis
+            population = Population.generate_for(size=2, gene_count=gene_count)
+            adam, eve = population.elite_duo
+            return adam.dna.code, eve.dna.code
+        raise NotImplementedError("Only Adam & Even generation available")
+
+    def _generate_offspring(self, adam: List[float], eve:  List[float]) -> List[List[float]]:
+        return []
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class Evolution:
     generation_id: int
     based_on_generation_id: Optional[int]
@@ -45,7 +47,7 @@ class Evolution:
     fitness_map: List["EvolutionDnaFitness"]
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class EvolutionDnaFitness:
     dna_code: List[float]
     fitness_score: float

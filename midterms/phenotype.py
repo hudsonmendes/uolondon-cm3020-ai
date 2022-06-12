@@ -7,7 +7,7 @@ from numpy import pi
 from gene import Gene
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class Phenotype:
     """
     Represents the physical expression of the Genetic data
@@ -91,7 +91,7 @@ class PhenotypeWaveForm(Enum):
             return PhenotypeWaveForm.SINE
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class PhenotypeJointXYZ:
     x: int
     y: int

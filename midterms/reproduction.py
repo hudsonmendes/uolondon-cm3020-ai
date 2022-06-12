@@ -10,7 +10,7 @@ from hyperparams import Hyperparams
 from gene import Gene
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class Reproduction:
     hyperparams: Hyperparams = Hyperparams()
 

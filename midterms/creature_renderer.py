@@ -21,7 +21,7 @@ class CreatureRenderer:
         self.renderer_joints = ClassJointsRenderer(self.adom)
 
     def render(self) -> str:
-        robot_tag = self._tag_robot(name=self.creature.unique_id)
+        robot_tag = self._tag_robot(name=self.creature.name)
         for link_tag in self.renderer_links.render_all(part=self.creature.body):
             robot_tag.appendChild(link_tag)
         for joint_tag in self.renderer_joints.render_all(part=self.creature.body):

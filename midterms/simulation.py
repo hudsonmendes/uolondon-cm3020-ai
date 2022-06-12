@@ -39,9 +39,9 @@ class Simulation:
         dna = Dna.parse_dna(dna_code)
         creature = Creature.develop_from(dna=dna)
         if creature:
-            logging.info(f"Creature, Born with name '{creature.unique_id}'")
+            logging.info(f"Creature, Born with name '{creature.name}'")
             urdf = CreatureRenderer(creature).render()
-            filename = Path(f'/tmp/evo-{creature.unique_id}.urdf')
+            filename = Path(f'/tmp/evo-{creature.name}.urdf')
             filename.write_text(urdf)
             creature_id = p.loadURDF(str(filename))
             p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1])

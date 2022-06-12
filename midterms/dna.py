@@ -5,7 +5,7 @@ from phenotype import Phenotype
 from gene import Gene
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class Dna:
     """
     Holds the genetic code, and the information about

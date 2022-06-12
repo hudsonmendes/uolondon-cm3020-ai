@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-@dataclass
+@dataclass(eq=True, frozen=True, order=True)
 class Hyperparams:
     crossover_min_len = 0.25
     crossover_max_len = 0.75
