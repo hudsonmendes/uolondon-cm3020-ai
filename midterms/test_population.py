@@ -18,14 +18,14 @@ class EvolutionTest(unittest.TestCase):
         self.assertIsNotNone(Population)
 
     def test_class_creatures_match_viable_creatures(self):
-        self.assertEqual(len(self.viable_creatures), len(self.population.creatures))
+        self.assertEqual(self.population_size, len(self.population.creatures))
 
     @patch("creature.Creature")
     def test_report_creature_movement_keeps_record_of_first_and_last_positions(self, mock_creature: Mock):
         distances_walked = [(random.random(), random.random(), random.random()) for _ in range(random.randint(1, 10))]
         [self.population.report_movement(mock_creature, dist) for dist in distances_walked]
         actual = self.population.tracker_for(mock_creature)
-        self.assertEqual(distances_walked[0], actual.initial)
+        self.assertEqual((0., 0., 0.), actual.initial)
         self.assertEqual(distances_walked[-1], actual.last)
 
     def test_elite_duo_shows_creatures_who_travelled_furtest(self):
