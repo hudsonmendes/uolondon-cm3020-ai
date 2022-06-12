@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import List
 
-import copy
 import random
 
 import numpy as np
@@ -25,13 +24,12 @@ class Reproduction:
         return dna_code.tolist()
 
     def _crossover(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
-        a_min = int(max(1, len(a) * self.hyperparams.crossover_min_len))
-        a_max = int(min(len(a), len(a) * self.hyperparams.crossover_max_len))
-        a_cut = random.randint(a_min, a_max)
-        b_min = int(max(1, len(b) * self.hyperparams.crossover_min_len))
-        b_max = int(min(len(b), len(b) * self.hyperparams.crossover_max_len))
-        b_cut = random.randint(b_min, b_max)
-        child_code = np.concatenate([a[:a_cut], b[b_cut:]])
+        full = max(len(a), len(b))
+        min_len = Gene.length() //  2
+        cut_min, cut_max = int(full * 0.25), int(full * 0.75)
+        cut = random.randint(cut_min, cut_max)
+        cut_a, cut_b = min(cut, len(a) - min_len), min(cut, len(b) - min_len)
+        child_code = np.concatenate([a[:cut_a], b[cut_b:]])
         return child_code
 
     def _point_mutate(self, before: np.ndarray) -> np.ndarray:
