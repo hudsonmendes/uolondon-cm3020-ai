@@ -27,4 +27,8 @@ class EvolutionTest(unittest.TestCase):
 
     @given(integers(-1, 100))
     def test_genesis_evolution_produces_2_previous_elite_when_not_based_in_previous_generation(self, n: int):
-        self.assertEqual(2, len(self.evolver.evolve(generation_id=n).previous_elite))
+        self.assertEqual(2, len(self.evolver.evolve(generation_id=n).elite_previous))
+
+    @given(integers(-1, 100))
+    def test_genesis_evolution_produces_2_offspring_with_size_matching_hyperparams(self, n: int):
+        self.assertEqual(self.hyperparams.population_size, len(self.evolver.evolve(generation_id=n).offspring))
