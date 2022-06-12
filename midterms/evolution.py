@@ -14,11 +14,22 @@ class Evolution:
     def __init__(self, hyperparams: Hyperparams):
         self.hyperparams = hyperparams
 
-    def evolve(self, generation_id: Optional[int]) -> List["EvolutionDnaFitness"]:
-        return []
+    def evolve(self, generation_id: int) -> "EvolutionRecord":
+        fitness_map: List["EvolutionRecordDnaFitness"] = []
+        return EvolutionRecord(
+            generation_id=generation_id,
+            hyperparams=self.hyperparams,
+            fitness_map=fitness_map)
 
 
 @dataclass
-class EvolutionDnaFitness:
+class EvolutionRecord:
+    generation_id: int
+    hyperparams: Hyperparams
+    fitness_map: List["EvolutionRecordDnaFitness"]
+
+
+@dataclass
+class EvolutionRecordDnaFitness:
     dna_code: List[float]
     fitness_score: float

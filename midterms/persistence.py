@@ -1,9 +1,16 @@
 from dataclasses import dataclass
+from abc import ABCMeta
 from typing import List, Union, Optional
 
+import json
+import os
 from pathlib import Path
 
+from evolution import EvolutionRecord
+
 import logging
+
+from hyperparams import Hyperparams
 LOGGER = logging.getLogger(__name__)
 
 
@@ -12,26 +19,81 @@ class PersistenceSettings:
     folder: Path
 
 
-class DnaRepository:
+class BaseRepository(ABCMeta):
     settings: PersistenceSettings
 
     def __init__(self, settings: PersistenceSettings):
         self.settings = settings
 
+    @staticmethod
+    def ensure_file_dir(filepath: Path):
+        dir = filepath.parent
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
+
+
+class DnaRepository(BaseRepository):
+
+    def filepath(self, species: str) -> Path:
+        return self.settings.folder / f"{species}.dna"
+
+    """
+    Reads and Writes DNA into files, with options to append/override
+    as well as reading specific individuals from the store.
+    """
+
     def read(self, species: str, individual: Optional[int] = None):
+        """
+        Read a particular individual or the top one of a species DNA file.
+        """
         if not individual:
             individual = 0
-        filename = self.settings.folder / f"{species}.dna"
-        with open(filename, 'r+', encoding='utf-8') as fh:
-            for i, line in enumerate(fh):
-                if i == individual:
-                    LOGGER.info(f"DNA, {species}.dna, reading line {individual}: {line}")
-                    return line
+        filepath = self.filepath(species)
+        self.ensure_file_dir(filepath)
+        if os.path.isfile(filepath):
+            with open(filepath, 'r+', encoding='utf-8') as fh:
+                for i, line in enumerate(fh):
+                    if i == individual:
+                        LOGGER.info(f"DNA, {species}.dna, reading line {individual}: {line}")
+                        return line
         return None
 
     def write(self, species: str, dna_code: Union[List[float], str], override: bool = False):
-        filename = self.settings.folder / f"{species}.dna"
-        with open(filename, 'w+' if override else 'a+', encoding='utf-8') as fh:
+        """
+        Overrides or appends to a species DNA file.
+        """
+        filepath = self.filepath(species)
+        with open(filepath, 'w+' if override else 'a+', encoding='utf-8') as fh:
             line = dna_code if isinstance(dna_code, str) else ",".join([str(base) for base in dna_code])
             fh.write(f"{line}\n")
             LOGGER.info(f"DNA, {species}.dna, {'overriden' if override else 'appended'}: {line}")
+
+
+class EvolutionRepository(BaseRepository):
+    """
+    Keeps Record of the Fitness Map and Hyperparams across generations,
+    so the results can be observed later.
+    """
+
+    class EvolutionRecordDecoder(json.JSONDecoder):
+        pass
+
+    class EvolutionRecordEncoder(json.JSONEncoder):
+        pass
+
+    def filepath(self, generation_id) -> Path:
+        return self.settings.folder / f'generation-{generation_id}.evo'
+
+    def read(self, generation_id: int) -> Optional[EvolutionRecord]:
+        filepath = self.filepath(generation_id)
+        self.ensure_file_dir(filepath)
+        if os.path.isfile(filepath):
+            with open(filepath, 'r', encoding='utf-8') as fh:
+                return json.load(fh, cls=EvolutionRepository.EvolutionRecordDecoder)
+        return None
+
+    def write(self, record: EvolutionRecord):
+        filepath = self.filepath(record.generation_id)
+        self.ensure_file_dir(filepath)
+        with open(filepath, 'w+', encoding='utf-8') as fh:
+            json.dump(record, cls=EvolutionRepository.EvolutionRecordEncoder)
