@@ -10,7 +10,7 @@ import pybullet as p
 
 import sys
 import logging
-logging.basicConfig(stream=sys.stdout, level=logging.WARN)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 
@@ -62,7 +62,7 @@ def action_evolve(args: Namespace):
 
     if evolution.elite_offspring:
         LOGGER.info(f"Evolve, best bot")
-        Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring)
+        Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring.dna_code)
 
 
 def collect_args() -> Namespace:
