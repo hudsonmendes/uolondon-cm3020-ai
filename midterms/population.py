@@ -23,3 +23,37 @@ class Population:
 
     def __init__(self, creatures: Iterable[Creature]) -> None:
         self.creatures = sorted(set(creatures))
+
+    @property
+    def fittest(self) -> Creature:
+        """
+        Calculates the fitest of a population with the information available in the tracking system.
+        """
+        dists = np.array([c.tracker.distance_travelled for c in self.creatures])
+        winner = np.argmax(dists)
+        return self.creatures[winner]
+
+    def next_roullete_pair(self) -> Tuple[Creature, Creature]:
+        """ 
+        Using the fitness map, select randomly two parents,
+        with odds proportional to their fitness.
+        """
+        creatures = self.creatures
+        fm = self._calculate_fitness_map(creatures)
+        return self._select_parent(creatures, fm), self._select_parent(creatures, fm)
+
+    def _calculate_fitness_map(self, creatures: List[Creature]) -> List[float]:
+        out: List[float] = []
+        total = 0.
+        for creature in creatures:
+            total += creature.tracker.distance_travelled
+            out.append(total)
+        return out
+
+    def _select_parent(self, creatures: List[Creature], fm: List[float]) -> Creature:
+        r = np.random.rand()
+        r *= fm[-1]
+        for i in range(len(fm)):
+            if r <= fm[i]:
+                return creatures[i]
+        raise IndexError(f"The random '{r}' could not be found in the fitness map: {','.join([str(f) for f in fm])}")

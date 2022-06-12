@@ -19,3 +19,12 @@ class PopulationTest(unittest.TestCase):
 
     def test_class_creatures_match_viable_creatures(self):
         self.assertEqual(self.population_size, len(self.population.creatures))
+
+    def test_fittest_shows_creature_who_travelled_furthest(self):
+        creatures = self.population.creatures[0:3]
+        creature1, creature2, creature3 = creatures
+        creature1.tracker.track(0.1, 0.2, 0.3)
+        creature2.tracker.track(1., 2., 3.)
+        creature3.tracker.track(10., 20., 30.)
+        top1 = self.population.fittest
+        self.assertEqual(top1, creature3)

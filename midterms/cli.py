@@ -1,9 +1,11 @@
 from typing import List, Optional
 
 from argparse import ArgumentParser, Namespace
+from fitness import Fitness
 from hyperparams import Hyperparams
 
 from persistence import DnaRepository, EvolutionRepository, PersistenceSettings
+from population import Population
 from simulation import Simulation
 from primordial_soup import PrimordialSoup
 from evolution import Evolution, Evolver
@@ -43,11 +45,19 @@ def action_render(args: Namespace):
 
 
 def action_evolve(args: Namespace):
+    fitness = Fitness()
+    evolution_repository = EvolutionRepository(settings=PersistenceSettings(folder=args.target_folder))
+
+    previous = evolution_repository.read(args.gen_id)
+    genesis = None
+    if previous:
+        genesis = previous.to_population()
+
     hyperparams = Hyperparams(population_size=args.hp_pop_size, gene_count=args.hp_gene_count)
-    evolver = Evolver(hyperparams)
-    evolution = evolver.evolve(generation_id=0 if args.gen_id is None else args.gen_id + 1)
-    repository = EvolutionRepository(settings=PersistenceSettings(folder=args.target_folder))
-    repository.write(evolution)
+    evolver = Evolver(hyperparams, fitness)
+    evolving_id = 0 if args.gen_id is None else args.gen_id + 1
+    evolution = evolver.evolve(generation_id=evolving_id, genesis=genesis)
+    evolution_repository.write(evolution)
     Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring)
 
 

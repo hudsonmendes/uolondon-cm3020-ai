@@ -95,11 +95,12 @@ class EvolutionRepository(BaseRepository):
         return self.settings.folder / f'generation-{generation_id}.evo'
 
     def read(self, generation_id: int) -> Optional[Evolution]:
-        filepath = self.filepath(generation_id)
-        self.ensure_file_dir(filepath)
-        if os.path.isfile(filepath):
-            with open(filepath, 'r', encoding='utf-8') as fh:
-                return json.load(fh, cls=EvolutionRepository.EvolutionDecoder)
+        if generation_id is not None:
+            filepath = self.filepath(generation_id)
+            self.ensure_file_dir(filepath)
+            if os.path.isfile(filepath):
+                with open(filepath, 'r', encoding='utf-8') as fh:
+                    return json.load(fh, cls=EvolutionRepository.EvolutionDecoder)
         return None
 
     def write(self, record: Evolution):

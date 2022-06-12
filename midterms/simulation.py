@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pybullet as p
 
-from fitness import Fitness
 from motor import Motor
 from dna import Dna
 from creature import Creature
@@ -23,17 +22,15 @@ class Simulation:
     """
     connection_mode: int
     pid: int
-    fitness: Optional[Fitness]
 
-    def __init__(self, connection_mode: int, fitness: Optional[Fitness] = None):
-        self.fitness = fitness
+    def __init__(self, connection_mode: int):
         self.is_interactive = connection_mode == p.GUI
         self.pid = p.connect(connection_mode)
 
     def simulate(self, creature_data: Union[Creature, str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
         creature, creature_id = self._place_creature_into(creature_data=creature_data)
-        self._wait_end_of_simulation(creature, creature_id, steps, self.fitness)
+        self._wait_end_of_simulation(creature, creature_id, steps)
 
     def _place_creature_into(self, creature_data: Union[Creature, List[float], str]) -> Tuple[Creature, int]:
         creature = creature_data if isinstance(creature_data, Creature) else Creature.develop_from(dna=Dna.parse_dna(creature_data))
@@ -49,14 +46,13 @@ class Simulation:
         else:
             raise Exception(F"DNA could not generate a creature: {creature_data}")
 
-    def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int], fitness: Optional[Fitness]):
+    def _wait_end_of_simulation(self, creature: Creature, creature_id: int, steps: Optional[int]):
         SimulationRunner(
             self.is_interactive,
             creature=creature,
             creature_id=creature_id,
             steps=steps,
-            pid=self.pid,
-            fitness=fitness).run()
+            pid=self.pid).run()
 
 
 class SimulatorSetup:
@@ -95,7 +91,6 @@ class SimulationRunner:
     creature_id: int
     steps: Optional[int]
     pid: int
-    fitness: Optional[Fitness]
 
     def __init__(
             self,
@@ -103,14 +98,12 @@ class SimulationRunner:
             creature: Creature,
             creature_id: int,
             steps: Optional[int],
-            pid: int,
-            fitness: Optional[Fitness]) -> None:
+            pid: int) -> None:
         self.is_interactive = is_interactive
         self.creature = creature
         self.creature_id = creature_id
         self.pid = pid
         self.steps = steps
-        self.fitness = fitness
 
     def run(self):
         p.setRealTimeSimulation(1, physicsClientId=self.pid)
@@ -148,8 +141,7 @@ class SimulationRunner:
     def _track_crature_movement(self):
         try:
             pos, _ = p.getBasePositionAndOrientation(self.creature_id, physicsClientId=self.pid)
-            if self.fitness:
-                self.fitness.report_movement(self.creature, pos)
+            self.creature.tracker.track(pos)
             if self.is_interactive:
                 LOGGER.debug(f"Creature {self.creature.name} now in position {pos}")
                 p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)

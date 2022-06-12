@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Tuple, Optional
 
-import random
 import uuid
+
+import numpy as np
 
 from dna import Dna
 from phenotype import Phenotype
@@ -18,6 +19,7 @@ class Creature:
     phenotypes: List[Phenotype] = field(repr=False)
     body: "CreaturePart" = field(repr=False)
     name: Optional[str] = field(repr=True, default_factory=lambda: f"creature-{uuid.uuid4().hex[-6:]}")
+    tracker: "CreatureTracker" = field(init=False, repr=True, compare=False, default_factory=lambda: CreatureTracker())
     _unique_id: int = field(init=False, repr=False, compare=True, default_factory=lambda: uuid.uuid4().int)
 
     @staticmethod
@@ -57,3 +59,30 @@ class CreaturePart:
                 CreaturePart.part_hierarchy_from(phenotypes=phenotypes, phenotype_index=child_i)
                 for child_i
                 in child_phenotype_indexes])
+
+
+@dataclass(eq=True, frozen=False, order=True)
+class CreatureTracker:
+    """
+    Keeps track of the initial and last position,
+    and calculates the distance travelled.
+    """
+    initial: Tuple[float, float, float]
+    last: Optional[Tuple[float, float, float]]
+
+    def __init__(self):
+        self.initial = 0., 0., 0.
+        self.last = None
+
+    def track(self, position: Tuple[float, float, float]):
+        if position:
+            self.last = position
+
+    @property
+    def distance_travelled(self) -> float:
+        if self.last:
+            p1 = np.asarray(self.initial)
+            p2 = np.asarray(self.last)
+            dist = np.linalg.norm(p1-p2)
+            return float(dist)
+        return 0.
