@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
+import pybullet as p
+
 from hyperparams import Hyperparams
 from dna import Dna
 from creature import Creature
 from population import Population
 from reproduction import Reproduction
+from simulation import Simulation
 
 
 class Evolver:
@@ -29,23 +32,22 @@ class Evolver:
         :param generation_id {int}: the unique identifier of the generation, used for record keeping
         :param previous_population {Population}: if we are seeding the original population from persistence, uses that instead of generating a random one.
         """
-        adam, eve = self._ensure_previous_population(previous_population).elite_duo
-        offspring = self._reproduce_into_offspring_population(adam, eve)
-        fitness_map: List["EvolutionDnaFitness"] = []
+        previous = self._ensure_previous_population(previous_population)
+        offspring = self._reproduce_into_offspring_population(previous)
+        simulation = Simulation(connection_mode=p.DIRECT, population=offspring)
         return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
-            elite_previous=[adam.dna.code, eve.dna.code],
-            elite_offspring=[child.dna.code for child in offspring.elite_duo],
-            offspring=[child.dna.code for child in offspring.creatures],
-            fitness_map=fitness_map)
+            elite_previous=previous.elite_duo,
+            elite_offspring=[child.dna.code for child in offspring.roulet_pair],
+            offspring=[child.dna.code for child in offspring.creatures])
 
-    def _ensure_previous_population(self, previous_population: Optional[Population]) -> Population:
-        if not previous_population:
-            previous_population = Population.generate_for(size=2, gene_count=self.hyperparams.gene_count_on_genesis)
-        return previous_population
+    def _ensure_previous_population(self, population: Optional[Population]) -> Population:
+        if not population:
+            population = Population.generate_for(size=2, gene_count=self.hyperparams.gene_count_on_genesis)
+        return population
 
-    def _reproduce_into_offspring_population(self, adam: Creature, eve: Creature) -> Population:
+    def _reproduce_into_offspring_population(self, population: Population) -> Population:
         reproduction = Reproduction(self.hyperparams)
         viable_creatures: List[Creature] = []
         while len(viable_creatures) < self.hyperparams.population_size:
@@ -62,8 +64,7 @@ class Evolution:
     hyperparams: Hyperparams
     elite_previous: List[List[float]]
     elite_offspring: List[List[float]]
-    offspring: List[List[float]]
-    fitness_map: List["EvolutionDnaFitness"]
+    offspring_fitness: List["EvolutionDnaFitness"]
 
 
 @dataclass(eq=True, frozen=True, order=True)

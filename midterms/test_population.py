@@ -28,12 +28,11 @@ class PopulationTest(unittest.TestCase):
         self.assertEqual((0., 0., 0.), actual.initial)
         self.assertEqual(distances_walked[-1], actual.last)
 
-    def test_elite_duo_shows_creatures_who_travelled_furtest(self):
-        creatures = sorted(self.population.creatures)[0:3]
+    def test_fittest_shows_creature_who_travelled_furthest(self):
+        creatures = self.population.creatures[0:3]
         creature1, creature2, creature3 = creatures
         self.population.report_movement(creature1, (0.1, 0.2, 0.3))
         self.population.report_movement(creature2, (1., 2., 3.))
         self.population.report_movement(creature3, (10., 20., 30.))
-        top1, top2 = self.population.elite_duo
+        top1 = self.population.fittest
         self.assertEqual(top1, creature3)
-        self.assertEqual(top2, creature2)

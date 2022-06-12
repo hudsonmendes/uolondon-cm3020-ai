@@ -30,14 +30,13 @@ class Simulation:
         self.is_interactive = connection_mode == p.GUI
         self.pid = p.connect(connection_mode)
 
-    def simulate(self, species: str, dna_code: Union[str, List[float]], steps: Optional[int] = None):
+    def simulate(self, creature_data: Union[Creature, str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
-        creature, creature_id = self._dna_into_creature(dna_code=dna_code)
+        creature, creature_id = self._place_creature_into(creature_data=creature_data)
         self._wait_end_of_simulation(creature, creature_id, steps, self.population)
 
-    def _dna_into_creature(self, dna_code: Union[List[float], str]) -> Tuple[Creature, int]:
-        dna = Dna.parse_dna(dna_code)
-        creature = Creature.develop_from(dna=dna)
+    def _place_creature_into(self, creature_data: Union[Creature, List[float], str]) -> Tuple[Creature, int]:
+        creature = creature_data if isinstance(creature_data, Creature) else Creature.develop_from(dna=Dna.parse_dna(creature_data))
         if creature:
             logging.info(f"Creature, Born with name '{creature.name}'")
             urdf = CreatureRenderer(creature).render()
@@ -130,7 +129,8 @@ class SimulationRunner:
             pass
 
     def _run_simulation_step(self, step: int):
-        LOGGER.debug(f"Simulation, Step {step} out of {self.steps if self.steps else '∞'}")
+        if self.steps and not self.is_interactive:
+            LOGGER.debug(f"Simulation, Step {step} out of {self.steps if self.steps else '∞'}")
         p.stepSimulation(physicsClientId=self.pid)
 
     def _update_creature_motors(self):
@@ -147,10 +147,10 @@ class SimulationRunner:
 
     def _track_crature_movement(self):
         pos, _ = p.getBasePositionAndOrientation(self.creature_id, physicsClientId=self.pid)
-        LOGGER.debug(f"Creature {self.creature.name} now in position {pos}")
         if self.population:
             self.population.report_movement(self.creature, pos)
         if self.is_interactive:
+            LOGGER.debug(f"Creature {self.creature.name} now in position {pos}")
             p.resetDebugVisualizerCamera(cameraDistance=5, cameraYaw=100, cameraPitch=-50, cameraTargetPosition=pos, physicsClientId=self.pid)
 
     def _wait_if_interactive(self):
