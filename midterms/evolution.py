@@ -35,7 +35,7 @@ class Evolver:
         """
         simulation = Simulation(connection_mode=p.DIRECT)
         genesis = self._ensure_previous_population(previous)
-        offspring = self._reproduce_into_offspring_population(genesis, elitist=True)
+        offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
         for creature in offspring.creatures:
             simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
         return Evolution(
