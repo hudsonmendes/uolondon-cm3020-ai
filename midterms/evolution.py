@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from distutils.ccompiler import gen_preprocess_options
 from typing import List, Optional
 
 import pybullet as p
+from fitness import Fitness
 
 from hyperparams import Hyperparams
 from dna import Dna
@@ -26,44 +28,51 @@ class Evolver:
     def evolve(
             self,
             generation_id: int,
-            previous_population: Optional[Population] = None) -> "Evolution":
+            genesis: Optional[Population] = None) -> "Evolution":
         """
         Runs the next generation of evolution.
         :param generation_id {int}: the unique identifier of the generation, used for record keeping
         :param previous_population {Population}: if we are seeding the original population from persistence, uses that instead of generating a random one.
         """
-        previous = self._ensure_previous_population(previous_population)
-        offspring = self._reproduce_into_offspring_population(previous)
-        simulation = Simulation(connection_mode=p.DIRECT, population=offspring)
+        fitness = Fitness()
+        simulation = Simulation(connection_mode=p.DIRECT, fitness=fitness)
+        genesis = self._ensure_previous_population(genesis)
+        offspring = self._reproduce_into_offspring_population(genesis, fitness)
+        for creature in offspring.creatures:
+            simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
         return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
-            elite_previous=previous.elite_duo,
-            elite_offspring=[child.dna.code for child in offspring.roulet_pair],
-            offspring=[child.dna.code for child in offspring.creatures])
+            elite_previous=fitness.calculate_fittest_from(genesis).dna.code,
+            elite_offspring=fitness.calculate_fittest_from(offspring).dna.code,
+            offspring_fitness=[
+                EvolutionDnaFitness(dna_code=child.dna.code, fitness_score=fitness.tracker_for(child).distance_travelled)
+                for child
+                in offspring.creatures])
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:
-            population = Population.generate_for(size=2, gene_count=self.hyperparams.gene_count_on_genesis)
+            population = Population.populate_for(size=2, gene_count=self.hyperparams.gene_count_on_genesis)
         return population
 
-    def _reproduce_into_offspring_population(self, population: Population) -> Population:
+    def _reproduce_into_offspring_population(self, previous: Population, fitness: Fitness) -> Population:
         reproduction = Reproduction(self.hyperparams)
         viable_creatures: List[Creature] = []
         while len(viable_creatures) < self.hyperparams.population_size:
-            dna_code = reproduction.reproduce(adam.dna.code, eve.dna.code)
-            creature = Creature.develop_from(dna=Dna.parse_dna(dna_code))
-            if creature:
-                viable_creatures.append(creature)
-        return Population(creatures=viable_creatures)
+            adam, eve = fitness.next_roullete_pair_from(previous)
+            new = reproduction.reproduce(adam.dna.code, eve.dna.code)
+            child = Creature.develop_from(dna=Dna.parse_dna(new))
+            if child:
+                viable_creatures.append(child)
+        return Population(viable_creatures)
 
 
 @dataclass(eq=True, frozen=True, order=True)
 class Evolution:
     generation_id: int
     hyperparams: Hyperparams
-    elite_previous: List[List[float]]
-    elite_offspring: List[List[float]]
+    elite_previous: List[float]
+    elite_offspring: List[float]
     offspring_fitness: List["EvolutionDnaFitness"]
 
 
