@@ -3,16 +3,16 @@ from unittest.mock import patch, Mock
 
 import random
 
-from evolution import Evolution
+from evolution import Evolver
 
 
 class EvolutionTest(unittest.TestCase):
 
     def test_lass_exists(self):
-        self.assertIsNotNone(Evolution)
+        self.assertIsNotNone(Evolver)
 
     def setUp(self) -> None:
-        self.evolution = Evolution()
+        self.evolution = Evolver()
 
     @patch("simulation.Simulation")
     def test_evolve_shoud_run_simulation(self, simulation_mock: Mock):

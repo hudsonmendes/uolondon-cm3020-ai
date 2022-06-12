@@ -8,28 +8,34 @@ from simulation import Simulation
 from primordial_soup import PrimordialSoup
 
 
-class Evolution:
+class Evolver:
     hyperparams: Hyperparams
 
     def __init__(self, hyperparams: Hyperparams):
         self.hyperparams = hyperparams
 
-    def evolve(self, generation_id: int) -> "EvolutionRecord":
-        fitness_map: List["EvolutionRecordDnaFitness"] = []
-        return EvolutionRecord(
+    def evolve(self, generation_id: int) -> "Evolution":
+        previous_elite: List[List[float]]
+        offspring: List[List[float]]
+        fitness_map: List["EvolutionDnaFitness"] = []
+        return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
+            previous_elite=previous_elite,
+            offspring=offspring,
             fitness_map=fitness_map)
 
 
 @dataclass
-class EvolutionRecord:
+class Evolution:
     generation_id: int
     hyperparams: Hyperparams
-    fitness_map: List["EvolutionRecordDnaFitness"]
+    previous_elite: List[List[float]]
+    offspring: List[List[float]]
+    fitness_map: List["EvolutionDnaFitness"]
 
 
 @dataclass
-class EvolutionRecordDnaFitness:
+class EvolutionDnaFitness:
     dna_code: List[float]
     fitness_score: float

@@ -6,7 +6,8 @@ import json
 import os
 from pathlib import Path
 
-from evolution import EvolutionRecord
+from dna import Dna
+from evolution import Evolution
 
 import logging
 
@@ -42,7 +43,7 @@ class DnaRepository(BaseRepository):
     as well as reading specific individuals from the store.
     """
 
-    def read(self, species: str, individual: Optional[int] = None):
+    def read(self, species: str, individual: Optional[int] = None) -> Optional[Dna]:
         """
         Read a particular individual or the top one of a species DNA file.
         """
@@ -55,7 +56,7 @@ class DnaRepository(BaseRepository):
                 for i, line in enumerate(fh):
                     if i == individual:
                         LOGGER.info(f"DNA, {species}.dna, reading line {individual}: {line}")
-                        return line
+                        return Dna.parse_dna(line)
         return None
 
     def write(self, species: str, dna_code: Union[List[float], str], override: bool = False):
@@ -75,25 +76,25 @@ class EvolutionRepository(BaseRepository):
     so the results can be observed later.
     """
 
-    class EvolutionRecordDecoder(json.JSONDecoder):
+    class EvolutionDecoder(json.JSONDecoder):
         pass
 
-    class EvolutionRecordEncoder(json.JSONEncoder):
+    class EvolutionEncoder(json.JSONEncoder):
         pass
 
     def filepath(self, generation_id) -> Path:
         return self.settings.folder / f'generation-{generation_id}.evo'
 
-    def read(self, generation_id: int) -> Optional[EvolutionRecord]:
+    def read(self, generation_id: int) -> Optional[Evolution]:
         filepath = self.filepath(generation_id)
         self.ensure_file_dir(filepath)
         if os.path.isfile(filepath):
             with open(filepath, 'r', encoding='utf-8') as fh:
-                return json.load(fh, cls=EvolutionRepository.EvolutionRecordDecoder)
+                return json.load(fh, cls=EvolutionRepository.EvolutionDecoder)
         return None
 
-    def write(self, record: EvolutionRecord):
+    def write(self, record: Evolution):
         filepath = self.filepath(record.generation_id)
         self.ensure_file_dir(filepath)
         with open(filepath, 'w+', encoding='utf-8') as fh:
-            json.dump(record, cls=EvolutionRepository.EvolutionRecordEncoder)
+            json.dump(record, fh, cls=EvolutionRepository.EvolutionEncoder)
