@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from argparse import ArgumentParser, Namespace
 
+from persistence import DnaRepository, PersistenceSettings
 from simulation import Simulation
 from primordial_soup import PrimordialSoup
 
@@ -22,16 +23,16 @@ def main():
 
 
 def action_new(args: Namespace):
-    filename = args.target_folder / f'{args.species_name}.dna'
     dna_code = PrimordialSoup.spark_life(args.gene_count)
-    write_dna(dna_code, filename=filename, override=args.override_dna)
+    repository = DnaRepository(settings=PersistenceSettings(folder=args.target_folder))
+    repository.write(species=args.species_name, dna_code=dna_code, override=args.override_dna)
     if args.auto_load:
         Simulation(connection_mode=p.GUI).simulate(species_name=args.species_name, dna_code=dna_code)
 
 
 def action_render(args: Namespace):
-    filename = args.target_folder / f'{args.species_name}.dna'
-    dna_code = read_dna(filename=filename, index=args.dna_index)
+    repository = DnaRepository(settings=PersistenceSettings(folder=args.target_folder))
+    dna_code = repository.read(species=args.species_name, individual=args.dna_index)
     if dna_code:
         Simulation(connection_mode=p.GUI).simulate(species_name=args.species_name, dna_code=dna_code)
 
@@ -71,24 +72,6 @@ def collect_args() -> Namespace:
 
     args = parser.parse_args()
     return args
-
-
-def read_dna(filename: str, index: int) -> Optional[str]:
-    with open(filename, 'r+', encoding='utf-8') as fh:
-        i = 0
-        for line in fh:
-            if i == index:
-                print(f"> Read DNA[{i}] : {line}")
-                return line
-            i += 1
-    return None
-
-
-def write_dna(dna_code: List[float], filename: str, override: bool):
-    with open(filename, 'w+' if override else 'a+', encoding='utf-8') as fh:
-        fh.write(",".join([str(base) for base in dna_code]))
-        fh.write("\n")
-    print(f"> Output DNA : {str(filename)}")
 
 
 main()
