@@ -33,7 +33,7 @@ class Population:
         winner = np.argmax(dists)
         return self.creatures[winner]
 
-    def next_roullete_pair(self) -> Tuple[Creature, Creature]:
+    def next_roulette_pair(self) -> Tuple[Creature, Creature]:
         """ 
         Using the fitness map, select randomly two parents,
         with odds proportional to their fitness.

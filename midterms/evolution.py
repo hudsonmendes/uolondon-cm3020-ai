@@ -6,7 +6,7 @@ import pybullet as p
 
 from hyperparams import Hyperparams
 from dna import Dna
-from creature import Creature, CreatureMovement
+from creature import Creature
 from population import Population
 from reproduction import Reproduction
 from simulation import Simulation
@@ -43,7 +43,7 @@ class Evolver:
             hyperparams=self.hyperparams,
             elite_previous=str(genesis.fittest.dna),
             elite_offspring=str(offspring.fittest.dna),
-            offspring_fitness=[EvolutionDnaFitness.from_tracker(tracker) for tracker in self.fitness.trackers_for(offspring)])
+            offspring_fitness=[EvolutionDnaFitness.from_creature(creature) for creature in offspring.creatures])
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:
@@ -54,7 +54,7 @@ class Evolver:
         reproduction = Reproduction(self.hyperparams)
         viable_creatures: List[Creature] = []
         while len(viable_creatures) < self.hyperparams.population_size:
-            adam, eve = self.fitness.next_roullete_pair_from(previous)
+            adam, eve = previous.next_roulette_pair()
             new = reproduction.reproduce(adam.dna.code, eve.dna.code)
             child = Creature.develop_from(dna=Dna.parse_dna(new))
             if child:
