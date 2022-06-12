@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from argparse import ArgumentParser, Namespace
 from hyperparams import Hyperparams
 
@@ -12,7 +10,8 @@ import pybullet as p
 
 import sys
 import logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.WARN)
+LOGGER = logging.getLogger(__name__)
 
 
 def main():
@@ -48,14 +47,22 @@ def action_evolve(args: Namespace):
     previous = evolution_repository.read(args.gen_id)
     genesis = None
     if previous:
+        LOGGER.info(f"Evolve, loaded generation #{args.gen_id}")
         genesis = previous.to_population()
 
     hyperparams = Hyperparams(population_size=args.hp_pop_size, gene_count=args.hp_gene_count)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
+    LOGGER.info(f"Evolve, will evolve #{evolving_id}")
+
     evolution = evolver.evolve(generation_id=evolving_id, previous=genesis)
+
+    LOGGER.info(f"Evolve, storing results #{evolving_id}")
     evolution_repository.write(evolution)
-    Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring)
+
+    if evolution.elite_offspring:
+        LOGGER.info(f"Evolve, best bot")
+        Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring)
 
 
 def collect_args() -> Namespace:

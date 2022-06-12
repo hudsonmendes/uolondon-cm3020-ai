@@ -46,7 +46,7 @@ class EvolutionTest(unittest.TestCase):
         self.assertEqual(n, self.evolver.evolve(generation_id=n).generation_id)
 
     def test_evolve_produces_elite_previous(self):
-        self.assertEqual(str(self.elite_previous.dna), self.evolver.evolve(generation_id=0).elite_previous)
+        self.assertEqual(str(self.elite_previous.dna), self.evolver.evolve(generation_id=0).elite_previous.dna_code)
 
     def test_evolve_produces_elite_offspring(self):
-        self.assertEqual(str(self.elite_offspring.dna), self.evolver.evolve(generation_id=0).elite_offspring)
+        self.assertEqual(str(self.elite_offspring.dna), self.evolver.evolve(generation_id=0).elite_offspring.dna_code)

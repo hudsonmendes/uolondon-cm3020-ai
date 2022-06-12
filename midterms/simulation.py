@@ -41,7 +41,7 @@ class Simulation:
             filename.write_text(urdf)
             creature_id = p.loadURDF(str(filename), physicsClientId=self.pid)
             p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1], physicsClientId=self.pid)
-            LOGGER.info(f"Simulation, Bot #{creature_id} Loaded")
+            LOGGER.debug(f"Simulation, Bot #{creature_id} Loaded")
             return creature, creature_id
         else:
             raise Exception(F"DNA could not generate a creature: {creature_data}")
@@ -71,18 +71,18 @@ class SimulatorSetup:
     def _disable_gui_debug_if_applicable(self):
         if self.is_interactive:
             p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0, physicsClientId=self.pid)
-            LOGGER.info("Simulation, Debuggin Disabled")
+            LOGGER.debug("Simulation, Debuggin Disabled")
 
     def _setup_engine(self):
         p.resetSimulation(physicsClientId=self.pid)
         p.setPhysicsEngineParameter(enableFileCaching=0, physicsClientId=self.pid)
         p.setGravity(0, 0, -10, physicsClientId=self.pid)
-        LOGGER.info("Simulation, Engine Ready")
+        LOGGER.debug("Simulation, Engine Ready")
 
     def _setup_ground(self):
         shape = p.createCollisionShape(p.GEOM_PLANE, physicsClientId=self.pid)
         p.createMultiBody(shape, shape, physicsClientId=self.pid)
-        LOGGER.info("Simulation, Ground Instantiated")
+        LOGGER.debug("Simulation, Ground Instantiated")
 
 
 class SimulationRunner:
@@ -108,7 +108,7 @@ class SimulationRunner:
     def run(self):
         p.setRealTimeSimulation(1, physicsClientId=self.pid)
         try:
-            LOGGER.info("Simulation, Iterative Loop Starting Now")
+            LOGGER.debug("Simulation, Iterative Loop Starting Now")
             i = 0
             while self.steps is None or i < self.steps:
                 self._run_simulation_step(step=i)
@@ -116,9 +116,9 @@ class SimulationRunner:
                 self._track_crature_movement()
                 self._wait_if_interactive()
                 i += 1
-            LOGGER.info(f"Simulation, Iterative Loop, Completed Steps: {self.steps}")
+            LOGGER.debug(f"Simulation, Iterative Loop, Completed Steps: {self.steps}")
         except p.error as e:
-            LOGGER.info("The simulation has been interrupted")
+            LOGGER.debug("The simulation has been interrupted")
             pass
 
     def _run_simulation_step(self, step: int):

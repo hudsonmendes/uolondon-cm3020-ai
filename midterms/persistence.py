@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 from dna import Dna
-from evolution import Evolution, EvolutionDnaFitness
+from evolution import Evolution, EvolutionRecord
 
 import logging
 
@@ -49,10 +49,15 @@ class DnaRepository(BaseRepository):
         """
         Read a particular individual or the top one of a species DNA file.
         """
-        if not individual:
-            individual = 0
         filepath = self.filepath(species)
         self.ensure_file_dir(filepath)
+        if individual is None:
+            count = 0
+            with open(filepath, 'r+', encoding='utf-8') as fh:
+                for i, line in enumerate(fh):
+                    if line:
+                        count = i
+            individual = count
         if os.path.isfile(filepath):
             with open(filepath, 'r+', encoding='utf-8') as fh:
                 for i, line in enumerate(fh):
@@ -85,7 +90,7 @@ class EvolutionRepository(BaseRepository):
         def decode(self, o):
             if isinstance(o, str):
                 j = json.loads(o)
-                j['offspring_fitness'] = [EvolutionDnaFitness(**ji) for ji in j['offspring_fitness']]
+                j['offspring_fitness'] = [EvolutionRecord(**ji) for ji in j['offspring_fitness']]
                 return Evolution(**j)
             return super().default(o)
 

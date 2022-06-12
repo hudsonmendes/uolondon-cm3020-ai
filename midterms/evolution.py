@@ -3,6 +3,7 @@ from distutils.ccompiler import gen_preprocess_options
 from typing import List, Tuple, Optional
 
 import pybullet as p
+from tqdm import tqdm
 
 from hyperparams import Hyperparams
 from dna import Dna
@@ -36,14 +37,14 @@ class Evolver:
         simulation = Simulation(connection_mode=p.DIRECT)
         genesis = self._ensure_previous_population(previous)
         offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
-        for creature in offspring.creatures:
+        for creature in tqdm(offspring.creatures):
             simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
         return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
-            elite_previous=str(genesis.fittest.dna) if previous else None,
-            elite_offspring=str(offspring.fittest.dna),
-            offspring_fitness=[EvolutionDnaFitness.from_creature(creature) for creature in offspring.creatures])
+            elite_previous=EvolutionRecord.from_creature(genesis.fittest) if genesis else None,
+            elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if genesis else None,
+            offspring_fitness=[EvolutionRecord.from_creature(creature) for creature in offspring.creatures])
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:
@@ -72,9 +73,9 @@ class Evolution:
     """
     generation_id: int
     hyperparams: Hyperparams
-    elite_previous: Optional[str] = None
-    elite_offspring: Optional[str] = None
-    offspring_fitness: Optional[List["EvolutionDnaFitness"]] = None
+    elite_previous: Optional["EvolutionRecord"] = None
+    elite_offspring: Optional["EvolutionRecord"] = None
+    offspring_fitness: Optional[List["EvolutionRecord"]] = None
 
     def to_population(self) -> Population:
         """
@@ -90,17 +91,16 @@ class Evolution:
                     creatures.append(creature)
         return Population(creatures)
 
-
 @dataclass(eq=True, frozen=True, order=True)
-class EvolutionDnaFitness:
+class EvolutionRecord:
     dna_code: str
     first_position: str
     last_position: str
     fitness_score: float
 
     @staticmethod
-    def from_creature(creature: Creature) -> "EvolutionDnaFitness":
-        return EvolutionDnaFitness(
+    def from_creature(creature: Creature) -> "EvolutionRecord":
+        return EvolutionRecord(
             dna_code=str(creature.dna),
             first_position=' '.join(str(x) for x in list(creature.movement.initial)),
             last_position=' '.join(str(x) for x in list(creature.movement.last)) if creature.movement.last else '0 0 0',
