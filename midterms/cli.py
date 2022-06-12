@@ -45,7 +45,7 @@ def action_render(args: Namespace):
             simulation.simulate(dna.code)
 
 
-def action_evolve(args: Namespace):
+def action_evolve(args: Namespace, last_score: float = 0) -> float:
     evolution_repository = EvolutionRepository(settings=PersistenceSettings(folder=args.target_folder))
     previous = evolution_repository.read(args.gen_id)
     genesis = None
@@ -65,17 +65,26 @@ def action_evolve(args: Namespace):
             message += f", before it was {evolution.elite_previous.fitness_score}"
         LOGGER.info(message)
         try:
-            with Simulation(connection_mode=p.GUI) as simulation:
-                simulation.simulate(evolution.elite_offspring.dna_code)
-        except KeyboardInterrupt as e:
+            if last_score < evolution.elite_offspring.fitness_score:
+                with Simulation(connection_mode=p.GUI) as simulation:
+                    simulation.simulate(evolution.elite_offspring.dna_code)
+        except Exception as _:
             pass
+        except KeyboardInterrupt as _:
+            pass    
+        return evolution.elite_offspring.fitness_score
+    return 0.
 
 
 def action_optimise(args: Namespace):
     genesis_gen_id = args.gen_id
+    last_score = 0.
     for i in range(args.n_generations):
-        args.gen_id = genesis_gen_id + i
-        action_evolve(args)
+        if i != 0:
+            if genesis_gen_id is None:
+                genesis_gen_id = 0
+            args.gen_id = genesis_gen_id + i
+        last_score = max(last_score, action_evolve(args, last_score))
 
 
 def collect_args() -> Namespace:
