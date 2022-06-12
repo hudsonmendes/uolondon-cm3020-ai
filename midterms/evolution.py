@@ -54,7 +54,7 @@ class Evolver:
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:
-            population = Population.populate_for(size=2, gene_count=self.hyperparams.gene_count_on_genesis)
+            population = Population.populate_for(size=2, gene_count=self.hyperparams.gene_count)
         return population
 
     def _reproduce_into_offspring_population(self, previous: Population, fitness: Fitness) -> Population:

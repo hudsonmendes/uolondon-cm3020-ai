@@ -16,4 +16,4 @@ class Hyperparams:
     reproduction_max_attempts: int = 100_000
     population_size: int = 100
     simulation_steps: int = 2400
-    gene_count_on_genesis: int = 1
+    gene_count: int = 1

@@ -43,7 +43,7 @@ def action_render(args: Namespace):
 
 
 def action_evolve(args: Namespace):
-    hyperparams = Hyperparams(population_size=10)
+    hyperparams = Hyperparams(population_size=args.hp_pop_size, gene_count=args.hp_gene_count)
     evolver = Evolver(hyperparams)
     evolution = evolver.evolve(generation_id=0 if args.gen_id is None else args.gen_id + 1)
     repository = EvolutionRepository(settings=PersistenceSettings(folder=args.target_folder))
@@ -83,6 +83,8 @@ def collect_args() -> Namespace:
     parser_evo_iterate.add_argument("--show_winner", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
     parser_evo_iterate.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
     parser_evo_iterate.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
+    parser_evo_iterate.add_argument("--hp_pop_size", type=int, default=10, help="Hyperparams, population size for the experiments")
+    parser_evo_iterate.add_argument("--hp_gene_count", type=int, default=1, help="Hyperparams, number of genes in the seed process")
 
     args = parser.parse_args()
     return args
