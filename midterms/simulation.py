@@ -35,7 +35,7 @@ class Simulation:
     def _place_creature_into(self, creature_data: Union[Creature, List[float], str]) -> Tuple[Creature, int]:
         creature = creature_data if isinstance(creature_data, Creature) else Creature.develop_from(dna=Dna.parse_dna(creature_data))
         if creature:
-            logging.info(f"Creature, Born with name '{creature.name}'")
+            logging.debug(f"Creature, Born with name '{creature.name}'")
             urdf = CreatureRenderer(creature).render()
             filename = Path(f'/tmp/evo-{creature.name}.urdf')
             filename.write_text(urdf)

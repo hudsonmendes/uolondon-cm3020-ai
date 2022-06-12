@@ -42,8 +42,8 @@ class Evolver:
         return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
-            elite_previous=EvolutionRecord.from_creature(genesis.fittest) if genesis else None,
-            elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if genesis else None,
+            elite_previous=EvolutionRecord.from_creature(genesis.fittest) if previous else None,
+            elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
             offspring_fitness=[EvolutionRecord.from_creature(creature) for creature in offspring.creatures])
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
