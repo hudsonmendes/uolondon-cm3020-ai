@@ -1,4 +1,4 @@
-from typing import Set, Dict, Iterable, Tuple, Optional
+from typing import Set, Dict, List, Iterable, Tuple, Optional
 
 import numpy as np
 
@@ -14,10 +14,12 @@ class Population:
 
     @staticmethod
     def generate_for(size: int, gene_count: int) -> "Population":
-        bases_pool = [PrimordialSoup.spark_life(gene_count=gene_count) for _ in range(size)]
-        dna_pool = [Dna.parse_dna(bases) for bases in bases_pool]
-        all_creatures = [Creature.develop_from(dna) for dna in dna_pool]
-        viable_creatures = [c for c in all_creatures if c]
+        viable_creatures: List[Creature] = []
+        while len(viable_creatures) < size:
+            dna_code = PrimordialSoup.spark_life(gene_count=gene_count)
+            creature = Creature.develop_from(dna=Dna.parse_dna(dna_code))
+            if creature:
+                viable_creatures.append(creature)
         return Population(viable_creatures)
 
     def __init__(self, creatures: Iterable[Creature]) -> None:

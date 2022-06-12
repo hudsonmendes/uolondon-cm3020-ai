@@ -7,7 +7,7 @@ import random
 from population import Population
 
 
-class EvolutionTest(unittest.TestCase):
+class PopulationTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.population_size = random.randint(100, 1000)
