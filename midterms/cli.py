@@ -53,7 +53,7 @@ def action_evolve(args: Namespace):
     hyperparams = Hyperparams(population_size=args.hp_pop_size, gene_count=args.hp_gene_count)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
-    evolution = evolver.evolve(generation_id=evolving_id, genesis=genesis)
+    evolution = evolver.evolve(generation_id=evolving_id, previous=genesis)
     evolution_repository.write(evolution)
     Simulation(connection_mode=p.GUI).simulate(evolution.elite_offspring)
 

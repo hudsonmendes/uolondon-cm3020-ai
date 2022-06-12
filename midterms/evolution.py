@@ -27,21 +27,21 @@ class Evolver:
     def evolve(
             self,
             generation_id: int,
-            genesis: Optional[Population] = None) -> "Evolution":
+            previous: Optional[Population] = None) -> "Evolution":
         """
         Runs the next generation of evolution.
         :param generation_id {int}: the unique identifier of the generation, used for record keeping
         :param previous_population {Population}: if we are seeding the original population from persistence, uses that instead of generating a random one.
         """
         simulation = Simulation(connection_mode=p.DIRECT)
-        genesis = self._ensure_previous_population(genesis)
-        offspring = self._reproduce_into_offspring_population(genesis)
+        genesis = self._ensure_previous_population(previous)
+        offspring = self._reproduce_into_offspring_population(genesis, elitist=True)
         for creature in offspring.creatures:
             simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
         return Evolution(
             generation_id=generation_id,
             hyperparams=self.hyperparams,
-            elite_previous=str(genesis.fittest.dna),
+            elite_previous=str(genesis.fittest.dna) if previous else None,
             elite_offspring=str(offspring.fittest.dna),
             offspring_fitness=[EvolutionDnaFitness.from_creature(creature) for creature in offspring.creatures])
 
@@ -50,9 +50,11 @@ class Evolver:
             population = Population.populate_for(size=2, gene_count=self.hyperparams.gene_count)
         return population
 
-    def _reproduce_into_offspring_population(self, previous: Population) -> Population:
+    def _reproduce_into_offspring_population(self, previous: Population, elitist: bool) -> Population:
         reproduction = Reproduction(self.hyperparams)
         viable_creatures: List[Creature] = []
+        if elitist:
+            viable_creatures.append(previous.fittest)
         while len(viable_creatures) < self.hyperparams.population_size:
             adam, eve = previous.next_roulette_pair()
             new = reproduction.reproduce(adam.dna.code, eve.dna.code)
@@ -70,9 +72,9 @@ class Evolution:
     """
     generation_id: int
     hyperparams: Hyperparams
-    elite_previous: str
-    elite_offspring: str
-    offspring_fitness: List["EvolutionDnaFitness"]
+    elite_previous: Optional[str] = None
+    elite_offspring: Optional[str] = None
+    offspring_fitness: Optional[List["EvolutionDnaFitness"]] = None
 
     def to_population(self) -> Population:
         """
@@ -80,11 +82,12 @@ class Evolution:
         as parents of a new offspring.
         """
         creatures: List[Creature] = []
-        for fitness in self.offspring_fitness:
-            creature = Creature.develop_from(dna=Dna.parse_dna(fitness.dna_code))
-            if creature:
-                creature.movement.track(fitness.extract_last_position_as_tuple())
-                creatures.append(creature)
+        if self.offspring_fitness:
+            for fitness in self.offspring_fitness:
+                creature = Creature.develop_from(dna=Dna.parse_dna(fitness.dna_code))
+                if creature:
+                    creature.movement.track(fitness.extract_last_position_as_tuple())
+                    creatures.append(creature)
         return Population(creatures)
 
 
