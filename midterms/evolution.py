@@ -1,11 +1,15 @@
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional
 
+import itertools
+
 import pybullet as p
 import pandas as pd
 from tqdm import tqdm
+from scipy.stats import entropy
 
 from hyperparams import Hyperparams
+from gene import Gene
 from dna import Dna
 from creature import Creature
 from population import Population
@@ -28,7 +32,7 @@ class Evolver:
     def evolve(
             self,
             generation_id: int,
-            previous: Optional[Population] = None) -> "Evolution":
+            previous: Optional[Population] = None) -> "EvolutionGeneration":
         """
         Runs the next generation of evolution.
         :param generation_id {int}: the unique identifier of the generation, used for record keeping
@@ -41,12 +45,12 @@ class Evolver:
             for creature in tqdm(offspring.creatures):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
             offspring_fitness = [EvolutionRecord.from_creature(creature) for creature in offspring.creatures]
-            return Evolution(
+            return EvolutionGeneration(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
+                metrics=EvolutionMetrics.from_records(offspring_fitness),
                 elite_previous=genesis_elite,
                 elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
-                fitness_p95=Evolver._calculate_fitness_p95(offspring_fitness, previous_elite=genesis_elite),
                 offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
@@ -67,26 +71,18 @@ class Evolver:
                 viable_creatures.append(child)
         return Population(viable_creatures)
 
-    @staticmethod
-    def _calculate_fitness_p95(offspring_fitness: List["EvolutionRecord"], previous_elite: "EvolutionRecord") -> float:
-        if offspring_fitness:
-            scores = [f.fitness_score for f in offspring_fitness if not previous_elite or f.dna_code != previous_elite.dna_code]
-            return float(pd.DataFrame(scores).quantile(0.95))
-        else:
-            return 0.
-
 
 @dataclass(eq=True, frozen=True, order=True)
-class Evolution:
+class EvolutionGeneration:
     """
     Keeps record of the evolution, so it can be persisted, loaded and parsed
     into other components such as Population and Fitness data.
     """
     generation_id: int
     hyperparams: Hyperparams
+    metrics: "EvolutionMetrics"
     elite_previous: Optional["EvolutionRecord"] = None
     elite_offspring: Optional["EvolutionRecord"] = None
-    fitness_p95: Optional[float] = 0.
     offspring_fitness: Optional[List["EvolutionRecord"]] = None
 
     def to_population(self) -> Population:
@@ -97,11 +93,53 @@ class Evolution:
         creatures: List[Creature] = []
         if self.offspring_fitness:
             for fitness in self.offspring_fitness:
-                creature = Creature.develop_from(dna=Dna.parse_dna(fitness.dna_code))
+                creature = Creature.develop_from(
+                    dna=Dna.parse_dna(fitness.dna_code),
+                    threshold_for_expression=self.hyperparams.expression_threshold)
                 if creature:
                     creature.movement.track(fitness.extract_last_position_as_tuple())
                     creatures.append(creature)
         return Population(creatures)
+
+
+@dataclass(eq=True, frozen=True, order=True)
+class EvolutionMetrics:
+    fitness_mean: float
+    fitness_p95: float
+    fitness_stdev: float
+    fitness_lowest: float
+    fitness_highest: float
+    dna_count_all: int
+    dna_count_unique: int
+    dna_pool_entropy: float
+    non_gene_bases: int
+    genes_total: int
+    genes_min: int
+    genes_max: int
+    genes_expressed: int
+    genes_supressed: int
+
+    @staticmethod
+    def from_records(records: List["EvolutionRecord"], hyperparams: Hyperparams) -> "EvolutionMetrics":
+        scores = pd.DataFrame([r.fitness_score for r in records])
+        dna_all = [Dna.parse_dna(r.dna_code) for r in records]
+        dna_unique = [Dna.parse_dna(code) for code in set([r.dna_code for r in records])]
+        control_bases = itertools.chain(*[[gene.control_expression for gene in dna.genes] for dna in dna_all])
+        return EvolutionMetrics(
+            fitness_mean=float(scores.mean()),
+            fitness_p95=float(scores.quantile(0.95)),
+            fitness_stdev=float(scores.std()),
+            fitness_lowest=float(scores.min()),
+            fitness_highest=float(scores.max()),
+            dna_count_all=len(dna_all),
+            dna_count_unique=len(dna_unique),
+            dna_pool_entropy=entropy(itertools.chain(*[dna.code for dna in dna_all])),
+            non_gene_bases=sum([len(dna.code) % Gene.length() for dna in dna_all]),
+            genes_total=sum([len(dna.genes) for dna in dna_all]),
+            genes_max=max([len(dna.genes) for dna in dna_all]),
+            genes_min=min([len(dna.genes) for dna in dna_all]),
+            genes_expressed=len(control_bases[control_bases >= hyperparams.expression_threshold]),
+            genes_supressed=len(control_bases[control_bases < hyperparams.expression_threshold]))
 
 
 @dataclass(eq=True, frozen=True, order=True)

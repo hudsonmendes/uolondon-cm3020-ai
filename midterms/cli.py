@@ -9,7 +9,7 @@ from persistence import DnaRepository, EvolutionRepository, PersistenceSettings
 from population import Population
 from simulation import Simulation
 from primordial_soup import PrimordialSoup
-from evolution import Evolver
+from evolution import EvolutionGeneration, Evolver
 
 import pybullet as p
 
@@ -52,7 +52,7 @@ def action_render(args: Namespace):
             simulation.simulate(dna.code)
 
 
-def action_evolve(args: Namespace, last_score: float = 0) -> float:
+def action_evolve(args: Namespace, last_score: float = 0) -> EvolutionGeneration:
     hyperparams = Hyperparams.from_args(args)
     persistence_settings = PersistenceSettings(folder=args.target_folder)
     evolution_repository = EvolutionRepository(settings=persistence_settings)
@@ -67,29 +67,31 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
     if args.show_winner:
         LOGGER.info(f"Generation #{args.gen_id}, will evolve generation #{evolving_id}")
-    evolution = evolver.evolve(generation_id=evolving_id, previous=genesis)
+    generation = evolver.evolve(generation_id=evolving_id, previous=genesis)
     if args.show_winner:
         LOGGER.info(f"Generation #{args.gen_id}, storing results #{evolving_id}")
-    evolution_repository.write(evolution)
-    if evolution.elite_offspring:
-        dna_repository.write("elite", evolution.elite_offspring.dna_code)
-        message = f"Generation #{args.gen_id}, best bot walked {evolution.elite_offspring.fitness_score}, P95={evolution.fitness_p95}"
-        if evolution.elite_previous and evolution.elite_offspring.dna_code != evolution.elite_previous.dna_code:
-            message += f" > {evolution.elite_previous.fitness_score}"
+    evolution_repository.write(generation)
+    if generation.elite_offspring:
+        dna_repository.write("elite", generation.elite_offspring.dna_code)
+        message = f"Generation #{args.gen_id}, best bot walked {generation.elite_offspring.fitness_score}, P95={generation.fitness_p95}"
+        if generation.elite_previous and generation.elite_offspring.dna_code != generation.elite_previous.dna_code:
+            message += f" > {generation.elite_previous.fitness_score}"
         LOGGER.info(message)
         try:
-            if args.show_winner and last_score < evolution.elite_offspring.fitness_score:
+            if args.show_winner and last_score < generation.elite_offspring.fitness_score:
                 with Simulation(connection_mode=p.GUI, hyperparams=hyperparams) as simulation:
-                    simulation.simulate(evolution.elite_offspring.dna_code)
+                    simulation.simulate(generation.elite_offspring.dna_code)
         except Exception as _:
             pass
         except KeyboardInterrupt as _:
             pass
-        return evolution.elite_offspring.fitness_score
-    return 0.
+    return generation
 
 
 def action_optimise(args: Namespace):
+    persistence_settings = PersistenceSettings(folder=args.target_folder)
+    evolution_repository = EvolutionRepository(settings=persistence_settings)
+    dna_repository = DnaRepository(settings=persistence_settings)
     random.seed(0)
     np.random.seed(0)
     if not args.genesis_filepath or not args.genesis_filepath.is_file:
@@ -98,12 +100,15 @@ def action_optimise(args: Namespace):
     shutil.copy(args.genesis_filepath, args.target_folder / "generation-0.evo")
     args.gen_id = 0
     last_score = 0.
+    evolutions = []
     for _ in range(args.n_generations - 1):
-        last_score = max(last_score, action_evolve(args, last_score))
+        generation = action_evolve(args, last_score)
+        if generation and generation.elite_offspring:
+            evolutions.append(generation)
+            last_score = max(last_score, generation.elite_offspring.fitness_score)
         args.gen_id += 1
-    persistence_settings = PersistenceSettings(folder=args.target_folder)
-    dna_repository = DnaRepository(settings=persistence_settings)
     dna_repository.dedup("elite")
+    evolution_repository.summarise(evolutions)
 
 
 def collect_args() -> Namespace:

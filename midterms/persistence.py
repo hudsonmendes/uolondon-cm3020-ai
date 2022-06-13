@@ -1,13 +1,15 @@
-from dataclasses import dataclass, is_dataclass, asdict
+from dataclasses import dataclass, is_dataclass, asdict, fields
+from typing import List, Dict, Any, Union, Optional
 from abc import ABC
-from typing import List, Union, Optional
 
 import json
 import os
 from pathlib import Path
 
+import pandas as pd
+
 from dna import Dna
-from evolution import Evolution, EvolutionRecord
+from evolution import EvolutionGeneration, EvolutionRecord
 
 import logging
 
@@ -110,7 +112,7 @@ class EvolutionRepository(BaseRepository):
                     j['elite_previous'] = EvolutionRecord(**j['elite_previous'])
                 j['elite_offspring'] = EvolutionRecord(**j['elite_offspring'])
                 j['offspring_fitness'] = [EvolutionRecord(**ji) for ji in j['offspring_fitness']]
-                return Evolution(**j)
+                return EvolutionGeneration(**j)
             return super().default(o)
 
     class EvolutionEncoder(json.JSONEncoder):
@@ -119,20 +121,38 @@ class EvolutionRepository(BaseRepository):
                 return asdict(o)
             return super().default(o)
 
-    def filepath(self, generation_id) -> Path:
-        return self.settings.folder / f'generation-{generation_id}.evo'
+    def filepath_generation(self, generation_id) -> Path:
+        return self.settings.folder / f'generation-{generation_id}.gen'
 
-    def read(self, generation_id: int) -> Optional[Evolution]:
+    def filepath_summary(self) -> Path:
+        return self.settings.folder / f'summary.evo'
+
+    def read(self, generation_id: int) -> Optional[EvolutionGeneration]:
         if generation_id is not None:
-            filepath = self.filepath(generation_id)
+            filepath = self.filepath_generation(generation_id)
             self.ensure_file_dir(filepath)
             if os.path.isfile(filepath):
                 with open(filepath, 'r', encoding='utf-8') as fh:
                     return json.load(fh, cls=EvolutionRepository.EvolutionDecoder)
         return None
 
-    def write(self, record: Evolution):
-        filepath = self.filepath(record.generation_id)
+    def write(self, generation: EvolutionGeneration):
+        filepath = self.filepath_generation(generation.generation_id)
         self.ensure_file_dir(filepath)
         with open(filepath, 'w+', encoding='utf-8') as fh:
-            json.dump(record, fh, indent=4, cls=EvolutionRepository.EvolutionEncoder)
+            json.dump(generation, fh, indent=4, cls=EvolutionRepository.EvolutionEncoder)
+
+    def summarise(self, generations: List[EvolutionGeneration]):
+        filepath = self.filepath_summary()
+        self.ensure_file_dir(filepath)
+        table: List[Dict[str, Any]] = []
+        for generation in generations:
+            metrics = {
+                'generation_id': generation.generation_id,
+                'elite_score_previous': generation.elite_previous.fitness_score if generation.elite_previous else None,
+                'elite_score_offspring': generation.elite_offspring.fitness_score if generation.elite_offspring else None}
+            for field in fields(generation.metrics):
+                metrics[field.name] = generation.metrics.__dict__[field.name]
+            table.append(metrics)
+        df = pd.DataFrame(table)
+        df.to_csv(self.filepath_summary(), sep='\t')

@@ -55,7 +55,7 @@
             "args": [
                 "evolution",
                 "optimise",
-                "--genesis_filepath", "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.evo",
+                "--genesis_filepath", "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen",
                 "--n_generations", "100",
                 "--show_winner",
                 "--target_folder", "./evolution/tests",
