@@ -15,6 +15,7 @@ class Hyperparams:
     grow_mutation_rate: float = 0.1
     reproduction_max_attempts: int = 100_000
     elitist_behaviour: bool = True
+    expression_threshold: float = 0.5
     population_size: int = 100
     simulation_steps: int = 2400
     gene_count: int = 1

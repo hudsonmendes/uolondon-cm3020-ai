@@ -6,6 +6,7 @@ from pathlib import Path
 
 from hyperparams import Hyperparams
 from persistence import DnaRepository, EvolutionRepository, PersistenceSettings
+from population import Population
 from simulation import Simulation
 from primordial_soup import PrimordialSoup
 from evolution import Evolver
@@ -60,6 +61,7 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
             LOGGER.info(f"Generation #{args.gen_id}, loaded previous #{args.gen_id}")
         genesis = previous.to_population()
     hyperparams = Hyperparams(
+        expression_threshold=args.hp_exp_threshold,
         population_size=args.hp_pop_size,
         gene_count=args.hp_gene_count,
         point_mutation_rate=args.hp_pmr)
@@ -143,6 +145,7 @@ def collect_args() -> Namespace:
         parser_evo_parser.add_argument("--hp_pmr", type=float, default=0.1, help="Hyperparams, point mutation rate")
         parser_evo_parser.add_argument("--hp_pop_size", type=int, default=10, help="Hyperparams, population size for the experiments")
         parser_evo_parser.add_argument("--hp_gene_count", type=int, default=1, help="Hyperparams, number of genes in the seed process")
+        parser_evo_parser.add_argument("--hp_exp_threshold", type=float, default=0.5, help="Hyperparams, threshold for expression")
 
     args = parser.parse_args()
     return args
