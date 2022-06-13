@@ -42,7 +42,8 @@
                 "evolution",
                 "evolve",
                 "--target_folder", "./evolution/tests",
-                "--show_winner"
+                "--show_winner",
+                "--population_size", "10"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

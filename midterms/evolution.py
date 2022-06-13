@@ -38,7 +38,7 @@ class Evolver:
         :param generation_id {int}: the unique identifier of the generation, used for record keeping
         :param previous_population {Population}: if we are seeding the original population from persistence, uses that instead of generating a random one.
         """
-        with Simulation(connection_mode=p.DIRECT) as simulation:
+        with Simulation(connection_mode=p.DIRECT, hyperparams=self.hyperparams) as simulation:
             genesis = self._ensure_previous_population(previous)
             genesis_elite = EvolutionRecord.from_creature(genesis.fittest) if previous else None
             offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
@@ -48,14 +48,17 @@ class Evolver:
             return EvolutionGeneration(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
-                metrics=EvolutionMetrics.from_records(offspring_fitness),
+                metrics=EvolutionMetrics.from_records(offspring_fitness, hyperparams=self.hyperparams),
                 elite_previous=genesis_elite,
                 elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
                 offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:
-            population = Population.populate_for(size=2, gene_count=self.hyperparams.gene_count)
+            population = Population.populate_for(
+                size=2,
+                gene_count=self.hyperparams.gene_count,
+                threshold_for_expression=self.hyperparams.expression_threshold)
         return population
 
     def _reproduce_into_offspring_population(self, previous: Population, elitist: bool) -> Population:
@@ -124,7 +127,8 @@ class EvolutionMetrics:
         scores = pd.DataFrame([r.fitness_score for r in records])
         dna_all = [Dna.parse_dna(r.dna_code) for r in records]
         dna_unique = [Dna.parse_dna(code) for code in set([r.dna_code for r in records])]
-        control_bases = itertools.chain(*[[gene.control_expression for gene in dna.genes] for dna in dna_all])
+        dna_pool = list(itertools.chain(*[dna.code for dna in dna_all]))
+        control_bases = list(itertools.chain(*[[gene.control_expression for gene in dna.genes] for dna in dna_all]))
         return EvolutionMetrics(
             fitness_mean=float(scores.mean()),
             fitness_p95=float(scores.quantile(0.95)),
@@ -133,13 +137,13 @@ class EvolutionMetrics:
             fitness_highest=float(scores.max()),
             dna_count_all=len(dna_all),
             dna_count_unique=len(dna_unique),
-            dna_pool_entropy=entropy(itertools.chain(*[dna.code for dna in dna_all])),
+            dna_pool_entropy=entropy(dna_pool),
             non_gene_bases=sum([len(dna.code) % Gene.length() for dna in dna_all]),
             genes_total=sum([len(dna.genes) for dna in dna_all]),
             genes_max=max([len(dna.genes) for dna in dna_all]),
             genes_min=min([len(dna.genes) for dna in dna_all]),
-            genes_expressed=len(control_bases[control_bases >= hyperparams.expression_threshold]),
-            genes_supressed=len(control_bases[control_bases < hyperparams.expression_threshold]))
+            genes_expressed=sum(1 for cb in control_bases if cb >= hyperparams.expression_threshold),
+            genes_supressed=sum(1 for cb in control_bases if cb < hyperparams.expression_threshold))
 
 
 @dataclass(eq=True, frozen=True, order=True)
