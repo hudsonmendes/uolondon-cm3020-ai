@@ -97,7 +97,7 @@ def action_optimise(args: Namespace):
     if not args.genesis_filepath or not args.genesis_filepath.is_file:
         raise FileNotFoundError(args.genesis_filepath)
 
-    shutil.copy(args.genesis_filepath, args.target_folder / "generation-0.evo")
+    shutil.copy(args.genesis_filepath, args.target_folder / "generation-0000.gen")
     args.gen_id = 0
     last_score = 0.
     evolutions = []

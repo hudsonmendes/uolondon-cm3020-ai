@@ -124,7 +124,7 @@ class EvolutionRepository(BaseRepository):
             return super().default(o)
 
     def filepath_generation(self, generation_id) -> Path:
-        return self.settings.folder / f'generation-{generation_id}.gen'
+        return self.settings.folder / f"generation-{str(generation_id).rjust(4, '0')}.gen"
 
     def filepath_summary(self) -> Path:
         return self.settings.folder / f'summary.evo'
