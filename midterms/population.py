@@ -39,18 +39,24 @@ class Population:
         with odds proportional to their fitness.
         """
         creatures = self.creatures
-        fm = self._calculate_fitness_map(creatures)
-        return self._select_parent(creatures, fm), self._select_parent(creatures, fm)
+        fm = Population._calculate_fitness_map(creatures)
+        return Population._select_parent(creatures, fm), Population._select_parent(creatures, fm)
 
-    def _calculate_fitness_map(self, creatures: List[Creature]) -> List[float]:
+    @staticmethod
+    def _calculate_fitness_map(creatures: List[Creature]) -> List[float]:
         out: List[float] = []
         total = 0.
-        for creature in creatures:
-            total += creature.movement.distance
-            out.append(total)
+        if all([c.movement.last is None for c in creatures]):
+            uniform = 1. / len(creatures)
+            out.extend([(i+1) * uniform for i in range(len(creatures))])
+        else:
+            for creature in creatures:
+                total += creature.movement.distance
+                out.append(total)
         return out
 
-    def _select_parent(self, creatures: List[Creature], fm: List[float]) -> Creature:
+    @staticmethod
+    def _select_parent(creatures: List[Creature], fm: List[float]) -> Creature:
         r = np.random.rand()
         r *= fm[-1]
         for i in range(len(fm)):

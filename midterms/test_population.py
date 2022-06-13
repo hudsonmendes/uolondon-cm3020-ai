@@ -28,3 +28,17 @@ class PopulationTest(unittest.TestCase):
         creature3.movement.track((10., 20., 30.))
         top1 = self.population.fittest
         self.assertEqual(top1, creature3)
+
+    def test_calculate_fitness_map_creates_not_a_uniform_distribution_when_creatures_moved(self):
+        for creature in self.population.creatures:
+            creature.movement.track((random.random(), random.random(), random.random()))
+        fm = self.population._calculate_fitness_map(self.population.creatures)
+        self.assertTrue(all([c.movement.last is not None for c in self.population.creatures]))
+        for i in range(len(fm) - 3):
+            self.assertNotAlmostEqual(fm[i+2]-fm[i+1], fm[i+1]-fm[i+0])
+
+    def test_calculate_fitness_map_creates_uniform_distribution_when_none_moved(self):
+        fm = self.population._calculate_fitness_map(self.population.creatures)
+        self.assertTrue(all([c.movement.last is None for c in self.population.creatures]))
+        for i in range(len(fm) - 3):
+            self.assertAlmostEqual(fm[i+2]-fm[i+1], fm[i+1]-fm[i+0])
