@@ -69,14 +69,14 @@ def action_evolve(args: Namespace, last_score: float = 0) -> EvolutionGeneration
         LOGGER.info(f"Generation #{args.gen_id}, will evolve generation #{evolving_id}")
     generation = evolver.evolve(generation_id=evolving_id, previous=genesis)
     if args.show_winner:
-        LOGGER.info(f"Generation #{args.gen_id}, storing results #{evolving_id}")
+        LOGGER.info(f"Generation #{args.gen_id+1}, storing results #{evolving_id}")
     evolution_repository.write(generation)
     if generation.elite_offspring:
         dna_repository.write("summary", generation.elite_offspring.dna_code)
-        message = f"Generation #{args.gen_id}, best bot walked {generation.metrics.fitness_highest}"
+        message = f"Generation #{args.gen_id+1}, fittest creature moved {generation.metrics.fitness_highest}"
         if generation.elite_previous and generation.elite_offspring.dna_code != generation.elite_previous.dna_code:
             message += f" > {generation.elite_previous.fitness_score}"
-        message += f", P95={generation.metrics.fitness_p95}"
+        message += f", Mean={generation.metrics.fitness_mean}/P95={generation.metrics.fitness_p95}"
         LOGGER.info(message)
         try:
             if args.show_winner and last_score < generation.elite_offspring.fitness_score:
