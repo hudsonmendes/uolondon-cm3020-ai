@@ -25,6 +25,6 @@ class Hyperparams:
     def from_args(args: Namespace) -> "Hyperparams":
         arg_dict = dict()
         for field in fields(Hyperparams):
-            if field.name in args and args.__dict__[field.name]:
+            if field.name in args and args.__dict__[field.name] is not None:
                 arg_dict[field.name] = args.__dict__[field.name]
         return Hyperparams(**arg_dict)
