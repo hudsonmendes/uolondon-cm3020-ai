@@ -50,7 +50,9 @@ def action_render(args: Namespace):
 
 
 def action_evolve(args: Namespace, last_score: float = 0) -> float:
-    evolution_repository = EvolutionRepository(settings=PersistenceSettings(folder=args.target_folder))
+    persistence_settings = PersistenceSettings(folder=args.target_folder)
+    evolution_repository = EvolutionRepository(settings=persistence_settings)
+    dna_repository = DnaRepository(settings=persistence_settings)
     previous = evolution_repository.read(args.gen_id)
     genesis = None
     if previous:
@@ -70,6 +72,7 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
         LOGGER.info(f"Generation #{args.gen_id}, storing results #{evolving_id}")
     evolution_repository.write(evolution)
     if evolution.elite_offspring:
+        dna_repository.write("elite", evolution.elite_offspring.dna_code)
         message = f"Generation #{args.gen_id}, best bot walked {evolution.elite_offspring.fitness_score}"
         if evolution.elite_previous and evolution.elite_offspring.dna_code != evolution.elite_previous.dna_code:
             message += f" > {evolution.elite_previous.fitness_score}"
