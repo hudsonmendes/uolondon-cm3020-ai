@@ -1,8 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
-import os
 import shutil
-from pathlib import Path
+import random
+import numpy as np
 
 from hyperparams import Hyperparams
 from persistence import DnaRepository, EvolutionRepository, PersistenceSettings
@@ -58,7 +58,7 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
     genesis = None
     if previous:
         if args.show_winner:
-            LOGGER.info(f"Generation #{args.gen_id}, loaded previous #{args.gen_id}")
+            LOGGER.info(f"Generation #{args.gen_id}, loaded")
         genesis = previous.to_population()
     hyperparams = Hyperparams(
         expression_threshold=args.hp_exp_threshold,
@@ -92,16 +92,16 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
 
 
 def action_optimise(args: Namespace):
-    if args.genesis_filepath and args.genesis_filepath.is_file:
-        shutil.copy(args.genesis_filepath, args.target_folder / "generation-0.evo")
-        args.gen_id = 0
-    genesis_gen_id = args.gen_id
+    random.seed(0)
+    np.random.seed(0)
+    if not args.genesis_filepath or not args.genesis_filepath.is_file:
+        raise FileNotFoundError(args.genesis_filepath)
+    
+    shutil.copy(args.genesis_filepath, args.target_folder / "generation-0.evo")
+    args.gen_id = 0
     last_score = 0.
-    for i in range(args.n_generations):
-        if i != 0:
-            if genesis_gen_id is None:
-                genesis_gen_id = 0
-            args.gen_id = genesis_gen_id + i
+    for _ in range(args.n_generations - 1):
+        args.gen_id += 1
         last_score = max(last_score, action_evolve(args, last_score))
 
 
@@ -135,7 +135,7 @@ def collect_args() -> Namespace:
     parser_evo_evolve = parser_evo_subparsers.add_parser("evolve")
     parser_evo_optimise = parser_evo_subparsers.add_parser("optimise")
     parser_evo_parsers = parser_evo_evolve, parser_evo_optimise
-    parser_evo_optimise.add_argument("--genesis_filepath", type=Path, help="If you want to reutilise an evolution from another experiment, enter the path")
+    parser_evo_optimise.add_argument("--genesis_filepath", type=Path, required=True, help="If you want to reutilise an evolution from another experiment, enter the path")
     parser_evo_optimise.add_argument("--n_generations", type=int, help="The number of generations for which we will optimise")
     for parser_evo_parser in parser_evo_parsers:
         parser_evo_parser.add_argument("--gen_id", type=int, help="The id of the generation that will be EVOLVED")
