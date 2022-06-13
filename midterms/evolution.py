@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-from distutils.ccompiler import gen_preprocess_options
+from dataclasses import dataclass, field
 from typing import List, Tuple, Optional
 
 import pybullet as p
+import pandas as pd
 from tqdm import tqdm
 
 from hyperparams import Hyperparams
@@ -77,6 +77,14 @@ class Evolution:
     elite_previous: Optional["EvolutionRecord"] = None
     elite_offspring: Optional["EvolutionRecord"] = None
     offspring_fitness: Optional[List["EvolutionRecord"]] = None
+
+    @property
+    def fitness_p95(self) -> float:
+        if self.offspring_fitness:
+            scores = [ f.fitness_score for f in self.offspring_fitness if not self.elite_previous or f.dna_code != self.elite_previous.dna_code ]
+            return float(pd.DataFrame(scores).quantile(0.95))
+        else:
+            return 0.
 
     def to_population(self) -> Population:
         """

@@ -18,4 +18,4 @@ class Hyperparams:
     expression_threshold: float = 0.1
     population_size: int = 100
     simulation_steps: int = 2400
-    gene_count: int = 1
+    gene_count: int = 5

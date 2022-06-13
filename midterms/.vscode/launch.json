@@ -42,9 +42,7 @@
                 "evolution",
                 "evolve",
                 "--target_folder", "./evolution/tests",
-                "--show_winner",
-                "--hp_pop_size", "10",
-                "--hp_gene_count", "5",
+                "--show_winner"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
@@ -58,10 +56,8 @@
                 "evolution",
                 "optimise",
                 "--genesis_filepath", "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.evo",
-                "--n_generations", "50",
+                "--n_generations", "100",
                 "--show_winner",
-                "--hp_pop_size", "10",
-                "--hp_gene_count", "5",
                 "--target_folder", "./evolution/tests",
             ],
             "console": "integratedTerminal",

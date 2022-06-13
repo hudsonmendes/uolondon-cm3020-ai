@@ -60,11 +60,7 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
         if args.show_winner:
             LOGGER.info(f"Generation #{args.gen_id}, loaded")
         genesis = previous.to_population()
-    hyperparams = Hyperparams(
-        expression_threshold=args.hp_exp_threshold,
-        population_size=args.hp_pop_size,
-        gene_count=args.hp_gene_count,
-        point_mutation_rate=args.hp_pmr)
+    hyperparams = Hyperparams()
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
     if args.show_winner:
@@ -101,8 +97,8 @@ def action_optimise(args: Namespace):
     args.gen_id = 0
     last_score = 0.
     for _ in range(args.n_generations - 1):
-        args.gen_id += 1
         last_score = max(last_score, action_evolve(args, last_score))
+        args.gen_id += 1
     persistence_settings = PersistenceSettings(folder=args.target_folder)
     dna_repository = DnaRepository(settings=persistence_settings)
     dna_repository.dedup("elite")
@@ -145,10 +141,6 @@ def collect_args() -> Namespace:
         parser_evo_parser.add_argument("--show_winner", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
         parser_evo_parser.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
         parser_evo_parser.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
-        parser_evo_parser.add_argument("--hp_pmr", type=float, default=0.1, help="Hyperparams, point mutation rate")
-        parser_evo_parser.add_argument("--hp_pop_size", type=int, default=10, help="Hyperparams, population size for the experiments")
-        parser_evo_parser.add_argument("--hp_gene_count", type=int, default=1, help="Hyperparams, number of genes in the seed process")
-        parser_evo_parser.add_argument("--hp_exp_threshold", type=float, default=0.5, help="Hyperparams, threshold for expression")
 
     args = parser.parse_args()
     return args
