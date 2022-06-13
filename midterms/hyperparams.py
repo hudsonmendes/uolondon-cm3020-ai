@@ -1,21 +1,30 @@
-from dataclasses import dataclass
+from argparse import Namespace
+from dataclasses import dataclass, fields
 from typing import Optional
 
 
 @dataclass(eq=True, frozen=True, order=True)
 class Hyperparams:
-    crossover_min_len = 0.25
-    crossover_max_len = 0.75
-    point_mutation_enabled: bool = True
-    point_mutation_rate: float = 0.25
-    point_mutation_amount: float = -0.15
-    shrink_mutation_enabled: bool = True
-    shrink_mutation_rate: float = 0.1
-    grow_mutation_enabled: bool = True
-    grow_mutation_rate: float = 0.25
-    reproduction_max_attempts: int = 100_000
-    elitist_behaviour: bool = True
-    expression_threshold: float = 0.1
-    population_size: int = 100
-    simulation_steps: int = 2400
-    gene_count: int = 5
+    crossover_min_len: float
+    crossover_max_len: float
+    point_mutation_enabled: bool
+    point_mutation_rate: float
+    point_mutation_amount: float
+    shrink_mutation_enabled: bool
+    shrink_mutation_rate: float
+    grow_mutation_enabled: bool
+    grow_mutation_rate: float
+    reproduction_max_attempts: int
+    elitist_behaviour: bool
+    expression_threshold: float
+    population_size: int
+    simulation_steps: int
+    gene_count: int
+
+    @staticmethod
+    def from_args(args: Namespace) -> "Hyperparams":
+        arg_dict = dict()
+        for field in fields(Hyperparams):
+            if field.name in args and args.__dict__[field.name]:
+                arg_dict[field.name] = args.__dict__[field.name]
+        return Hyperparams(**arg_dict)

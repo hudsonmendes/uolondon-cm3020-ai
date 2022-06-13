@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pybullet as p
 
+from hyperparams import Hyperparams
 from motor import Motor
 from dna import Dna
 from creature import Creature
@@ -20,10 +21,12 @@ class Simulation:
     for creatures. It can also report back into a population while tracking the movements
     of creatures, so that the fitness can be calculated.
     """
+    hyperparams: Hyperparams
     connection_mode: int
     pid: int
 
-    def __init__(self, connection_mode: int):
+    def __init__(self, connection_mode: int, hyperparams: Hyperparams):
+        self.hyperparams = hyperparams
         self.connection_mode = connection_mode
         self.is_interactive = connection_mode == p.GUI
 
@@ -40,7 +43,7 @@ class Simulation:
         self._wait_end_of_simulation(creature, creature_id, steps)
 
     def _place_creature_into(self, creature_data: Union[Creature, List[float], str]) -> Tuple[Creature, int]:
-        creature = creature_data if isinstance(creature_data, Creature) else Creature.develop_from(dna=Dna.parse_dna(creature_data))
+        creature = creature_data if isinstance(creature_data, Creature) else Creature.develop_from(dna=Dna.parse_dna(creature_data), threshold_for_expression=self.hyperparams.expression_threshold)
         if creature:
             logging.debug(f"Creature, Born with name '{creature.name}'")
             urdf = CreatureRenderer(creature).render()

@@ -11,7 +11,7 @@ from gene import Gene
 
 @dataclass(eq=True, frozen=True, order=True)
 class Reproduction:
-    hyperparams: Hyperparams = Hyperparams()
+    hyperparams: Hyperparams
 
     def reproduce(self, a: List[float], b: List[float]) -> List[float]:
         dna_code = self._crossover(np.array(a), np.array(b))
