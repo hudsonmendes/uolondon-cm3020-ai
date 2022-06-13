@@ -64,7 +64,7 @@ class DnaRepository(BaseRepository):
             with open(filepath, 'r+', encoding='utf-8') as fh:
                 for i, line in enumerate(fh):
                     if i == individual:
-                        LOGGER.info(f"DNA, {species}.dna, reading line {individual}: {line}")
+                        LOGGER.debug(f"DNA, {species}.dna, reading line {individual}: {line}")
                         return Dna.parse_dna(line)
         return None
 
@@ -76,7 +76,7 @@ class DnaRepository(BaseRepository):
         with open(filepath, 'w+' if override else 'a+', encoding='utf-8') as fh:
             line = dna_code if isinstance(dna_code, str) else ",".join([str(base) for base in dna_code])
             fh.write(f"{line}\n")
-            LOGGER.info(f"DNA, {species}.dna, {'overriden' if override else 'appended'}: {line}")
+            LOGGER.debug(f"DNA, {species}.dna, {'overriden' if override else 'appended'}: {line}")
 
     def dedup(self, species: str):
         """

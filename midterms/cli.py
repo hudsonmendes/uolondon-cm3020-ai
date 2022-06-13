@@ -73,9 +73,10 @@ def action_evolve(args: Namespace, last_score: float = 0) -> EvolutionGeneration
     evolution_repository.write(generation)
     if generation.elite_offspring:
         dna_repository.write("summary", generation.elite_offspring.dna_code)
-        message = f"Generation #{args.gen_id}, best bot walked {generation.metrics.fitness_highest}, P95={generation.metrics.fitness_p95}"
+        message = f"Generation #{args.gen_id}, best bot walked {generation.metrics.fitness_highest}"
         if generation.elite_previous and generation.elite_offspring.dna_code != generation.elite_previous.dna_code:
             message += f" > {generation.elite_previous.fitness_score}"
+        message += f", P95={generation.metrics.fitness_p95}"
         LOGGER.info(message)
         try:
             if args.show_winner and last_score < generation.elite_offspring.fitness_score:
