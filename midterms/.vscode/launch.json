@@ -60,6 +60,7 @@
                 "--n_generations", "100",
                 "--show_winner",
                 "--target_folder", "./evolution/tests",
+                "--population_size", "10"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

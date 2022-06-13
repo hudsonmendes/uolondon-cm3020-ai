@@ -9,10 +9,10 @@ from pathlib import Path
 import pandas as pd
 
 from dna import Dna
-from evolution import EvolutionGeneration, EvolutionRecord
+from evolution import EvolutionGeneration, EvolutionMetrics, EvolutionRecord
+from hyperparams import Hyperparams
 
 import logging
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -108,6 +108,8 @@ class EvolutionRepository(BaseRepository):
         def decode(self, o):
             if isinstance(o, str):
                 j = json.loads(o)
+                j['hyperparams'] = Hyperparams(**j['hyperparams'])
+                j['metrics'] = EvolutionMetrics(**j['metrics'])
                 if 'elite_previous' in j and j['elite_previous']:
                     j['elite_previous'] = EvolutionRecord(**j['elite_previous'])
                 j['elite_offspring'] = EvolutionRecord(**j['elite_offspring'])
@@ -133,7 +135,8 @@ class EvolutionRepository(BaseRepository):
             self.ensure_file_dir(filepath)
             if os.path.isfile(filepath):
                 with open(filepath, 'r', encoding='utf-8') as fh:
-                    return json.load(fh, cls=EvolutionRepository.EvolutionDecoder)
+                    generation = json.load(fh, cls=EvolutionRepository.EvolutionDecoder)
+                    return generation
         return None
 
     def write(self, generation: EvolutionGeneration):
@@ -155,4 +158,4 @@ class EvolutionRepository(BaseRepository):
                 metrics[field.name] = generation.metrics.__dict__[field.name]
             table.append(metrics)
         df = pd.DataFrame(table)
-        df.to_csv(self.filepath_summary(), sep='\t')
+        df.to_csv(self.filepath_summary(), sep='\t', index=False)
