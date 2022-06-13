@@ -180,7 +180,9 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         if joint_axis_xyz:
             for i in range(len(joint_axis_xyz)):
                 dna_code[(i+1) * Gene.length() + 7] = joint_axis_xyz[i]
-        return Creature.develop_from(dna=Dna.parse_dna(dna_code))
+        return Creature.develop_from(
+            dna=Dna.parse_dna(dna_code),
+            threshold_for_expression=0.5)
 
     @ staticmethod
     def _create_gene(connected_with_index: Optional[int], all_parts_count: int) -> List[float]:

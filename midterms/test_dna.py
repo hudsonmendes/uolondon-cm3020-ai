@@ -40,13 +40,34 @@ class DnaTest(unittest.TestCase):
         actual = Dna.parse_dna(given)
         self.assertEqual(n, len(actual.genes))
 
+    def test_express_phenotypes_empty_with_threshold_above_all_expression_control(self):
+        n = 5
+        dna_code = [0.2] * Gene.length() * n
+        dna = Dna.parse_dna(dna_code)
+        actual = dna.express(threshold_for_expression=0.21)
+        self.assertEqual(0, len(actual))
+
+    def test_express_phenotypes_all_with_threshold_equal_all_expression_control(self):
+        n = 5
+        dna_code = [0.2] * Gene.length() * n
+        dna = Dna.parse_dna(dna_code)
+        actual = dna.express(threshold_for_expression=0.2)
+        self.assertEqual(n, len(actual))
+
+    def test_express_phenotypes_all_with_threshold_below_all_expression_control(self):
+        n = 5
+        dna_code = [0.2] * Gene.length() * n
+        dna = Dna.parse_dna(dna_code)
+        actual = dna.express(threshold_for_expression=0.1)
+        self.assertEqual(n, len(actual))
+
     def test_express_phenotypes_joint_parent_all_pointing_to_previous_index(self):
         gene_count = random.randint(1, 100)
         all_controls_on = [1. for _ in range(gene_count)]
         dna_len = (Gene.length() * gene_count)
         dna_code = [random.random() for _ in range(dna_len)] + all_controls_on
         dna = Dna.parse_dna(dna_code)
-        actual = dna.express()
+        actual = dna.express(threshold_for_expression=0.5)
         self.assertGreater(len(actual), 0)
         for i, phenotype in enumerate(actual):
             self.assertTrue(phenotype.joint_parent is None or phenotype.joint_parent < i)

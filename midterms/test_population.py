@@ -12,7 +12,8 @@ class PopulationTest(unittest.TestCase):
     def setUp(self) -> None:
         self.population_size = random.randint(100, 1000)
         self.gene_count = random.randint(1, 10)
-        self.population = Population.populate_for(size=self.population_size, gene_count=self.gene_count)
+        self.threshold_for_expression = 0.5
+        self.population = Population.populate_for(size=self.population_size, gene_count=self.gene_count, threshold_for_expression=self.threshold_for_expression)
 
     def test_class_exists(self):
         self.assertIsNotNone(Population)

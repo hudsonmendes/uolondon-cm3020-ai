@@ -14,7 +14,7 @@ class EvolutionTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.dna_pool = [[random.random() for _ in range(100)]] * 10
-        self.creatures = [Creature.develop_from(dna=Dna.parse_dna(dna)) for dna in self.dna_pool]
+        self.creatures = [Creature.develop_from(dna=Dna.parse_dna(dna), threshold_for_expression=0.5) for dna in self.dna_pool]
         self.viable_creatures = [c for c in self.creatures if c]
         self.elite_previous = self.viable_creatures[3]
         self.elite_offspring = self.viable_creatures[4]

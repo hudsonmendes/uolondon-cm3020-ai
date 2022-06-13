@@ -71,7 +71,7 @@ def action_evolve(args: Namespace, last_score: float = 0) -> float:
     evolution_repository.write(evolution)
     if evolution.elite_offspring:
         dna_repository.write("elite", evolution.elite_offspring.dna_code)
-        message = f"Generation #{args.gen_id}, best bot walked {evolution.elite_offspring.fitness_score}"
+        message = f"Generation #{args.gen_id}, best bot walked {evolution.elite_offspring.fitness_score}, P95={evolution.fitness_p95}"
         if evolution.elite_previous and evolution.elite_offspring.dna_code != evolution.elite_previous.dna_code:
             message += f" > {evolution.elite_previous.fitness_score}"
         LOGGER.info(message)

@@ -36,6 +36,7 @@ class Evolver:
         """
         with Simulation(connection_mode=p.DIRECT) as simulation:
             genesis = self._ensure_previous_population(previous)
+            genesis_elite = EvolutionRecord.from_creature(genesis.fittest) if previous else None
             offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
             for creature in tqdm(offspring.creatures):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
@@ -43,8 +44,9 @@ class Evolver:
             return Evolution(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
-                elite_previous=EvolutionRecord.from_creature(genesis.fittest) if previous else None,
+                elite_previous=genesis_elite,
                 elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
+                fitness_p95=Evolver._calculate_fitness_p95(offspring_fitness, previous_elite=genesis_elite),
                 offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
@@ -60,10 +62,18 @@ class Evolver:
         while len(viable_creatures) < self.hyperparams.population_size:
             adam, eve = previous.next_roulette_pair()
             new = reproduction.reproduce(adam.dna.code, eve.dna.code)
-            child = Creature.develop_from(dna=Dna.parse_dna(new))
+            child = Creature.develop_from(dna=Dna.parse_dna(new), threshold_for_expression=self.hyperparams.expression_threshold)
             if child:
                 viable_creatures.append(child)
         return Population(viable_creatures)
+
+    @staticmethod
+    def _calculate_fitness_p95(offspring_fitness: List["EvolutionRecord"], previous_elite: "EvolutionRecord") -> float:
+        if offspring_fitness:
+            scores = [f.fitness_score for f in offspring_fitness if not previous_elite or f.dna_code != previous_elite.dna_code]
+            return float(pd.DataFrame(scores).quantile(0.95))
+        else:
+            return 0.
 
 
 @dataclass(eq=True, frozen=True, order=True)
@@ -76,15 +86,8 @@ class Evolution:
     hyperparams: Hyperparams
     elite_previous: Optional["EvolutionRecord"] = None
     elite_offspring: Optional["EvolutionRecord"] = None
+    fitness_p95: Optional[float] = 0.
     offspring_fitness: Optional[List["EvolutionRecord"]] = None
-
-    @property
-    def fitness_p95(self) -> float:
-        if self.offspring_fitness:
-            scores = [ f.fitness_score for f in self.offspring_fitness if not self.elite_previous or f.dna_code != self.elite_previous.dna_code ]
-            return float(pd.DataFrame(scores).quantile(0.95))
-        else:
-            return 0.
 
     def to_population(self) -> Population:
         """
@@ -99,6 +102,7 @@ class Evolution:
                     creature.movement.track(fitness.extract_last_position_as_tuple())
                     creatures.append(creature)
         return Population(creatures)
+
 
 @dataclass(eq=True, frozen=True, order=True)
 class EvolutionRecord:

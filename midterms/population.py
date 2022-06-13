@@ -12,11 +12,11 @@ class Population:
     creatures: List[Creature]
 
     @staticmethod
-    def populate_for(size: int, gene_count: int) -> "Population":
+    def populate_for(size: int, gene_count: int, threshold_for_expression: float) -> "Population":
         viable_creatures: List[Creature] = []
         while len(viable_creatures) < size:
             dna_code = PrimordialSoup.spark_life(gene_count=gene_count)
-            creature = Creature.develop_from(dna=Dna.parse_dna(dna_code))
+            creature = Creature.develop_from(dna=Dna.parse_dna(dna_code), threshold_for_expression=threshold_for_expression)
             if creature:
                 viable_creatures.append(creature)
         return Population(viable_creatures)

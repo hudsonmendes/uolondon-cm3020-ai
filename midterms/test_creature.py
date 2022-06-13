@@ -19,7 +19,7 @@ class CreatureTest(unittest.TestCase):
             CreatureTest.create_gene_code(connected_with_index=1, all_parts_count=4, expressable=False)
         )
         self.dna = Dna.parse_dna(data=dna_code)
-        self.creature = Creature.develop_from(dna=self.dna)
+        self.creature = Creature.develop_from(dna=self.dna, threshold_for_expression=0.5)
 
     def test_class_exists(self):
         self.assertIsNotNone(Creature)
@@ -51,7 +51,7 @@ class CreatureTest(unittest.TestCase):
             CreatureTest.create_gene_code(connected_with_index=1, all_parts_count=4, expressable=True)
         )
         dna = Dna.parse_dna(data=dna_code)
-        creature = Creature.develop_from(dna=dna)
+        creature = Creature.develop_from(dna=dna, threshold_for_expression=0.5)
         self.assertEqual(3, len(creature.body.children[0].children))
 
     @staticmethod
@@ -62,8 +62,5 @@ class CreatureTest(unittest.TestCase):
         gene_code = [random.random() for _ in range(Gene.length()-1)]
         if connected_with_index and all_parts_count > 0:
             gene_code[5] = (connected_with_index * (1. / float(all_parts_count))) + pow(10, -6)
-        expressability = random.random() * Gene.threshold_for_expression()
-        if expressable:
-            expressability = min(1., Gene.threshold_for_expression() + expressability)
-        gene_code.append(expressability)
+        gene_code.append(1. if expressable else 0.)
         return gene_code

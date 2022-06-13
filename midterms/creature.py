@@ -23,12 +23,12 @@ class Creature:
     _unique_id: int = field(init=False, repr=False, compare=True, default_factory=lambda: uuid.uuid4().int)
 
     @staticmethod
-    def develop_from(dna: Dna) -> Optional["Creature"]:
+    def develop_from(dna: Dna, threshold_for_expression: float) -> Optional["Creature"]:
         """
         If the DNA expresses any phenotye, return the resulting creature.
         Otherwise, returns None, signaling that no viable creature couldb e expressed.
         """
-        phenotypes = dna.express()
+        phenotypes = dna.express(threshold_for_expression)
         if phenotypes:
             body = CreaturePart.part_hierarchy_from(phenotypes)
             return Creature(dna=dna, phenotypes=phenotypes, body=body)

@@ -15,10 +15,6 @@ class Gene:
     def length() -> int:
         return 18
 
-    @staticmethod
-    def threshold_for_expression() -> float:
-        return 0.1
-
     def __len__(self) -> int:
         return len(self.code)
 
