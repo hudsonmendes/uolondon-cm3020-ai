@@ -76,6 +76,22 @@ class DnaRepository(BaseRepository):
             fh.write(f"{line}\n")
             LOGGER.info(f"DNA, {species}.dna, {'overriden' if override else 'appended'}: {line}")
 
+    def dedup(self, species: str):
+        """
+        Removes duplicated DNA from the file
+        """
+        filepath = self.filepath(species)
+        dna_all = []
+        dna_used = set()
+        with open(filepath, 'r+', encoding='utf-8') as fh:
+            for line in fh:
+                dna_all.append(line.strip())
+        with open(filepath, 'w+', encoding='utf-8') as fh:
+            for dna_code in dna_all:
+                if dna_code not in dna_used:
+                    dna_used.add(dna_code)
+                    fh.write(f"{dna_code}\n")
+
 
 class EvolutionRepository(BaseRepository):
     """

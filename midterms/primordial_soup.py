@@ -22,6 +22,6 @@ class PrimordialSoup:
     @staticmethod
     def _ensure_genes_minimum_expression(genes: List[List[float]], bias_to_expression: float) -> List[List[float]]:
         for gene in genes:
-            if gene[-1] < Gene.threshold_for_exrpession() and random.random() >= (1. - bias_to_expression):
-                gene[-1] = min(1., gene[-1] + Gene.threshold_for_exrpession())
+            if gene[-1] < Gene.threshold_for_expression() and random.random() >= (1. - bias_to_expression):
+                gene[-1] = min(1., gene[-1] + Gene.threshold_for_expression())
         return genes

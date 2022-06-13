@@ -39,12 +39,13 @@ class Evolver:
             offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
             for creature in tqdm(offspring.creatures):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
+            offspring_fitness = [EvolutionRecord.from_creature(creature) for creature in offspring.creatures]
             return Evolution(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
                 elite_previous=EvolutionRecord.from_creature(genesis.fittest) if previous else None,
                 elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
-                offspring_fitness=[EvolutionRecord.from_creature(creature) for creature in offspring.creatures])
+                offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:
@@ -94,6 +95,7 @@ class Evolution:
 @dataclass(eq=True, frozen=True, order=True)
 class EvolutionRecord:
     dna_code: str
+    phenotype_count: int
     first_position: str
     last_position: str
     fitness_score: float
@@ -102,6 +104,7 @@ class EvolutionRecord:
     def from_creature(creature: Creature) -> "EvolutionRecord":
         return EvolutionRecord(
             dna_code=str(creature.dna),
+            phenotype_count=len(creature.phenotypes),
             first_position=' '.join(str(x) for x in list(creature.movement.initial)),
             last_position=' '.join(str(x) for x in list(creature.movement.last)) if creature.movement.last else '0 0 0',
             fitness_score=creature.movement.distance)

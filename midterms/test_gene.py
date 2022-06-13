@@ -9,4 +9,4 @@ class GeneTest(unittest.TestCase):
         self.assertEqual(18, Gene.length())
 
     def test_threshold_for_expression(self):
-        self.assertEqual(0.5, Gene.threshold_for_exrpession())
+        self.assertEqual(0.5, Gene.threshold_for_expression())

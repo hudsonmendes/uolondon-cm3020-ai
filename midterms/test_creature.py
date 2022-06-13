@@ -62,8 +62,8 @@ class CreatureTest(unittest.TestCase):
         gene_code = [random.random() for _ in range(Gene.length()-1)]
         if connected_with_index and all_parts_count > 0:
             gene_code[5] = (connected_with_index * (1. / float(all_parts_count))) + pow(10, -6)
-        expressability = random.random() * Gene.threshold_for_exrpession()
+        expressability = random.random() * Gene.threshold_for_expression()
         if expressable:
-            expressability = min(1., Gene.threshold_for_exrpession() + expressability)
+            expressability = min(1., Gene.threshold_for_expression() + expressability)
         gene_code.append(expressability)
         return gene_code

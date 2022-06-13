@@ -103,6 +103,9 @@ def action_optimise(args: Namespace):
     for _ in range(args.n_generations - 1):
         args.gen_id += 1
         last_score = max(last_score, action_evolve(args, last_score))
+    persistence_settings = PersistenceSettings(folder=args.target_folder)
+    dna_repository = DnaRepository(settings=persistence_settings)
+    dna_repository.dedup("elite")
 
 
 def collect_args() -> Namespace:

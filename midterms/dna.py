@@ -49,7 +49,7 @@ class Dna:
         """
         expressed: List[Gene] = []
         for gene in self.genes:
-            if gene.control_expression > Gene.threshold_for_exrpession():
+            if gene.control_expression >= Gene.threshold_for_expression():
                 expressed.append(gene)
         return [
             Phenotype.parse_dna(gene=gene, gene_count=i+1)
