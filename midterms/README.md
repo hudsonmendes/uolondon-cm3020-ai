@@ -7,7 +7,7 @@
 ```
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.0/pmr=0.1/genes=05" \
+        --target_folder "evolution/atavism=0.00/pmr=0.10/genes=05" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -22,7 +22,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.0/pmr=0.1/genes=10" \
+        --target_folder "evolution/atavism=0.00/pmr=0.10/genes=10" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -37,7 +37,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.0/pmr=0.1/genes=15" \
+        --target_folder "evolution/atavism=0.00/pmr=0.10/genes=15" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -52,7 +52,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.1/genes=05" \
+        --target_folder "evolution/atavism=0.10/pmr=0.10/genes=05" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -67,7 +67,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.1/genes=10" \
+        --target_folder "evolution/atavism=0.10/pmr=0.10/genes=10" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -82,7 +82,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.1/genes=15" \
+        --target_folder "evolution/atavism=0.10/pmr=0.10/genes=15" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -97,7 +97,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.2/genes=05" \
+        --target_folder "evolution/atavism=0.20/pmr=0.10/genes=05" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -112,7 +112,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.2/genes=10" \
+        --target_folder "evolution/atavism=0.20/pmr=0.10/genes=10" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -127,7 +127,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.2/genes=15" \
+        --target_folder "evolution/atavism=0.20/pmr=0.10/genes=15" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -142,7 +142,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.0/pmr=0.2/genes=05" \
+        --target_folder "evolution/atavism=0.00/pmr=0.25/genes=05" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -157,7 +157,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.0/pmr=0.2/genes=10" \
+        --target_folder "evolution/atavism=0.00/pmr=0.25/genes=10" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -172,7 +172,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.0/pmr=0.2/genes=15" \
+        --target_folder "evolution/atavism=0.00/pmr=0.25/genes=15" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -187,7 +187,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.1/genes=05" \
+        --target_folder "evolution/atavism=0.10/pmr=0.25/genes=05" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -202,7 +202,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.1/genes=10" \
+        --target_folder "evolution/atavism=0.10/pmr=0.25/genes=10" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -217,7 +217,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.1/genes=15" \
+        --target_folder "evolution/atavism=0.10/pmr=0.25/genes=15" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -232,7 +232,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.2/genes=05" \
+        --target_folder "evolution/atavism=0.20/pmr=0.25/genes=05" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -247,7 +247,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.2/genes=10" \
+        --target_folder "evolution/atavism=0.20/pmr=0.25/genes=10" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \
@@ -262,7 +262,7 @@ python cli.py evolution optimise \
 
 python cli.py evolution optimise \
         --genesis_filepath "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen" \
-        --target_folder "evolution/atavism=0.2/genes=15" \
+        --target_folder "evolution/atavism=0.20/pmr=0.25/genes=15" \
         --n_generations 1000 \
         --crossover_min_len 0.25 \
         --crossover_max_len 0.75 \

@@ -108,7 +108,7 @@ def action_optimise(args: Namespace):
             evolutions.append(generation)
             last_score = max(last_score, generation.elite_offspring.fitness_score)
         args.gen_id += 1
-    dna_repository.dedup("elite")
+    dna_repository.dedup("summary")
     evolution_repository.summarise(evolutions)
 
 
