@@ -151,10 +151,8 @@ def collect_args() -> Namespace:
         parser_evo_parser.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
         parser_evo_parser.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
 
-    for parser_hyperparam in parser_evo_evolve, parser_creature_new:
-        parser_hyperparam.add_argument("--gene_count", type=int, default=5)
-
-    for parser_hyperparam in parser_evo_optimise, parser_evo_evolve, parser_creature_new:
+    for parser_hyperparam in parser_evo_optimise, parser_evo_evolve, parser_creature_new, parser_creature_render:
+        parser_hyperparam.add_argument("--genesis_gene_count", type=int, default=5)
         parser_hyperparam.add_argument("--crossover_min_len", type=float, default=0.25,)
         parser_hyperparam.add_argument("--crossover_max_len", type=float, default=0.75)
         parser_hyperparam.add_argument("--point_mutation_enabled", type=bool, default=True)
