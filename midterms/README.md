@@ -286,6 +286,6 @@ python cli.py evolution optimise \
         --grow_mutation_rate 0.25 \
         --expression_threshold 0.2 \
         --population_size 100 \
-        --simulation_steps 2400 \
+        --simulation_steps 2400  \
         --gene_count 20
 ```
