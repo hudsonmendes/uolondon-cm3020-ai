@@ -40,17 +40,19 @@ class Evolver:
         """
         with Simulation(connection_mode=p.DIRECT, hyperparams=self.hyperparams) as simulation:
             genesis = self._ensure_previous_population(previous)
-            genesis_elite = EvolutionRecord.from_creature(genesis.fittest) if previous else None
-            offspring, offspring_without_elite = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
+            offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
             for creature in tqdm(offspring.creatures):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
-            offspring_fitness = [EvolutionRecord.from_creature(creature) for creature in offspring_without_elite]
+            offspring_fitness = [
+                EvolutionRecord.from_creature(creature, elite_from_previous=(creature == offspring.fittest if previous else False))
+                for creature
+                in offspring.creatures]
             return EvolutionGeneration(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
                 metrics=EvolutionMetrics.from_records(offspring_fitness, hyperparams=self.hyperparams),
-                elite_previous=genesis_elite,
-                elite_offspring=EvolutionRecord.from_creature(offspring.fittest) if offspring else None,
+                elite_previous=EvolutionRecord.from_creature(genesis.fittest, elite_from_previous=True) if previous else None,
+                elite_offspring=EvolutionRecord.from_creature(offspring.fittest, elite_from_previous=False) if offspring else None,
                 offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
@@ -61,7 +63,7 @@ class Evolver:
                 threshold_for_expression=self.hyperparams.expression_threshold)
         return population
 
-    def _reproduce_into_offspring_population(self, previous: Population, elitist: bool) -> Tuple[Population, List[Creature]]:
+    def _reproduce_into_offspring_population(self, previous: Population, elitist: bool) -> Population:
         reproduction = Reproduction(self.hyperparams)
         viable_creatures: List[Creature] = []
         creatures_without_previous_elite: List[Creature] = []
@@ -74,7 +76,7 @@ class Evolver:
             if child:
                 creatures_without_previous_elite.append(child)
                 viable_creatures.append(child)
-        return Population(viable_creatures), creatures_without_previous_elite
+        return Population(viable_creatures)
 
 
 @dataclass(eq=True, frozen=True, order=True)
@@ -126,7 +128,7 @@ class EvolutionMetrics:
 
     @staticmethod
     def from_records(records: List["EvolutionRecord"], hyperparams: Hyperparams) -> "EvolutionMetrics":
-        scores = pd.DataFrame([r.fitness_score for r in records])
+        scores = pd.DataFrame([r.fitness_score for r in records if not r.elite_from_previous])
         dna_all = [Dna.parse_dna(r.dna_code) for r in records]
         dna_unique = [Dna.parse_dna(code) for code in set([r.dna_code for r in records])]
         dna_pool = list(itertools.chain(*[dna.code for dna in dna_all]))
@@ -155,12 +157,14 @@ class EvolutionRecord:
     first_position: str
     last_position: str
     fitness_score: float
+    elite_from_previous: bool = False
 
     @staticmethod
-    def from_creature(creature: Creature) -> "EvolutionRecord":
+    def from_creature(creature: Creature, elite_from_previous: bool) -> "EvolutionRecord":
         return EvolutionRecord(
             dna_code=str(creature.dna),
             phenotype_count=len(creature.phenotypes),
+            elite_from_previous=elite_from_previous,
             first_position=' '.join(str(x) for x in list(creature.movement.initial)),
             last_position=' '.join(str(x) for x in list(creature.movement.last)) if creature.movement.last else '0 0 0',
             fitness_score=creature.movement.distance)
