@@ -1,3 +1,4 @@
+from cmath import isnan
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional
 
@@ -84,5 +85,7 @@ class CreatureMovement:
             p1 = np.asarray(self.initial)
             p2 = np.asarray(self.last)
             dist = np.linalg.norm(p1-p2)
-            return float(dist)
+            parsed = float(dist)
+            if parsed and not isnan(parsed):
+                return parsed
         return 0.

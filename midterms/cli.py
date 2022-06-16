@@ -76,7 +76,7 @@ def action_evolve(args: Namespace, last_score: float = 0, default_gene_count: Op
     if generation.elite_offspring:
         dna_repository.write("summary", generation.elite_offspring.dna_code)
         message = f"Generation #{args.gen_id+1}, fittest creature moved {generation.metrics.fitness_highest}"
-        if generation.elite_previous and generation.elite_offspring.dna_code != generation.elite_previous.dna_code:
+        if generation.elite_previous and generation.elite_offspring.dna_code != generation.elite_previous.dna_code and last_score < generation.elite_offspring.fitness_score:
             message += f" > {generation.elite_previous.fitness_score}"
         message += f", Mean={generation.metrics.fitness_mean}/P95={generation.metrics.fitness_p95}"
         LOGGER.info(message)
