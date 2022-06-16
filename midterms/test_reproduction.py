@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from hypothesis import given
 from hypothesis.strategies import integers
@@ -13,9 +14,17 @@ from gene import Gene
 class ReproductionTest(unittest.TestCase):
 
     def setUp(self) -> None:
+        self.mock_hyperparams = patch("reproduction.Hyperparams").start()
+        self.mock_hyperparams.point_mutation_rate = 0.1
+        self.mock_hyperparams.point_mutation_amount = 0.1
+        self.mock_hyperparams.shrink_mutation_rate = 0.1
+
         self.adam = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
         self.eve = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
-        self.reproduction = Reproduction()
+        self.reproduction = Reproduction(self.mock_hyperparams)
+
+    def tearDown(self) -> None:
+        patch.stopall()
 
     def test_class_exists(self):
         self.assertIsNotNone(Reproduction)
@@ -47,44 +56,46 @@ class ReproductionTest(unittest.TestCase):
         self.assertListEqual(self.eve[limit-diff_len:],child[limit:])
 
     def test_point_mutation_adds_1_to_all_bases_with_rate_1(self):
-        reproduction = Reproduction(hyperparams=Hyperparams(point_mutation_rate=1., point_mutation_amount=1.))
+        self.mock_hyperparams.point_mutation_rate = 1.
+        self.mock_hyperparams.point_mutation_amount = 1.
         before = [0.1 for _ in range(Gene.length() * random.randint(1, 15))]
-        after = reproduction._point_mutate(before)
+        after = self.reproduction._point_mutate(before)
         self.assertTrue(all([base == 0.99999 for base in after]))
 
     def test_point_mutation_affects_no_gene_to_all_bases_with_rate_0(self):
-        reproduction = Reproduction(hyperparams=Hyperparams(point_mutation_rate=0., point_mutation_amount=1.))
+        self.mock_hyperparams.point_mutation_rate = 0.
+        self.mock_hyperparams.point_mutation_amount = 1.
         before = [0.1 for _ in range(Gene.length() * random.randint(1, 15))]
-        after = reproduction._point_mutate(before)
+        after = self.reproduction._point_mutate(before)
         self.assertTrue(not any([base == 0.99999 for base in after]))
 
     def test_shrink_mutation_never_removes_more_than_gen_len(self):
-        reproduction = Reproduction(hyperparams=Hyperparams(shrink_mutation_rate=1.))
+        self.mock_hyperparams.shrink_mutation_rate=1.
         before = [random.random() for _ in range(Gene.length() * random.randint(5, 15))]
-        after = reproduction._mutate_shrink(before)
+        after = self.reproduction._mutate_shrink(before)
         self.assertEqual(len(after), Gene.length())
     
     def test_shrink_mutation_removes_some_genetic_code_when_half(self):
-        reproduction = Reproduction(hyperparams=Hyperparams(shrink_mutation_rate=0.5))
+        self.mock_hyperparams.shrink_mutation_rate=0.5
         before = [random.random() for _ in range(Gene.length() * random.randint(5, 15))]
-        after = reproduction._mutate_shrink(before)
+        after = self.reproduction._mutate_shrink(before)
         self.assertLess(len(after), int(len(before)))
 
     def test_shrink_mutation_does_not_remove_genetic_code_when_zero(self):
-        reproduction = Reproduction(hyperparams=Hyperparams(shrink_mutation_rate=0.))
+        self.mock_hyperparams.shrink_mutation_rate=0.
         before = [random.random() for _ in range(Gene.length() * random.randint(5, 15))]
-        after = reproduction._mutate_shrink(before)
+        after = self.reproduction._mutate_shrink(before)
         self.assertEqual(len(after), len(before))
 
     def test_grow_mutation_adds_some_genetic_material_when_rate_greater_than_zero(self):
-        reproduction = Reproduction(hyperparams=Hyperparams(grow_mutation_rate=0.1))
+        self.mock_hyperparams.grow_mutation_rate=0.1
         before = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
-        after = reproduction._mutate_grow(before)
+        after = self.reproduction._mutate_grow(before)
         self.assertGreater(len(after), len(before))
 
     def test_grow_mutation_does_not_add_genetic_material_when_rate_smaller_than_zero(self):
-        reproduction = Reproduction(hyperparams=Hyperparams(grow_mutation_rate=0.))
+        self.mock_hyperparams.grow_mutation_rate=0.
         before = [random.random() for _ in range(Gene.length() * random.randint(1, 15))]
-        after = reproduction._mutate_grow(before)
+        after = self.reproduction._mutate_grow(before)
         self.assertEqual(len(after), len(before))
         

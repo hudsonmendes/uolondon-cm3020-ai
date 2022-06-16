@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 # Specific for this project
+.DS_Store
 evolution/

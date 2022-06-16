@@ -19,6 +19,10 @@ class EvolutionTest(unittest.TestCase):
         self.elite_previous = self.viable_creatures[3]
         self.elite_offspring = self.viable_creatures[4]
 
+        self.mock_hyperparams = patch("evolution.Hyperparams").start()
+        self.mock_hyperparams.population_size = 100
+        self.mock_hyperparams.expression_threshold = 0.5
+
         self.mock_simulation = patch("evolution.Simulation").start()
         self.mock_population = patch("evolution.Population").start()
         self.mock_reproduction = patch("evolution.Reproduction").start()
@@ -29,8 +33,7 @@ class EvolutionTest(unittest.TestCase):
         self.mock_population.return_value.fittest = self.elite_offspring
         self.mock_reproduction.return_value.reproduce.return_value = self.dna_pool[-1]
 
-        self.hyperparams = Hyperparams()
-        self.evolver = Evolver(hyperparams=self.hyperparams)
+        self.evolver = Evolver(hyperparams=self.mock_hyperparams)
 
     def tearDown(self) -> None:
         patch.stopall()
