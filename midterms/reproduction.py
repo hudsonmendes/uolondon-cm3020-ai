@@ -21,11 +21,14 @@ class Reproduction:
             dna_code = self._mutate_shrink(dna_code)
         if self.hyperparams.grow_mutation_enabled:
             dna_code = self._mutate_grow(dna_code)
+        max_len = self.hyperparams.gene_count_max * Gene.length()
+        if len(dna_code) > max_len:
+            dna_code = dna_code[:max_len]
         return dna_code.tolist()
 
     def _crossover(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
         full = max(len(a), len(b))
-        min_len = Gene.length() //  2
+        min_len = Gene.length() // 2
         cut_min, cut_max = int(full * 0.25), int(full * 0.75)
         cut = random.randint(cut_min, cut_max)
         cut_a, cut_b = min(cut, len(a) - min_len), min(cut, len(b) - min_len)

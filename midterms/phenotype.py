@@ -61,7 +61,7 @@ class PhenotypeLinkShape(Enum):
 
     @staticmethod
     def parse_float(number: float) -> "PhenotypeLinkShape":
-        if number <= 0.5:
+        if number <= 0.75:
             return PhenotypeLinkShape.CYLINDER
         else:
             return PhenotypeLinkShape.SPHERE

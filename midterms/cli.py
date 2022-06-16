@@ -57,37 +57,30 @@ def action_evolve(args: Namespace, last_score: float = 0, default_gene_count: Op
     persistence_settings = PersistenceSettings(folder=args.target_folder)
     evolution_repository = EvolutionRepository(settings=persistence_settings)
     dna_repository = DnaRepository(settings=persistence_settings)
-    previous = evolution_repository.read(args.gen_id)
+    previous = None
     genesis = None
-    if previous:
-        if args.show_winner:
-            LOGGER.info(f"Generation #{args.gen_id}, loaded")
-        genesis = previous.to_population()
-    genesis_base_count = gene_count=previous.hyperparams.genesis_gene_count if previous else default_gene_count
+    if args.gen_id:
+        previous = evolution_repository.read(args.gen_id)
+        if previous:
+            genesis = previous.to_population()
+    genesis_base_count = previous.hyperparams.gene_count_genesis if previous else default_gene_count
     hyperparams = Hyperparams.from_args(args, genesis_base_count)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
-    if args.show_winner:
-        LOGGER.info(f"Generation #{args.gen_id}, will evolve generation #{evolving_id}")
     generation = evolver.evolve(generation_id=evolving_id, previous=genesis)
-    if args.show_winner:
-        LOGGER.info(f"Generation #{args.gen_id+1}, storing results #{evolving_id}")
-    evolution_repository.write(generation)
-    if generation.elite_offspring:
-        dna_repository.write("summary", generation.elite_offspring.dna_code)
-        message = f"Generation #{args.gen_id+1}, fittest creature moved {generation.metrics.fitness_highest}"
-        if generation.elite_previous and generation.elite_offspring.dna_code != generation.elite_previous.dna_code and last_score < generation.elite_offspring.fitness_score:
-            message += f" > {generation.elite_previous.fitness_score}"
-        message += f", Mean={generation.metrics.fitness_mean}/P95={generation.metrics.fitness_p95}"
-        LOGGER.info(message)
-        try:
-            if args.show_winner and last_score < generation.elite_offspring.fitness_score:
-                with Simulation(connection_mode=p.GUI, hyperparams=hyperparams) as simulation:
-                    simulation.simulate(generation.elite_offspring.dna_code)
-        except Exception as _:
-            pass
-        except KeyboardInterrupt as _:
-            pass
+    if generation:
+        print(generation.metrics)
+        evolution_repository.write(generation)
+        if generation.elite_offspring:
+            dna_repository.write("summary", generation.elite_offspring.dna_code)
+            try:
+                if args.show_winner and last_score < generation.elite_offspring.fitness_score:
+                    with Simulation(connection_mode=p.GUI, hyperparams=hyperparams) as simulation:
+                        simulation.simulate(generation.elite_offspring.dna_code)
+            except Exception as _:
+                pass
+            except KeyboardInterrupt as _:
+                pass
     return generation
 
 
@@ -152,8 +145,9 @@ def collect_args() -> Namespace:
         parser_evo_parser.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
 
     for parser_hyperparam in parser_evo_optimise, parser_evo_evolve, parser_creature_new, parser_creature_render:
-        parser_hyperparam.add_argument("--genesis_gene_count", type=int, default=5)
-        parser_hyperparam.add_argument("--crossover_min_len", type=float, default=0.25,)
+        parser_hyperparam.add_argument("--gene_count_genesis", type=int, default=5)
+        parser_hyperparam.add_argument("--gene_count_max", type=int, default=18)
+        parser_hyperparam.add_argument("--crossover_min_len", type=float, default=0.25)
         parser_hyperparam.add_argument("--crossover_max_len", type=float, default=0.75)
         parser_hyperparam.add_argument("--point_mutation_enabled", type=bool, default=True)
         parser_hyperparam.add_argument("--point_mutation_rate", type=float, default=0.25)
@@ -161,7 +155,7 @@ def collect_args() -> Namespace:
         parser_hyperparam.add_argument("--shrink_mutation_enabled", type=bool, default=True)
         parser_hyperparam.add_argument("--shrink_mutation_rate", type=float, default=0.1)
         parser_hyperparam.add_argument("--grow_mutation_enabled", type=bool, default=True)
-        parser_hyperparam.add_argument("--grow_mutation_rate", type=float, default=0.25)
+        parser_hyperparam.add_argument("--grow_mutation_rate", type=float, default=0.15)
         parser_hyperparam.add_argument("--reproduction_max_attempts", type=int, default=100_000)
         parser_hyperparam.add_argument("--elitist_behaviour", type=bool, default=True)
         parser_hyperparam.add_argument("--expression_threshold", type=float, default=0.1)
