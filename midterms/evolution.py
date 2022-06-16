@@ -59,7 +59,7 @@ class Evolver:
         if not population:
             population = Population.populate_for(
                 size=2,
-                gene_count=self.hyperparams.gene_count,
+                gene_count=self.hyperparams.genesis_gene_count,
                 threshold_for_expression=self.hyperparams.expression_threshold)
         return population
 

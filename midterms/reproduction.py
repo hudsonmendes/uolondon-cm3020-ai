@@ -20,7 +20,7 @@ class Reproduction:
         if self.hyperparams.shrink_mutation_enabled:
             dna_code = self._mutate_shrink(dna_code)
         if self.hyperparams.grow_mutation_enabled:
-            dna_code = self._mutate_shrink(dna_code)
+            dna_code = self._mutate_grow(dna_code)
         return dna_code.tolist()
 
     def _crossover(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:

@@ -52,7 +52,7 @@ class Dna:
             if gene.control_expression >= threshold_for_expression:
                 expressed.append(gene)
         return [
-            Phenotype.parse_dna(gene=gene, gene_count=i+1)
+            Phenotype.parse_dna(gene=gene, joint_count=i+1)
             for i, gene
             in enumerate(expressed)]
 

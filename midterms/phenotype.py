@@ -33,14 +33,14 @@ class Phenotype:
     control_freq: float
 
     @staticmethod
-    def parse_dna(gene: Gene, gene_count: int) -> "Phenotype":
+    def parse_dna(gene: Gene, joint_count: int) -> "Phenotype":
         return Phenotype(
             link_shape=PhenotypeLinkShape.parse_float(gene.link_shape),
             link_length=gene.link_length * 2.,
             link_radius=gene.link_radius,
             link_recurrence=int(gene.link_recurrence * 3),
             link_mass=gene.link_mass,
-            joint_parent=int(max(0, min(gene.joint_parent, 0.99) * (gene_count-1))) if gene_count > 1 else None,
+            joint_parent=int(max(0, min(gene.joint_parent, 0.99) * (joint_count-1))) if joint_count > 1 else None,
             joint_type=PhenotypeJointType.parse_float(gene.joint_type),
             joint_axis_xyz=PhenotypeJointXYZ.parse_float(gene.joint_axis_xyz),
             joint_origin_rpy_r=gene.joint_origin_rpy_r * 2*pi,

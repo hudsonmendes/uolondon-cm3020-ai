@@ -19,12 +19,14 @@ class Hyperparams:
     expression_threshold: float
     population_size: int
     simulation_steps: int
-    gene_count: int
+    genesis_gene_count: int
 
     @staticmethod
-    def from_args(args: Namespace) -> "Hyperparams":
+    def from_args(args: Namespace, genesis_gene_count: Optional[int] = None) -> "Hyperparams":
         arg_dict = dict()
         for field in fields(Hyperparams):
             if field.name in args and args.__dict__[field.name] is not None:
                 arg_dict[field.name] = args.__dict__[field.name]
+        if genesis_gene_count and "genesis_gene_count" not in arg_dict:
+            arg_dict["genesis_gene_count"] = genesis_gene_count
         return Hyperparams(**arg_dict)

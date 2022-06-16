@@ -1,3 +1,4 @@
+from typing import Optional
 from argparse import ArgumentParser, Namespace
 
 import shutil
@@ -52,8 +53,7 @@ def action_render(args: Namespace):
             simulation.simulate(dna.code)
 
 
-def action_evolve(args: Namespace, last_score: float = 0) -> EvolutionGeneration:
-    hyperparams = Hyperparams.from_args(args)
+def action_evolve(args: Namespace, last_score: float = 0, default_gene_count: Optional[int] = 5) -> EvolutionGeneration:
     persistence_settings = PersistenceSettings(folder=args.target_folder)
     evolution_repository = EvolutionRepository(settings=persistence_settings)
     dna_repository = DnaRepository(settings=persistence_settings)
@@ -63,6 +63,8 @@ def action_evolve(args: Namespace, last_score: float = 0) -> EvolutionGeneration
         if args.show_winner:
             LOGGER.info(f"Generation #{args.gen_id}, loaded")
         genesis = previous.to_population()
+    genesis_base_count = gene_count=previous.hyperparams.genesis_gene_count if previous else default_gene_count
+    hyperparams = Hyperparams.from_args(args, genesis_base_count)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
     if args.show_winner:
@@ -149,8 +151,10 @@ def collect_args() -> Namespace:
         parser_evo_parser.add_argument("--target_folder", type=dir_path, default="./evolution", help="Which directory will keep record of the evolution?")
         parser_evo_parser.add_argument("--multi_threaded", action="store_true", help="Do you want to run the simulation as a multi-threaded process?")
 
-    parser_hyperparams = parser_evo_evolve, parser_evo_optimise, parser_creature_new, parser_creature_render
-    for parser_hyperparam in parser_hyperparams:
+    for parser_hyperparam in parser_evo_evolve, parser_creature_new:
+        parser_hyperparam.add_argument("--gene_count", type=int, default=5)
+
+    for parser_hyperparam in parser_evo_optimise, parser_evo_evolve, parser_creature_new:
         parser_hyperparam.add_argument("--crossover_min_len", type=float, default=0.25,)
         parser_hyperparam.add_argument("--crossover_max_len", type=float, default=0.75)
         parser_hyperparam.add_argument("--point_mutation_enabled", type=bool, default=True)
@@ -165,7 +169,6 @@ def collect_args() -> Namespace:
         parser_hyperparam.add_argument("--expression_threshold", type=float, default=0.1)
         parser_hyperparam.add_argument("--population_size", type=int, default=100)
         parser_hyperparam.add_argument("--simulation_steps", type=int, default=2400)
-        parser_hyperparam.add_argument("--gene_count", type=int, default=5)
 
     args = parser.parse_args()
     return args
