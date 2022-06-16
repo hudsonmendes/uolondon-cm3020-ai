@@ -57,8 +57,7 @@
                 "evolution",
                 "optimise",
                 "--genesis_filepath", "/Users/hudsonmendes/Workspaces/hudsonmendes-estudos/cm3020-ai/midterms/evolution/genesis.gen",
-                "--n_generations", "100",
-                "--show_winner",
+                "--n_generations", "10",
                 "--target_folder", "./evolution/tests",
                 "--population_size", "10"
             ],

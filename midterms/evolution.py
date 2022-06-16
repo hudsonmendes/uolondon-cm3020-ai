@@ -41,10 +41,10 @@ class Evolver:
         with Simulation(connection_mode=p.DIRECT, hyperparams=self.hyperparams) as simulation:
             genesis = self._ensure_previous_population(previous)
             genesis_elite = EvolutionRecord.from_creature(genesis.fittest) if previous else None
-            offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
+            offspring, offspring_without_elite = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
             for creature in tqdm(offspring.creatures):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
-            offspring_fitness = [EvolutionRecord.from_creature(creature) for creature in offspring.creatures]
+            offspring_fitness = [EvolutionRecord.from_creature(creature) for creature in offspring_without_elite]
             return EvolutionGeneration(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
@@ -61,9 +61,10 @@ class Evolver:
                 threshold_for_expression=self.hyperparams.expression_threshold)
         return population
 
-    def _reproduce_into_offspring_population(self, previous: Population, elitist: bool) -> Population:
+    def _reproduce_into_offspring_population(self, previous: Population, elitist: bool) -> Tuple[Population, List[Creature]]:
         reproduction = Reproduction(self.hyperparams)
         viable_creatures: List[Creature] = []
+        creatures_without_previous_elite: List[Creature] = []
         if elitist:
             viable_creatures.append(previous.fittest)
         while len(viable_creatures) < self.hyperparams.population_size:
@@ -71,8 +72,9 @@ class Evolver:
             new = reproduction.reproduce(adam.dna.code, eve.dna.code)
             child = Creature.develop_from(dna=Dna.parse_dna(new), threshold_for_expression=self.hyperparams.expression_threshold)
             if child:
+                creatures_without_previous_elite.append(child)
                 viable_creatures.append(child)
-        return Population(viable_creatures)
+        return Population(viable_creatures), creatures_without_previous_elite
 
 
 @dataclass(eq=True, frozen=True, order=True)
