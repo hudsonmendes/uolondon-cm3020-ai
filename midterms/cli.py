@@ -59,7 +59,7 @@ def action_evolve(args: Namespace, last_score: float = 0, default_gene_count: Op
     dna_repository = DnaRepository(settings=persistence_settings)
     previous = None
     genesis = None
-    if args.gen_id:
+    if args.gen_id is not None:
         previous = evolution_repository.read(args.gen_id)
         if previous:
             genesis = previous.to_population()
@@ -90,11 +90,11 @@ def action_optimise(args: Namespace):
     dna_repository = DnaRepository(settings=persistence_settings)
     random.seed(0)
     np.random.seed(0)
-    if not args.genesis_filepath or not args.genesis_filepath.is_file:
-        raise FileNotFoundError(args.genesis_filepath)
-
-    shutil.copy(args.genesis_filepath, args.target_folder / "generation-0000.gen")
-    args.gen_id = 0
+    if args.gen_id is None:
+        if not args.genesis_filepath or not args.genesis_filepath.is_file:
+            raise FileNotFoundError(args.genesis_filepath)
+        shutil.copy(args.genesis_filepath, args.target_folder / "generation-0000.gen")
+        args.gen_id = 0
     last_score = 0.
     evolutions = []
     for _ in range(args.n_generations - 1):

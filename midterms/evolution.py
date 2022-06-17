@@ -41,7 +41,7 @@ class Evolver:
         with Simulation(connection_mode=p.DIRECT, hyperparams=self.hyperparams) as simulation:
             genesis = self._ensure_previous_population(previous)
             offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
-            for creature in tqdm(offspring.creatures):
+            for creature in tqdm(offspring.creatures, desc=f"gen #{str(generation_id).rjust(3, '0')}"):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
             offspring_fitness = [
                 EvolutionRecord.from_creature(creature, elite_from_previous=(creature == offspring.fittest if previous else False))
@@ -103,7 +103,7 @@ class EvolutionGeneration:
                 creature = Creature.develop_from(
                     dna=Dna.parse_dna(fitness.dna_code),
                     threshold_for_expression=self.hyperparams.expression_threshold)
-                if creature and not creature:
+                if creature:
                     creature.movement.track(fitness.extract_last_position_as_tuple())
                     creature.movement.lethal_move = fitness.died_during_motion
                     if not creature.movement.lethal_move:
@@ -120,13 +120,16 @@ class EvolutionMetrics:
     fitness_highest: float
     dna_count_all: int
     dna_count_unique: int
-    dna_pool_entropy: float
-    non_gene_bases: int
+    entropy_dna_pool: float
+    entropy_fitness_scores: float
+    bases_not_in_genes: int
     genes_total: int
     genes_min: int
     genes_max: int
     genes_expressed: int
     genes_supressed: int
+    creatures_survived: int
+    creatures_dead: int
 
     @staticmethod
     def from_records(records: List["EvolutionRecord"], hyperparams: Hyperparams) -> "EvolutionMetrics":
@@ -143,13 +146,16 @@ class EvolutionMetrics:
             fitness_highest=float(scores.max()),
             dna_count_all=len(dna_all),
             dna_count_unique=len(dna_unique),
-            dna_pool_entropy=entropy(dna_pool),
-            non_gene_bases=sum([len(dna.code) % Gene.length() for dna in dna_all]),
+            entropy_dna_pool=entropy(dna_pool),
+            entropy_fitness_scores=entropy(scores),
+            bases_not_in_genes=sum([len(dna.code) % Gene.length() for dna in dna_all]),
             genes_total=sum([len(dna.genes) for dna in dna_all]),
             genes_max=max([len(dna.genes) for dna in dna_all]),
             genes_min=min([len(dna.genes) for dna in dna_all]),
             genes_expressed=sum(1 for cb in control_bases if cb >= hyperparams.expression_threshold),
-            genes_supressed=sum(1 for cb in control_bases if cb < hyperparams.expression_threshold))
+            genes_supressed=sum(1 for cb in control_bases if cb < hyperparams.expression_threshold),
+            creatures_survived=len([r for r in records if not r.died_during_motion]),
+            creatures_dead=len([r for r in records if r.died_during_motion]))
 
 
 @dataclass(eq=True, frozen=True, order=True)
