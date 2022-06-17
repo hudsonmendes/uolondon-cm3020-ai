@@ -15,15 +15,10 @@ class Reproduction:
 
     def reproduce(self, a: List[float], b: List[float]) -> List[float]:
         dna_code = self._crossover(np.array(a), np.array(b))
-        if self.hyperparams.point_mutation_enabled:
-            dna_code = self._point_mutate(dna_code)
-        if self.hyperparams.shrink_mutation_enabled:
-            dna_code = self._mutate_shrink(dna_code)
-        if self.hyperparams.grow_mutation_enabled:
-            dna_code = self._mutate_grow(dna_code)
-        max_len = self.hyperparams.gene_count_max * Gene.length()
-        if len(dna_code) > max_len:
-            dna_code = dna_code[:max_len]
+        dna_code = self._point_mutate(dna_code)
+        dna_code = self._mutate_shrink(dna_code)
+        dna_code = self._mutate_grow(dna_code)
+        dna_code = self._clip_dna_len(dna_code)
         return dna_code.tolist()
 
     def _crossover(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
@@ -64,3 +59,10 @@ class Reproduction:
             new_bases = np.random.rand(growth)
             after = np.concatenate([after, new_bases])
         return after
+
+    def _clip_dna_len(self, dna_code: np.ndarray) -> np.ndarray:
+        gen_count_max = self.hyperparams.gene_count_max
+        max_len = gen_count_max * Gene.length()
+        if len(dna_code) > max_len:
+            dna_code = dna_code[:max_len]
+        return dna_code
