@@ -133,17 +133,18 @@ class EvolutionMetrics:
 
     @staticmethod
     def from_records(records: List["EvolutionRecord"], hyperparams: Hyperparams) -> "EvolutionMetrics":
-        scores = pd.DataFrame([r.fitness_score for r in records if not r.elite_from_previous])
+        scores = [r.fitness_score for r in records if not r.elite_from_previous]
+        scores_df = pd.DataFrame(scores)
         dna_all = [Dna.parse_dna(r.dna_code) for r in records]
         dna_unique = [Dna.parse_dna(code) for code in set([r.dna_code for r in records])]
         dna_pool = list(itertools.chain(*[dna.code for dna in dna_all]))
         control_bases = list(itertools.chain(*[[gene.control_expression for gene in dna.genes] for dna in dna_all]))
         return EvolutionMetrics(
-            fitness_mean=float(scores.mean()),
-            fitness_p95=float(scores.quantile(0.95)),
-            fitness_stdev=float(scores.std()),
-            fitness_lowest=float(scores.min()),
-            fitness_highest=float(scores.max()),
+            fitness_mean=float(scores_df.mean()),
+            fitness_p95=float(scores_df.quantile(0.95)),
+            fitness_stdev=float(scores_df.std()),
+            fitness_lowest=float(scores_df.min()),
+            fitness_highest=float(scores_df.max()),
             dna_count_all=len(dna_all),
             dna_count_unique=len(dna_unique),
             entropy_dna_pool=entropy(dna_pool),
