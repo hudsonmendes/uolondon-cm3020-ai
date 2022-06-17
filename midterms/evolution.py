@@ -40,19 +40,21 @@ class Evolver:
         """
         with Simulation(connection_mode=p.DIRECT, hyperparams=self.hyperparams) as simulation:
             genesis = self._ensure_previous_population(previous)
+            genesis_fittest = genesis.fittest if genesis else None
             offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
+            offspring_fittest = offspring.fittest if offspring else None
             for creature in tqdm(offspring.creatures, desc=f"gen #{str(generation_id).rjust(3, '0')}"):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
             offspring_fitness = [
-                EvolutionRecord.from_creature(creature, elite_from_previous=(creature == offspring.fittest if previous else False))
+                EvolutionRecord.from_creature(creature, is_previous_fittest=(creature == genesis_fittest))
                 for creature
                 in offspring.creatures]
             return EvolutionGeneration(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
                 metrics=EvolutionMetrics.from_records(offspring_fitness, hyperparams=self.hyperparams),
-                elite_previous=EvolutionRecord.from_creature(genesis.fittest, elite_from_previous=True) if previous else None,
-                elite_offspring=EvolutionRecord.from_creature(offspring.fittest, elite_from_previous=False) if offspring else None,
+                elite_previous=EvolutionRecord.from_creature(genesis_fittest, is_previous_fittest=True) if genesis_fittest else None,
+                elite_offspring=EvolutionRecord.from_creature(offspring_fittest, is_previous_fittest=False) if offspring_fittest else None,
                 offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
@@ -133,7 +135,7 @@ class EvolutionMetrics:
 
     @staticmethod
     def from_records(records: List["EvolutionRecord"], hyperparams: Hyperparams) -> "EvolutionMetrics":
-        scores = [r.fitness_score for r in records if not r.elite_from_previous]
+        scores = [r.fitness_score for r in records if not r.is_elite_from_previous]
         scores_df = pd.DataFrame(scores)
         dna_all = [Dna.parse_dna(r.dna_code) for r in records]
         dna_unique = [Dna.parse_dna(code) for code in set([r.dna_code for r in records])]
@@ -166,15 +168,15 @@ class EvolutionRecord:
     first_position: str
     last_position: str
     fitness_score: float
-    elite_from_previous: bool = False
+    is_elite_from_previous: bool = False
     died_during_motion: bool = False
 
     @staticmethod
-    def from_creature(creature: Creature, elite_from_previous: bool) -> "EvolutionRecord":
+    def from_creature(creature: Creature, is_previous_fittest: bool) -> "EvolutionRecord":
         return EvolutionRecord(
             dna_code=str(creature.dna),
             phenotype_count=len(creature.phenotypes),
-            elite_from_previous=elite_from_previous,
+            is_elite_from_previous=is_previous_fittest,
             died_during_motion=creature.movement.lethal_move,
             first_position=' '.join(str(x) for x in list(creature.movement.initial)),
             last_position=' '.join(str(x) for x in list(creature.movement.last)) if creature.movement.last else '0 0 0',
