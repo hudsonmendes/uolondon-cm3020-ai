@@ -63,8 +63,8 @@ def action_evolve(args: Namespace, last_score: float = 0, default_gene_count: Op
         previous = evolution_repository.read(args.gen_id)
         if previous:
             genesis = previous.to_population()
-    genesis_base_count = previous.hyperparams.gene_count_genesis if previous else default_gene_count
-    hyperparams = Hyperparams.from_args(args, genesis_base_count)
+    genesis_gene_count = previous.hyperparams.gene_count_genesis if previous else default_gene_count
+    hyperparams = Hyperparams.from_args(args, genesis_gene_count)
     evolver = Evolver(hyperparams)
     evolving_id = 0 if args.gen_id is None else args.gen_id + 1
     generation = evolver.evolve(generation_id=evolving_id, previous=genesis)
