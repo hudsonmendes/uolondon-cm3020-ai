@@ -39,21 +39,21 @@ class Evolver:
         :param previous_population {Population}: if we are seeding the original population from persistence, uses that instead of generating a random one.
         """
         with Simulation(connection_mode=p.DIRECT, hyperparams=self.hyperparams) as simulation:
+            previous_fittest = previous.fittest if previous else None
             genesis = self._ensure_previous_population(previous)
-            genesis_fittest = genesis.fittest if genesis else None
             offspring = self._reproduce_into_offspring_population(genesis, elitist=self.hyperparams.elitist_behaviour)
-            offspring_fittest = offspring.fittest if offspring else None
             for creature in tqdm(offspring.creatures, desc=f"gen #{str(generation_id).rjust(3, '0')}"):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
+            offspring_fittest = offspring.fittest if offspring else None
             offspring_fitness = [
-                EvolutionRecord.from_creature(creature, is_previous_fittest=(creature == genesis_fittest))
+                EvolutionRecord.from_creature(creature, is_previous_fittest=(creature == previous_fittest))
                 for creature
                 in offspring.creatures]
             return EvolutionGeneration(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
                 metrics=EvolutionMetrics.from_records(offspring_fitness, hyperparams=self.hyperparams),
-                elite_previous=EvolutionRecord.from_creature(genesis_fittest, is_previous_fittest=True) if genesis_fittest else None,
+                elite_previous=EvolutionRecord.from_creature(previous_fittest, is_previous_fittest=True) if previous_fittest else None,
                 elite_offspring=EvolutionRecord.from_creature(offspring_fittest, is_previous_fittest=False) if offspring_fittest else None,
                 offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
 

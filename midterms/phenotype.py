@@ -37,7 +37,7 @@ class Phenotype:
         return Phenotype(
             link_shape=PhenotypeLinkShape.parse_float(gene.link_shape),
             link_length=gene.link_length * 2.,
-            link_radius=gene.link_radius,
+            link_radius=gene.link_radius * 0.25,
             link_recurrence=int(gene.link_recurrence * 3),
             link_mass=gene.link_mass,
             joint_parent=int(max(0, min(gene.joint_parent, 0.99) * (joint_count-1))) if joint_count > 1 else None,
@@ -46,9 +46,9 @@ class Phenotype:
             joint_origin_rpy_r=gene.joint_origin_rpy_r * 2*pi,
             joint_origin_rpy_p=gene.joint_origin_rpy_p * 2*pi,
             joint_origin_rpy_y=gene.joint_origin_rpy_y * 2*pi,
-            joint_origin_xyz_x=gene.joint_origin_xyz_x,
-            joint_origin_xyz_y=gene.joint_origin_xyz_y,
-            joint_origin_xyz_z=gene.joint_origin_xyz_z,
+            joint_origin_xyz_x=gene.joint_origin_xyz_x * 0.5,
+            joint_origin_xyz_y=gene.joint_origin_xyz_y * 0.5,
+            joint_origin_xyz_z=gene.joint_origin_xyz_z * 0.5,
             control_waveform=PhenotypeWaveForm.parse_float(gene.control_waveform),
             control_amp=gene.control_amp * 5.,
             control_freq=gene.control_freq

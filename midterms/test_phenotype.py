@@ -77,7 +77,7 @@ class PhenotypeTest(unittest.TestCase):
     def test_link_radius(self, numbers: List[float]):
         given = Gene.create_from(numbers)
         actual = Phenotype.parse_dna(gene=given, joint_count=1)
-        self.assertAlmostEqual(given.link_radius, actual.link_radius)
+        self.assertAlmostEqual(given.link_radius * 0.25, actual.link_radius)
 
     @given(lists(floats(0, 1), min_size=Gene.length(), max_size=Gene.length()))
     def test_link_recurrence(self, numbers: List[float]):
@@ -160,19 +160,19 @@ class PhenotypeTest(unittest.TestCase):
     def test_joint_origin_xyz_x(self, numbers: List[float]):
         given = Gene.create_from(numbers)
         actual = Phenotype.parse_dna(gene=given, joint_count=1)
-        self.assertEqual(given.joint_origin_xyz_x, actual.joint_origin_xyz_x)
+        self.assertEqual(given.joint_origin_xyz_x * 0.5, actual.joint_origin_xyz_x)
 
     @given(lists(floats(0, 1), min_size=Gene.length(), max_size=Gene.length()))
     def test_joint_origin_xyz_y(self, numbers: List[float]):
         given = Gene.create_from(numbers)
         actual = Phenotype.parse_dna(gene=given, joint_count=1)
-        self.assertEqual(given.joint_origin_xyz_y, actual.joint_origin_xyz_y)
+        self.assertEqual(given.joint_origin_xyz_y * 0.5, actual.joint_origin_xyz_y)
 
     @given(lists(floats(0, 1), min_size=Gene.length(), max_size=Gene.length()))
     def test_joint_origin_xyz_z(self, numbers: List[float]):
         given = Gene.create_from(numbers)
         actual = Phenotype.parse_dna(gene=given, joint_count=1)
-        self.assertEqual(given.joint_origin_xyz_z, actual.joint_origin_xyz_z)
+        self.assertEqual(given.joint_origin_xyz_z * 0.5, actual.joint_origin_xyz_z)
 
     @given(lists(floats(0, 1), min_size=Gene.length(), max_size=Gene.length()))
     def test_control_amp(self, numbers: List[float]):
