@@ -70,6 +70,7 @@ class CreatureMovement:
     """
     initial: Tuple[float, float, float]
     last: Optional[Tuple[float, float, float]]
+    lethal_move: bool = False
 
     def __init__(self):
         self.initial = 0., 0., 0.
@@ -78,6 +79,10 @@ class CreatureMovement:
     def track(self, position: Tuple[float, float, float]):
         if position:
             self.last = position
+            y = position[2]
+            too_high_for_own_safety = y > 7
+            if too_high_for_own_safety:
+                self.lethal_move = True
 
     @property
     def distance(self) -> float:

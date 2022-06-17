@@ -103,9 +103,11 @@ class EvolutionGeneration:
                 creature = Creature.develop_from(
                     dna=Dna.parse_dna(fitness.dna_code),
                     threshold_for_expression=self.hyperparams.expression_threshold)
-                if creature:
+                if creature and not creature:
                     creature.movement.track(fitness.extract_last_position_as_tuple())
-                    creatures.append(creature)
+                    creature.movement.lethal_move = fitness.died_during_motion
+                    if not creature.movement.lethal_move:
+                        creatures.append(creature)
         return Population(creatures)
 
 
@@ -158,6 +160,7 @@ class EvolutionRecord:
     last_position: str
     fitness_score: float
     elite_from_previous: bool = False
+    died_during_motion: bool = False
 
     @staticmethod
     def from_creature(creature: Creature, elite_from_previous: bool) -> "EvolutionRecord":
@@ -165,6 +168,7 @@ class EvolutionRecord:
             dna_code=str(creature.dna),
             phenotype_count=len(creature.phenotypes),
             elite_from_previous=elite_from_previous,
+            died_during_motion=creature.movement.lethal_move,
             first_position=' '.join(str(x) for x in list(creature.movement.initial)),
             last_position=' '.join(str(x) for x in list(creature.movement.last)) if creature.movement.last else '0 0 0',
             fitness_score=creature.movement.distance)
