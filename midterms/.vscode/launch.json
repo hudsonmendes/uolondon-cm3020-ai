@@ -27,8 +27,7 @@
             "args": [
                 "creature",
                 "render",
-                "--species", "winners",
-                "--dna_index", "3"
+                "--species", "debug"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
@@ -43,7 +42,7 @@
                 "evolve",
                 "--target_folder", "./evolution/tests",
                 "--show_winner",
-                "--population_size", "10"
+                "--population_size", "100"
             ],
             "console": "integratedTerminal",
             "justMyCode": true

@@ -79,7 +79,8 @@ class CreatureMovement:
 
     def track(self, position: Tuple[float, float, float]):
         if position:
-            self.lethal_move = CreatureMovement.check_lethality(self.last, position)
+            last_or_initial = self.last if self.last else self.initial
+            self.lethal_move = self.lethal_move if self.lethal_move else CreatureMovement.check_lethality(last_or_initial, position)
             self.last = position
 
     @property

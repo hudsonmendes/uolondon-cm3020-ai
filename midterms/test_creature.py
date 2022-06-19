@@ -54,6 +54,13 @@ class CreatureTest(unittest.TestCase):
         creature = Creature.develop_from(dna=dna, threshold_for_expression=0.5)
         self.assertEqual(3, len(creature.body.children[0].children))
 
+    def test_creature_lethal_movement(self):
+        self.assertFalse(self.creature.movement.lethal_move)
+        self.creature.movement.track((8, 8, 1))
+        self.assertTrue(self.creature.movement.lethal_move)
+        self.creature.movement.track((8, 8, 2))
+        self.assertTrue(self.creature.movement.lethal_move)
+
     def test_lethality_too_high(self):
         self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 1)))
         self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 2)))
