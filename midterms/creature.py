@@ -91,15 +91,12 @@ class CreatureMovement:
 
     @staticmethod
     def check_lethality(prev, now):
-        hight = now[2]
-        too_high_for_own_safety = hight > 5.5
-        if too_high_for_own_safety:
-            return True
-        dist = CreatureMovement.calculate_dist(prev, now)
-        if dist > 10.:
-            return True
+        if now[2] > 5.5:
+            return True # went too high
+        if CreatureMovement.calculate_dist(prev, now) > 5.5:
+            return True # moved too quickly
         return False
-        
+
     @staticmethod
     def calculate_dist(start, end):
         p1 = np.asarray(start)
