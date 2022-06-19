@@ -77,10 +77,12 @@ class CreatureMovement:
         self.initial = CreatureMovement.initial_xyz()
         self.last = None
 
-    def reset(self):
-        self.initial = CreatureMovement.initial_xyz()
+    def reset(self) -> Tuple[float, float, float]:
+        initial = CreatureMovement.initial_xyz()
+        self.initial = initial
         self.last = None
         self.lethal_move = False
+        return initial
 
     def track(self, position: Tuple[float, float, float]):
         if position:

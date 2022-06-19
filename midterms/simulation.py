@@ -40,7 +40,6 @@ class Simulation:
     def simulate(self, creature_data: Union[Creature, str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
         creature, creature_id = self._place_creature_into(creature_data=creature_data)
-        creature.movement.reset()
         self._wait_end_of_simulation(creature, creature_id, steps)
 
     def _place_creature_into(self, creature_data: Union[Creature, List[float], str]) -> Tuple[Creature, int]:
@@ -51,7 +50,7 @@ class Simulation:
             filename = Path(f'/tmp/evo-{creature.name}.urdf')
             filename.write_text(urdf)
             creature_id = p.loadURDF(str(filename), physicsClientId=self.pid)
-            p.resetBasePositionAndOrientation(creature_id, list(CreatureMovement.initial_xyz()), [0, 0, 0, 1], physicsClientId=self.pid)
+            p.resetBasePositionAndOrientation(creature_id, list(creature.movement.reset()), [0, 0, 0, 1], physicsClientId=self.pid)
             LOGGER.debug(f"Simulation, Bot #{creature_id} Loaded")
             return creature, creature_id
         else:
