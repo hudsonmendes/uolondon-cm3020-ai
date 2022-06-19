@@ -1,5 +1,6 @@
 from cmath import isnan
 from dataclasses import dataclass, field
+from os import stat
 from typing import List, Tuple, Optional
 
 import uuid
@@ -78,19 +79,31 @@ class CreatureMovement:
 
     def track(self, position: Tuple[float, float, float]):
         if position:
+            self.lethal_move = CreatureMovement.check_lethality(self.last, position)
             self.last = position
-            y = position[2]
-            too_high_for_own_safety = y > 7
-            if too_high_for_own_safety:
-                self.lethal_move = True
 
     @property
     def distance(self) -> float:
+        dist = 0.
         if self.last:
-            p1 = np.asarray(self.initial)
-            p2 = np.asarray(self.last)
-            dist = np.linalg.norm(p1-p2)
-            parsed = float(dist)
-            if parsed and not isnan(parsed):
-                return parsed
-        return 0.
+            dist = CreatureMovement.calculate_dist(self.initial, self.last)
+        return dist
+
+    @staticmethod
+    def check_lethality(prev, now):
+        hight = now[2]
+        too_high_for_own_safety = hight > 5.5
+        if too_high_for_own_safety:
+            return True
+        dist = CreatureMovement.calculate_dist(prev, now)
+        if dist > 10.:
+            return True
+        return False
+        
+    @staticmethod
+    def calculate_dist(start, end):
+        p1 = np.asarray(start)
+        p2 = np.asarray(end)
+        dist = np.linalg.norm(p1-p2)
+        parsed = float(dist)
+        return parsed if not isnan(parsed) else 0.

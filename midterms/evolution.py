@@ -45,17 +45,17 @@ class Evolver:
             for creature in tqdm(offspring.creatures, desc=f"gen #{str(generation_id).rjust(3, '0')}"):
                 simulation.simulate(creature, steps=self.hyperparams.simulation_steps)
             offspring_fittest = offspring.fittest if offspring else None
-            offspring_fitness = [
+            offspring_fitness = sorted([
                 EvolutionRecord.from_creature(creature, is_previous_fittest=(creature == previous_fittest))
                 for creature
-                in offspring.creatures]
+                in offspring.creatures], key=lambda r: r.fitness_score, reverse=True)
             return EvolutionGeneration(
                 generation_id=generation_id,
                 hyperparams=self.hyperparams,
                 metrics=EvolutionMetrics.from_records(offspring_fitness, hyperparams=self.hyperparams),
                 elite_previous=EvolutionRecord.from_creature(previous_fittest, is_previous_fittest=True) if previous_fittest else None,
                 elite_offspring=EvolutionRecord.from_creature(offspring_fittest, is_previous_fittest=False) if offspring_fittest else None,
-                offspring_fitness=sorted(offspring_fitness, key=lambda of: of.fitness_score, reverse=True))
+                offspring_fitness=offspring_fitness)
 
     def _ensure_previous_population(self, population: Optional[Population]) -> Population:
         if not population:

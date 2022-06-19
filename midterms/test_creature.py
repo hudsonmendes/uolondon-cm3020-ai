@@ -5,7 +5,7 @@ import random
 
 from dna import Dna
 from gene import Gene
-from creature import Creature
+from creature import Creature, CreatureMovement
 
 
 class CreatureTest(unittest.TestCase):
@@ -53,6 +53,26 @@ class CreatureTest(unittest.TestCase):
         dna = Dna.parse_dna(data=dna_code)
         creature = Creature.develop_from(dna=dna, threshold_for_expression=0.5)
         self.assertEqual(3, len(creature.body.children[0].children))
+
+    def test_lethality_too_high(self):
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 1)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 2)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 3)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 4)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 5)))
+        self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 6)))
+        self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 7)))
+
+    def test_lethality_too_quick(self):
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (1, 1, 1)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (2, 2, 1)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (3, 3, 1)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (4, 4, 1)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (5, 5, 1)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (6, 6, 1)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (7, 7, 1)))
+        self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (6, 8, 1)))
+        self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (8, 8, 1)))
 
     @staticmethod
     def create_gene_code(
