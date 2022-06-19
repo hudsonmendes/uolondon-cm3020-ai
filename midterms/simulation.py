@@ -40,6 +40,7 @@ class Simulation:
     def simulate(self, creature_data: Union[Creature, str, List[float]], steps: Optional[int] = None):
         SimulatorSetup(is_interactive=self.is_interactive, pid=self.pid).setup()
         creature, creature_id = self._place_creature_into(creature_data=creature_data)
+        creature.movement.reset()
         self._wait_end_of_simulation(creature, creature_id, steps)
 
     def _place_creature_into(self, creature_data: Union[Creature, List[float], str]) -> Tuple[Creature, int]:

@@ -71,7 +71,7 @@ class Evolver:
         creatures_without_previous_elite: List[Creature] = []
         if elitist:
             fittest = previous.fittest
-            if fittest:
+            if fittest and not fittest.movement.lethal_move:
                 viable_creatures.append(fittest)
         while len(viable_creatures) < self.hyperparams.population_size:
             adam, eve = previous.next_roulette_pair()

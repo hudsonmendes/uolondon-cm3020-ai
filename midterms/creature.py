@@ -77,6 +77,11 @@ class CreatureMovement:
         self.initial = CreatureMovement.initial_xyz()
         self.last = None
 
+    def reset(self):
+        self.initial = CreatureMovement.initial_xyz()
+        self.last = None
+        self.lethal_move = False
+
     def track(self, position: Tuple[float, float, float]):
         if position:
             last_or_initial = self.last if self.last else self.initial
@@ -98,7 +103,7 @@ class CreatureMovement:
     def check_lethality(prev, now):
         if now[2] > 5.5:
             return True # went too high
-        elif CreatureMovement.calculate_dist(prev, now) > 1.:
+        elif CreatureMovement.calculate_dist(prev, now) > 0.75:
             return True # moved too quickly
         return False
 
