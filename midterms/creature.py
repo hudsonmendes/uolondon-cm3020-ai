@@ -74,7 +74,7 @@ class CreatureMovement:
     lethal_move: bool = False
 
     def __init__(self):
-        self.initial = 0., 0., 0.
+        self.initial = CreatureMovement.initial_xyz()
         self.last = None
 
     def track(self, position: Tuple[float, float, float]):
@@ -91,10 +91,14 @@ class CreatureMovement:
         return dist
 
     @staticmethod
+    def initial_xyz() -> Tuple[float, float, float]:
+        return 0., 0., 5.
+
+    @staticmethod
     def check_lethality(prev, now):
         if now[2] > 5.5:
             return True # went too high
-        if CreatureMovement.calculate_dist(prev, now) > 5.5:
+        elif CreatureMovement.calculate_dist(prev, now) > 1.:
             return True # moved too quickly
         return False
 

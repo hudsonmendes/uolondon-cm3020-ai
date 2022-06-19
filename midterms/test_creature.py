@@ -63,17 +63,17 @@ class CreatureTest(unittest.TestCase):
 
     def test_lethality_too_high(self):
         self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 1)))
-        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 2)))
-        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 3)))
-        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 4)))
-        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 5)))
-        self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 6)))
-        self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (0, 0, 7)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 1), (0, 0, 2)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 2), (0, 0, 3)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 3), (0, 0, 4)))
+        self.assertFalse(CreatureMovement.check_lethality((0, 0, 4), (0, 0, 5)))
+        self.assertTrue(CreatureMovement.check_lethality((0, 0, 5), (0, 0, 6)))
+        self.assertTrue(CreatureMovement.check_lethality((0, 0, 6), (0, 0, 7)))
 
     def test_lethality_too_quick(self):
         self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (1, 1, 1)))
         self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (2, 2, 1)))
-        self.assertFalse(CreatureMovement.check_lethality((0, 0, 0), (3, 3, 1)))
+        self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (3, 3, 1)))
         self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (4, 4, 1)))
         self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (5, 5, 1)))
         self.assertTrue(CreatureMovement.check_lethality((0, 0, 0), (6, 6, 1)))

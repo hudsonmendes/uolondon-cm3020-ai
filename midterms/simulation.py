@@ -8,7 +8,7 @@ import pybullet as p
 from hyperparams import Hyperparams
 from motor import Motor
 from dna import Dna
-from creature import Creature
+from creature import Creature, CreatureMovement
 from creature_renderer import CreatureRenderer
 
 import logging
@@ -50,7 +50,7 @@ class Simulation:
             filename = Path(f'/tmp/evo-{creature.name}.urdf')
             filename.write_text(urdf)
             creature_id = p.loadURDF(str(filename), physicsClientId=self.pid)
-            p.resetBasePositionAndOrientation(creature_id, [0, 0, 5], [0, 0, 0, 1], physicsClientId=self.pid)
+            p.resetBasePositionAndOrientation(creature_id, list(CreatureMovement.initial_xyz()), [0, 0, 0, 1], physicsClientId=self.pid)
             LOGGER.debug(f"Simulation, Bot #{creature_id} Loaded")
             return creature, creature_id
         else:
