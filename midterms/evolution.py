@@ -70,14 +70,17 @@ class Evolver:
         viable_creatures: List[Creature] = []
         creatures_without_previous_elite: List[Creature] = []
         if elitist:
-            viable_creatures.append(previous.fittest)
+            fittest = previous.fittest
+            if fittest:
+                viable_creatures.append(fittest)
         while len(viable_creatures) < self.hyperparams.population_size:
             adam, eve = previous.next_roulette_pair()
-            new = reproduction.reproduce(adam.dna.code, eve.dna.code)
-            child = Creature.develop_from(dna=Dna.parse_dna(new), threshold_for_expression=self.hyperparams.expression_threshold)
-            if child:
-                creatures_without_previous_elite.append(child)
-                viable_creatures.append(child)
+            if adam and eve:
+                new = reproduction.reproduce(adam.dna.code, eve.dna.code)
+                child = Creature.develop_from(dna=Dna.parse_dna(new), threshold_for_expression=self.hyperparams.expression_threshold)
+                if child:
+                    creatures_without_previous_elite.append(child)
+                    viable_creatures.append(child)
         return Population(viable_creatures)
 
 
@@ -135,7 +138,7 @@ class EvolutionMetrics:
 
     @staticmethod
     def from_records(records: List["EvolutionRecord"], hyperparams: Hyperparams) -> "EvolutionMetrics":
-        scores = [r.fitness_score for r in records if not r.is_elite_from_previous]
+        scores = [r.fitness_score for r in records if not r.is_elite_from_previous and not r.died_during_motion]
         scores_df = pd.DataFrame(scores)
         dna_all = [Dna.parse_dna(r.dna_code) for r in records]
         dna_unique = [Dna.parse_dna(code) for code in set([r.dna_code for r in records])]

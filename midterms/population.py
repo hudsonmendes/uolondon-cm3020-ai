@@ -25,22 +25,29 @@ class Population:
         self.creatures = sorted(set(creatures))
 
     @property
-    def fittest(self) -> Creature:
+    def fittest(self) -> Optional[Creature]:
         """
         Calculates the fitest of a population with the information available in the tracking system.
         """
-        dists = np.array([c.movement.distance for c in self.creatures])
-        winner = np.argmax(dists)
-        return self.creatures[winner]
+        creatures = [c for c in self.creatures if not c.movement.lethal_move]
+        if not creatures:
+            return None
+        else:
+            dists = np.array([c.movement.distance for c in creatures])
+            winner = np.argmax(dists)
+            return creatures[winner]
 
-    def next_roulette_pair(self) -> Tuple[Creature, Creature]:
+    def next_roulette_pair(self) -> Tuple[Optional[Creature], Optional[Creature]]:
         """ 
         Using the fitness map, select randomly two parents,
         with odds proportional to their fitness.
         """
-        creatures = self.creatures
-        fm = Population._calculate_fitness_map(creatures)
-        return Population._select_parent(creatures, fm), Population._select_parent(creatures, fm)
+        creatures = [c for c in self.creatures if not c.movement.lethal_move]
+        if not creatures:
+            return None, None
+        else:
+            fm = Population._calculate_fitness_map(creatures)
+            return Population._select_parent(creatures, fm), Population._select_parent(creatures, fm)
 
     @staticmethod
     def _calculate_fitness_map(creatures: List[Creature]) -> List[float]:

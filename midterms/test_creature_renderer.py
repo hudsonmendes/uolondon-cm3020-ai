@@ -36,7 +36,7 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/cylinder')
 
     def test_render_creature_link_contains_visual_geometry_sphere(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.76])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/visual/geometry/sphere')
 
@@ -46,7 +46,7 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         self.assertXPathNodeCount(actual, 1, 'link/collision/geometry/cylinder')
 
     def test_render_creature_link_contains_collision_geometry_sphere(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.76])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeCount(actual, 1, 'link/collision/geometry/sphere')
 
@@ -62,7 +62,7 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
 
     def test_render_creature_link_contains_visual_geometry_sphere_no_length(self):
         from xml.etree import ElementTree
-        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.76])
         actual = CreatureRenderer(creature).render()
         doc = ElementTree.fromstring(actual)
         ele = doc.find('link/visual/geometry/sphere')
@@ -70,7 +70,7 @@ class CreatureRendererTest(unittest.TestCase, XMLAssertions):
         self.assertTrue('radius' in ele.attrib)
 
     def test_render_creature_link_contains_visual_geometry_sphere_radius(self):
-        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.51])
+        creature = CreatureRendererTest._create_creature(connections={}, link_shape=[0.76])
         actual = CreatureRenderer(creature).render()
         self.assertXPathNodeAttributes(actual, {'radius': str(creature.body.phenotype.link_radius)}, 'link/visual/geometry/sphere')
 
