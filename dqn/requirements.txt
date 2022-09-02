@@ -1,0 +1,4 @@
+wheel==0.37.1
+atari-py==0.2.9
+tensorflow==2.9.1
+matplotlib==3.5.3
